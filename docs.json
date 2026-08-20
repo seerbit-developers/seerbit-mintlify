@@ -1,53 +1,63 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
+  "name": "SeerBit Documentation",
+  "fonts": {
+    "family": "MazzardM",
+    "source": "/assets/fonts/MazzardM-Regular.ttf",
+    "format": "woff2",
+    "heading": {
+      "family": "MazzardM",
+      "source": "/assets/fonts/MazzardM-Bold.ttf",
+      "format": "woff2"
+    },
+    "paragraph": {
+      "family": "MazzardM",
+      "source": "/assets/fonts/MazzardM-Bold.ttf",
+      "format": "woff2"
+    }
+  },
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#E61B17",
+    "light": "#E61B17",
+    "dark": "#E61B17"
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "pages": [
+    "tabs": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
+        "tab": "Docs",
+        "groups": [
+          {
+            "group": "Getting Started",
+            "pages": ["index", "quickstart"]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "API",
+            "pages": ["api/authentication"]
+          }
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/assets/logo/Seerbit_Docs.svg",
+    "dark": "/assets/logo/SeerBit-Logo.png",
+    "width": "30px"
+  },
+  "icons": {
+    "library": "lucide"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Create account",
+      "href": "https://dashboard.seerbit.com/"
     }
   },
   "contextual": {

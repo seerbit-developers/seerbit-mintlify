@@ -1,0 +1,370 @@
+.seerbit-nav-card {
+  border-radius: 12px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.seerbit-nav-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+}
+.seerbit-subscribe-card {
+  background-color: #f5f5f5;
+  border-radius: 14px;
+  overflow: hidden;
+  width: 100%;
+}
+
+.seerbit-subscribe-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 40px;
+  min-width: 0;
+}
+
+.seerbit-subscribe-text {
+  flex: 1;
+  min-width: 0;
+  margin: 40px;
+  max-width: 520px;
+}
+
+.seerbit-subscribe-text h3 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #000;
+}
+
+.seerbit-subscribe-text p {
+  margin-top: 12px;
+  line-height: 1.5;
+}
+
+.seerbit-subscribe-form {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.seerbit-subscribe-form input[type="email"] {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #e4e7ec;
+  font-size: 0.95rem;
+  background-color: #fff;
+}
+
+.seerbit-subscribe-form button {
+  flex-shrink: 0;
+  padding: 10px 32px;
+  border-radius: 8px;
+  background-color: #e61b17;
+  color: white;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.seerbit-subscribe-form button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.seerbit-subscribe-image {
+  display: block;
+  width: 320px;
+  max-width: 40%;
+  height: auto;
+  flex-shrink: 0;
+}
+
+.seerbit-custom-footer {
+  width: 100%;
+  margin-top: 64px;
+  margin-bottom: -64px;
+  padding: 64px 48px 24px;
+  background-color: #151c30;
+  border-top: 1px solid #2a3041;
+  color: #ffffff;
+}
+
+.seerbit-footer-top {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 64px;
+}
+
+.seerbit-footer-brand {
+  flex-shrink: 0;
+}
+
+.seerbit-footer-brand img {
+  width: 140px;
+  height: auto;
+}
+
+.seerbit-footer-column-container {
+  display: flex;
+  gap: 64px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.seerbit-footer-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 130px;
+}
+
+.seerbit-footer-column h3 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.seerbit-footer-column a {
+  width: fit-content;
+  color: #949494;
+  font-size: 14px;
+  line-height: 1.5;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.seerbit-footer-column a:hover {
+  color: #ffffff;
+}
+
+.seerbit-footer-bottom {
+  max-width: 1200px;
+  margin: 48px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid #2a3041;
+}
+
+.seerbit-footer-copyright {
+  margin: 0;
+  color: #949494;
+  font-size: 13px;
+}
+
+.seerbit-footer-bottom {
+  max-width: 1200px;
+  margin: 48px auto 0;
+  padding-top: 24px;
+
+  border-top: 1px solid #2a3041;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.copyright-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.copyright-links a {
+  color: #949494;
+  font-size: 13px;
+  line-height: 1.5;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.copyright-links span {
+  color: #949494;
+  font-size: 13px;
+  line-height: 1.5;
+  text-decoration: dashed;
+  transition: color 0.2s ease;
+}
+
+.copyright-links a:hover {
+  color: #ffffff;
+}
+
+.copyright-socials {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.copyright-socials a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  transition:
+    transform 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.copyright-socials a:hover {
+  transform: translateY(-2px);
+  opacity: 0.8;
+}
+
+.copyright-socials svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+  .seerbit-subscribe-content {
+    gap: 20px;
+  }
+
+  .seerbit-subscribe-text {
+    margin: 32px;
+    max-width: none;
+  }
+
+  .seerbit-subscribe-image {
+    width: 240px;
+    max-width: 35%;
+    height: 100%;
+  }
+
+  .seerbit-subscribe-form {
+    flex-wrap: wrap;
+  }
+
+  .seerbit-subscribe-form input[type="email"] {
+    min-width: 180px;
+  }
+
+  .seerbit-subscribe-form button {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+
+  .seerbit-custom-footer {
+    padding: 48px 32px 24px;
+  }
+
+  .seerbit-footer-top {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .seerbit-footer-column-container {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 48px;
+  }
+}
+/* Mobile */
+@media (max-width: 600px) {
+  .seerbit-custom-footer {
+    padding: 48px 24px 24px;
+  }
+
+  .seerbit-footer-top {
+    grid-template-columns: 1fr 1fr;
+    gap: 40px 24px;
+  }
+
+  .seerbit-footer-brand {
+    grid-column: 1 / -1;
+  }
+
+  .seerbit-footer-column {
+    gap: 10px;
+  }
+}
+
+/* stack on smaller screens */
+@media (max-width: 640px) {
+  .seerbit-subscribe-content {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .seerbit-subscribe-text {
+    width: auto;
+    max-width: none;
+    margin: 28px 24px 24px;
+  }
+
+  .seerbit-subscribe-text h3 {
+    font-size: 22px;
+  }
+
+  .seerbit-subscribe-text p {
+    font-size: 14px;
+  }
+
+  .seerbit-subscribe-form {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .seerbit-subscribe-form input[type="email"],
+  .seerbit-subscribe-form button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .seerbit-subscribe-form button {
+    padding: 11px 20px;
+  }
+
+  .seerbit-subscribe-image {
+    display: none;
+  }
+
+  .seerbit-custom-footer {
+    padding: 40px 24px 20px;
+  }
+  .seerbit-footer-column-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px 24px;
+  }
+
+  .seerbit-footer-column {
+    min-width: 0;
+  }
+
+  .seerbit-footer-bottom {
+    margin-top: 40px;
+  }
+
+  .seerbit-footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .copyright-links {
+    gap: 12px 20px;
+  }
+
+  .copyright-socials {
+    gap: 14px;
+  }
+}

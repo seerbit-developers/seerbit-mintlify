@@ -1,20 +1,232 @@
 ---
-title: "Introduction"
-description: "Welcome to your project"
+title: Welcome
+mode: custom
 ---
 
-Write a short description of your product here. What it does, who it's for, and what they can accomplish with it.
+<div
+  style={{
+textAlign: "center",
+maxWidth: "850px",
+margin: "48px auto 0",
+padding: "0 24px",
+}}
+>
+  <h1
+    style={{
+fontSize: "clamp(2.25rem, 7vw, 3.25rem)",
+fontWeight: 100,
+lineHeight: 1.2,
+letterSpacing: "-0.01em",
+color: "black",
+}}
+  >
+    Welcome to{" "}
+    <span style={{ color: "#E61B17", fontWeight: 700 }}>SeerBit</span>{" "}
+    documentation
+  </h1>
 
-<Tip>
-  Ready to make this your own? Start by editing this page. Update your `docs.json` file to customize your site. Then fill out the [Quickstart](/quickstart) page.
-</Tip>
+  <p
+    style={{
+fontSize: "1.375rem",
+color: "#4B5563",
+marginTop: "1.5rem",
+lineHeight: 1.5,
+}}
+  >
+    Explore documentation, tools, and best practices to power your payment
+    experience with SeerBit.
+  </p>
+</div>
 
-<Card title="Quickstart" icon="rocket" href="/quickstart">
-  This card links to the quickstart page in your project.
-</Card>
-<Card title="Components" icon="puzzle-piece" href="https://mintlify.com/docs/components">
-  Add cards, callouts, steps, tabs, and more to design and structure your pages.
-</Card>
-<Card title="Settings" icon="gear" href="https://mintlify.com/docs/organize/settings">
-  Set your site name, branding, and navigation in the `docs.json` file.
-</Card>
+<div style={{ maxWidth: "1160px", margin: "72px auto 64px", padding: "0 24px" }}>
+  <div style={{ borderRadius: "16px", overflow: "hidden", aspectRatio: "20/12" }}>
+    <iframe src="https://www.youtube.com/embed/nbMQKiCSJ3Y?autoplay=1&mute=1&rel=0&cc_load_policy=0" title="SeerBit video" style={{ width: "100%", height: "100%", border: "none" }} frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen />
+  </div>
+
+  <Tabs>
+    <Tab title="Online Payments">
+      <CardGroup cols={2}>
+        {[
+                                              { title: "Get Started", body: "Detailed descriptions of all API endpoints", icon: "rocket" },
+                                              { title: "Accept Payments", body: "Detailed descriptions of all API endpoints", icon: "credit-card" },
+                                              { title: "Add Payment Methods", body: "Detailed descriptions of all API endpoints", icon: "wallet" },
+                                              { title: "Webhooks", body: "Detailed descriptions of all API endpoints", icon: "webhook" },
+                                              { title: "Release Notes", body: "Detailed descriptions of all API endpoints", icon: "megaphone" },
+                                            ].map((item) => (
+                                              <Card
+                                                key={item.title}
+                                                title={item.title}
+                                                icon={item.icon}
+                                                horizontal
+                                                className="seerbit-nav-card"
+                                                arrow
+                                              >
+                                                {item.body}
+                                              </Card>
+                                            ))}
+      </CardGroup>
+    </Tab>
+
+    <Tab title="In-Person Payments">
+      <CardGroup cols={2}>
+        {[
+                                              { title: "Get Started", body: "Detailed descriptions of all API endpoints", icon: "rocket" },
+                                              { title: "Terminal API", body: "Detailed descriptions of all API endpoints", icon: "square-terminal" },
+                                              { title: "Payment Terminals", body: "Detailed descriptions of all API endpoints", icon: "credit-card" },
+                                              { title: "Release Notes", body: "Detailed descriptions of all API endpoints", icon: "megaphone" },
+                                            ].map((item) => (
+                                              <Card
+                                                key={item.title}
+                                                title={item.title}
+                                                icon={item.icon}
+                                                horizontal
+                                                className="seerbit-nav-card"
+                                                arrow
+                                              >
+                                                {item.body}
+                                              </Card>
+                                            ))}
+      </CardGroup>
+    </Tab>
+
+    <Tab title="SeerBit for Platforms & Marketplaces">
+      <CardGroup cols={2}>
+        {[
+                                              { title: "Get Started", body: "Detailed descriptions of all API endpoints", icon: "rocket" },
+                                              { title: "Accept Payments", body: "Detailed descriptions of all API endpoints", icon: "credit-card" },
+                                              { title: "Add Payment Methods", body: "Detailed descriptions of all API endpoints", icon: "wallet" },
+                                              { title: "Webhooks", body: "Detailed descriptions of all API endpoints", icon: "webhook" },
+                                              { title: "Release Notes", body: "Detailed descriptions of all API endpoints", icon: "megaphone" },
+                                            ].map((item) => (
+                                              <Card
+                                                key={item.title}
+                                                title={item.title}
+                                                icon={item.icon}
+                                                horizontal
+                                                className="seerbit-nav-card"
+                                                arrow
+                                              >
+                                                {item.body}
+                                              </Card>
+                                            ))}
+      </CardGroup>
+    </Tab>
+
+  </Tabs>
+
+  <div style={{marginTop: "40px"}}>
+    <h2 style={{
+          fontSize: "1.25rem",
+          fontWeight: 600,
+          lineHeight: 1.2,
+          letterSpacing: "-0.01em",
+          color: "black",
+          }}>Use Cases</h2>
+
+    <CardGroup cols={3}>
+      {[
+                                      { title: "Retail", body: "Detailed descriptions of all API endpoints", icon: "shelving-unit" },
+                                      { title: "Hospitality", body: "Detailed descriptions of all API endpoints", icon: "hotel" },
+                                      { title: "Education", body: "Detailed descriptions of all API endpoints", icon: "graduation-cap" },
+                                    ].map((item) => (
+                                      <Card
+                                        key={item.title}
+                                        title={item.title}
+                                        icon={item.icon}
+                                        vertical
+                                        className="seerbit-nav-card"
+                                        arrow
+                                      >
+                                        {item.body}
+                                      </Card>
+                                    ))}
+    </CardGroup>
+
+  </div>
+
+  <div style={{marginTop: "40px"}}>
+    <div className="seerbit-subscribe-card">
+      <div className="seerbit-subscribe-content">
+        <div className="seerbit-subscribe-text">
+          <h3>Never miss an update</h3>
+          <p>Join our mailing list to receive real-time API changes and feature updates in your inbox.</p>
+
+          <form className="seerbit-subscribe-form" action="YOUR_MAILING_LIST_ENDPOINT" method="post">
+            <input type="email" name="email" placeholder="Your email address" required />
+
+            <button type="submit">Subscribe</button>
+          </form>
+        </div>
+
+        <img src="/assets/subscribe-illustration.svg" alt="Subscribe illustration" className="seerbit-subscribe-image" />
+      </div>
+    </div>
+
+  </div>
+
+  <div className="seerbit-custom-footer">
+    <div className="seerbit-footer-top">
+      <div className="seerbit-footer-brand">
+        <img src="/assets/logo/SeerBit-Logo.svg" alt="SeerBit" />
+      </div>
+
+      <div className="seerbit-footer-column-container">
+        <div className="seerbit-footer-column">
+          <h3>About</h3>
+          <a href="/quickstart">Blog</a>
+          <a href="/api/authentication">Contact us</a>
+          <a href="/signup">Sign up</a>
+          <a href="/login">Log in</a>
+        </div>
+
+        <div className="seerbit-footer-column">
+          <h3>Resources</h3>
+          <a href="/quickstart">Support</a>
+          <a href="/api/authentication">Developers</a>
+          <a href="/">Documentation</a>
+          <a href="/release-notes">Release Notes</a>
+          <a href="/support">Support Ticket</a>
+        </div>
+
+        <div className="seerbit-footer-column">
+          <h3>Platform</h3>
+          <a href="/privacy">Privacy</a>
+
+          <a href="/merchant-service-agreement">
+            Merchant Service Agreement
+          </a>
+        </div>
+      </div>
+    </div>
+
+<div className="seerbit-footer-bottom">
+
+  <div className="copyright-links">
+   <span>© {new Date().getFullYear()} SeerBit. All rights reserved.</span>
+    <a href="/privacy">Privacy Policy</a>
+    <a href="/privacy">Terms of Service</a>
+    <a href="/privacy">Cookies Settings</a>
+  </div>
+
+  <div className="copyright-socials">
+    <a href="https://facebook.com/seerbit" target="_blank" rel="noopener noreferrer">
+      <Icon src="/assets/facebook.svg" />
+    </a>
+
+    <a href="https://instagram.com/seerbit" target="_blank" rel="noopener noreferrer">
+      <Icon src="/assets/instagram.svg" />
+    </a>
+
+    <a href="https://x.com/seerbit" target="_blank" rel="noopener noreferrer">
+      <Icon src="/assets/twitter.svg" />
+    </a>
+
+    <a href="https://linkedin.com/company/seerbit" target="_blank" rel="noopener noreferrer">
+      <Icon src="/assets/linkedin.svg" />
+    </a>
+  </div>
+
+</div>
+
+  </div>
+</div>
