@@ -1,3 +1,39 @@
+.seerbit-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+
+.seerbit-hero-heading {
+  font-size: clamp(2.25rem, 7vw, 3.25rem);
+  font-weight: 100;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: black;
+  margin-top: 64px;
+}
+
+.dark .seerbit-hero-heading {
+  color: #ffffff;
+}
+
+.seerbit-section-heading {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: black;
+  margin: 16px 0 0;
+}
+
+.dark .seerbit-section-heading {
+  color: #ffffff;
+}
+
+/* Navigation cards */
+
 .seerbit-nav-card {
   border-radius: 12px;
   transition:
@@ -10,11 +46,22 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   cursor: pointer;
 }
+
+.dark .seerbit-nav-card:hover {
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.06);
+}
+
+/* Subscribe */
+
 .seerbit-subscribe-card {
   background-color: #f5f5f5;
   border-radius: 14px;
   overflow: hidden;
   width: 100%;
+}
+
+.dark .seerbit-subscribe-card {
+  background-color: #1e2536;
 }
 
 .seerbit-subscribe-content {
@@ -36,12 +83,21 @@
   margin: 0;
   font-size: 24px;
   font-weight: 600;
-  color: #000;
+  color: #000000;
+}
+
+.dark .seerbit-subscribe-text h3 {
+  color: #ffffff;
 }
 
 .seerbit-subscribe-text p {
   margin-top: 12px;
   line-height: 1.5;
+  color: #000000;
+}
+
+.dark .seerbit-subscribe-text p {
+  color: #9ca3af;
 }
 
 .seerbit-subscribe-form {
@@ -58,7 +114,18 @@
   border-radius: 8px;
   border: 1px solid #e4e7ec;
   font-size: 0.95rem;
-  background-color: #fff;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.dark .seerbit-subscribe-form input[type="email"] {
+  background-color: #151c30;
+  border-color: #2a3041;
+  color: #ffffff;
+}
+
+.dark .seerbit-subscribe-form input[type="email"]::placeholder {
+  color: #6b7280;
 }
 
 .seerbit-subscribe-form button {
@@ -66,7 +133,7 @@
   padding: 10px 32px;
   border-radius: 8px;
   background-color: #e61b17;
-  color: white;
+  color: #ffffff;
   border: none;
   font-weight: 600;
   cursor: pointer;
@@ -78,6 +145,10 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
 }
 
+.dark .seerbit-subscribe-form button:hover {
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.06);
+}
+
 .seerbit-subscribe-image {
   display: block;
   width: 320px;
@@ -85,6 +156,8 @@
   height: auto;
   flex-shrink: 0;
 }
+
+/* Footer */
 
 .seerbit-custom-footer {
   width: 100%;
@@ -99,11 +172,9 @@
 .seerbit-footer-top {
   max-width: 1200px;
   margin: 0 auto;
-
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-
   gap: 64px;
 }
 
@@ -155,25 +226,16 @@
   margin: 48px auto 0;
   padding-top: 24px;
   border-top: 1px solid #2a3041;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
 }
 
 .seerbit-footer-copyright {
   margin: 0;
   color: #949494;
   font-size: 13px;
-}
-
-.seerbit-footer-bottom {
-  max-width: 1200px;
-  margin: 48px auto 0;
-  padding-top: 24px;
-
-  border-top: 1px solid #2a3041;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
 }
 
 .copyright-links {
@@ -183,19 +245,15 @@
   gap: 24px;
 }
 
-.copyright-links a {
-  color: #949494;
-  font-size: 13px;
-  line-height: 1.5;
-  text-decoration: underline;
-  transition: color 0.2s ease;
-}
-
+.copyright-links a,
 .copyright-links span {
   color: #949494;
   font-size: 13px;
   line-height: 1.5;
-  text-decoration: dashed;
+}
+
+.copyright-links a {
+  text-decoration: underline;
   transition: color 0.2s ease;
 }
 
@@ -232,6 +290,7 @@
 }
 
 /* Tablet */
+
 @media (max-width: 900px) {
   .seerbit-subscribe-content {
     gap: 20px;
@@ -276,27 +335,9 @@
     gap: 48px;
   }
 }
+
 /* Mobile */
-@media (max-width: 600px) {
-  .seerbit-custom-footer {
-    padding: 48px 24px 24px;
-  }
 
-  .seerbit-footer-top {
-    grid-template-columns: 1fr 1fr;
-    gap: 40px 24px;
-  }
-
-  .seerbit-footer-brand {
-    grid-column: 1 / -1;
-  }
-
-  .seerbit-footer-column {
-    gap: 10px;
-  }
-}
-
-/* stack on smaller screens */
 @media (max-width: 640px) {
   .seerbit-subscribe-content {
     flex-direction: column;
@@ -340,6 +381,7 @@
   .seerbit-custom-footer {
     padding: 40px 24px 20px;
   }
+
   .seerbit-footer-column-container {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -352,9 +394,6 @@
 
   .seerbit-footer-bottom {
     margin-top: 40px;
-  }
-
-  .seerbit-footer-bottom {
     flex-direction: column;
     align-items: flex-start;
     gap: 24px;
