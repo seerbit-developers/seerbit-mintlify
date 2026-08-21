@@ -18,9 +18,9 @@
     }
   },
   "colors": {
-    "primary": "#E61B17",
-    "light": "#E61B17",
-    "dark": "#E61B17"
+    "primary": "#FF3C38",
+    "light": "#FF3C38",
+    "dark": "#FF3C38"
   },
   "favicon": "/favicon.svg",
 
@@ -45,7 +45,7 @@
   },
   "logo": {
     "light": "/assets/logo/Seerbit_Docs.svg",
-    "dark": "/assets/logo/Seerbit_Docs.svg",
+    "dark": "/assets/logo/Seerbit_Docs_dark.svg",
     "size": "contain"
   },
   "icons": {
@@ -54,7 +54,6 @@
   "navbar": {
     "primary": {
       "type": "button",
-      "icon": "none",
       "label": "Sign up",
       "href": "https://dashboard.seerbit.com/"
     }
