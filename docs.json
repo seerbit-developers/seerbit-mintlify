@@ -22,21 +22,23 @@
     "light": "#FF3C38",
     "dark": "#FF3C38"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/favicon.ico",
 
   "navigation": {
     "tabs": [
       {
         "tab": "Documentation",
+        "icon": "house",
         "groups": [
           {
-            "group": "Docs",
-            "pages": ["index", "documentation"]
+            "group": "Home",
+            "pages": ["index"]
           }
         ]
       },
       {
         "tab": "API Reference",
+        "icon": "book-marked",
         "openapi": {
           "source": "/openapi.yml"
         }
@@ -45,8 +47,7 @@
   },
   "logo": {
     "light": "/assets/logo/Seerbit_Docs.svg",
-    "dark": "/assets/logo/Seerbit_Docs_dark.svg",
-    "size": "contain"
+    "dark": "/assets/logo/Seerbit_Docs_dark.svg"
   },
   "icons": {
     "library": "lucide"
