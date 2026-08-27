@@ -1,0 +1,16 @@
+export const Button = ({
+  href,
+  children,
+  variant = "primary",
+  size = "md",
+  newTab = false,
+}) => (
+  <a
+    href={href}
+    target={newTab ? "_blank" : undefined}
+    rel={newTab ? "noopener noreferrer" : undefined}
+    className={`seerbit-button seerbit-button-${variant} seerbit-button-${size}`}
+  >
+    {children}
+  </a>
+);

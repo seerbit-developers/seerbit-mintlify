@@ -1,0 +1,124 @@
+---
+title: E-commerce Integrations
+---
+
+import { Button } from '/snippets/button.mdx';
+
+<h3 noAnchor>Launch faster with zero code</h3>
+
+SeerBit’s official plugins enable secure, PCI-compliant payments across leading e-commerce
+platforms and business software. Get started in minutes, not days, with seamless integration and
+reliable performance.
+
+> **All plugins listed here have the same level of security as our other integration methods.**
+
+## Before You Start
+
+- **Retrieve API Keys**: Log in to your [SeerBit Dashboard](https://dashboard.seerbit.com/#/auth/login) and navigate to **Settings > API Keys** to copy your **API Keys**.
+- **Start in Test Mode**: Configure the plugin using **Test Keys** first. Complete at least one successful test transaction before switching to Live mode.
+
+## Usage
+
+Use any of our recommended solutions for your platform.
+
+<CardGroup cols={2}>
+  <Card title="" img="/assets/woo-commerce.webp" horizontal>
+    <h3 id="woocommerce" className="visually-hidden">WooCommerce</h3>
+    <img className="commerce-platform-logo" src="/assets/woo-commerce.svg" alt="WooCommerce logo" />
+    <p className="commerce-card-description">
+      Enable payments on your WordPress store with SeerBit’s official WooCommerce plugin. It
+      supports cards, bank transfers, and mobile money.
+    </p>
+    <h4 id="woocommerce-setup-and-installation" className="commerce-subheading">Installation & Setup</h4>
+    <ol>
+      <li><a href="https://wordpress.org/plugins/infobvandevliet-nl/">Download the SeerBit plugin</a>.</li>
+      <li>Follow the <a href="https://wordpress.org/plugins/infobvandevliet-nl/#installation">WooCommerce installation instructions</a>.</li>
+      <li>Enter your API keys in the plugin settings and select <strong>Test</strong> or <strong>Live</strong> mode.</li>
+    </ol>
+    <p><strong>Resource:</strong> <a href="https://wordpress.org/plugins/infobvandevliet-nl/">WooCommerce testing guide</a></p>
+    <div className="commerce-card-content">
+      <a href="https://support.seerbit.com/how-to-setup-seerbit-on-woocommerce" style={{ fontSize: "12px" }}>Installation Guide →</a>
+      <Button href="https://wordpress.org/plugins/infobvandevliet-nl/" size="sm" newTab>Install</Button>
+    </div>
+  </Card>
+
+  <Card title="" img="/assets/magento.svg">
+    <h3 id="magento" className="visually-hidden">Magento (Adobe Commerce)</h3>
+    <img className="commerce-platform-logo" src="/assets/magento-logo.svg" alt="Magento logo" />
+    <p className="commerce-card-description">
+      Integrate SeerBit with your Magento 2 checkout for enterprise-grade payment processing.
+    </p>
+    <h4 id="magento-setup-and-installation" className="commerce-subheading">Installation & Setup</h4>
+    <ol>
+      <li>Install <a href="https://getcomposer.org/doc/00-intro.md">Composer</a>.</li>
+      <li>Follow the instructions in the <a href="https://github.com/seerbit/magento2-module?tab=readme-ov-file">SeerBit Magento module repository</a>.</li>
+      <li>Configure your API keys in <strong>Test</strong> mode before going live.</li>
+    </ol>
+    <p><strong>Resource:</strong> <a href="https://github.com/seerbit/magento2-module?tab=readme-ov-file">Magento module test guide</a></p>
+    <div className="commerce-card-content">
+      <a href="https://github.com/seerbit/magento2-module?tab=readme-ov-file" style={{ fontSize: "12px" }}>Installation Guide →</a>
+      <Button href="https://github.com/seerbit/magento2-module" size="sm" newTab>Setup</Button>
+    </div>
+  </Card>
+
+  <Card title="" img="/assets/wix.webp">
+    <h3 id="wix" className="visually-hidden">Wix</h3>
+    <img className="commerce-platform-logo" src="/assets/wix-logo.svg" alt="Wix logo" />
+    <p className="commerce-card-description">Connect SeerBit to your Wix store without writing code.</p>
+    <h4 id="wix-setup-and-installation" className="commerce-subheading">Installation & Setup</h4>
+    <ol>
+      <li>Follow the <a href="https://support.wix.com/en/article/connecting-seerbit-as-a-payment-provider">Wix Help Center guide for connecting SeerBit</a>.</li>
+    </ol>
+    <p><strong>Resource:</strong> <a href="https://support.wix.com/en/article/connecting-seerbit-as-a-payment-provider">Wix testing guide</a></p>
+    <div className="commerce-card-content">
+      <a href="https://support.seerbit.com/how-to-set-up-seerbit-on-wix" style={{ fontSize: "12px" }}>Installation Guide →</a>
+      <Button href="https://support.wix.com/en/article/connecting-seerbit-as-a-payment-provider" size="sm" newTab>Install</Button>
+    </div>
+  </Card>
+
+  <Card title="" img="/assets/zoho.svg">
+    <h3 id="zoho-books" className="visually-hidden">Zoho Books</h3>
+    <img className="commerce-platform-logo" src="/assets/zoho-logo.svg" alt="Zoho Books logo" />
+    <p className="commerce-card-description">
+      Send invoices and receive payments across multiple African countries with SeerBit’s Zoho
+      Books extension.
+    </p>
+    <h4>Prerequisites</h4>
+    <ul>
+      <li>An active <a href="https://www.seerbit.com/intergrations-docs/zoho-books-doc">Zoho Books account</a></li>
+      <li>An active <a href="https://www.dashboard.seerbitapi.com/">SeerBit account</a></li>
+      <li>Administrator access to both platforms</li>
+    </ul>
+    <h4 id="zoho-setup-and-installation" className="commerce-subheading">Installation & Setup</h4>
+    <ol><li>Enable SeerBit in Zoho Books through the Integration Directory.</li></ol>
+    <p><strong>Resource:</strong> <a href="https://www.seerbit.com/intergrations-docs/zoho-books-doc">Zoho Books testing guide</a></p>
+    <div className="commerce-card-content">
+      <a href="https://www.seerbit.com/intergrations-docs/zoho-doc" style={{ fontSize: "12px" }}>Installation Guide →</a>
+      <Button href="https://www.seerbit.com/intergrations-docs/zoho-doc" size="sm" newTab>Setup</Button>
+    </div>
+  </Card>
+
+  <Card title="" img="/assets/ecwid.png">
+    <h3 id="ecwid" className="visually-hidden">Ecwid</h3>
+    <img className="commerce-platform-logo" src="/assets/ecwid-logo.png" alt="Ecwid logo" />
+    <p className="commerce-card-description">Accept payments on Ecwid storefronts across web and social platforms.</p>
+    <h4 id="ecwid-setup-and-installation" className="commerce-subheading">Installation & Setup</h4>
+    <ol>
+      <li>Add SeerBit as a payment method from the <a href="https://www.ecwid.com/apps/featured/seerbit">Ecwid App Store</a>.</li>
+    </ol>
+    <p><strong>Resource:</strong> <a href="https://www.ecwid.com/apps/featured/seerbit">Ecwid testing guide</a></p>
+    <div className="commerce-card-content">
+      <a href="https://www.ecwid.com/apps/featured/seerbit" style={{ fontSize: "12px" }}>Installation Guide →</a>
+      <Button href="https://www.ecwid.com/apps/featured/seerbit" size="sm" newTab>Install</Button>
+    </div>
+  </Card>
+</CardGroup>
+
+## Next Steps After Installation
+
+- **Test all payment methods** using [SeerBit test cards](testing).
+- **Verify transactions** using your [payment verification process](verify-payments).
+
+## Notes
+
+> Ensure you have your public key. You can find this on the SeerBit Merchant dashboard under accounts > api keys. If you don’t have an account with us yet, you can [create a test account now](https://dashboard.seerbit.com/#/auth/register)

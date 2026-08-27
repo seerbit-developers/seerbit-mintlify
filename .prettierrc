@@ -1,5 +1,7 @@
 {
-  "proseWrap": "preserve",
-  "printWidth": 80,
-  "tabWidth": 2
+  "printWidth": 100,
+  "tabWidth": 2,
+  "semi": true,
+  "singleQuote": true,
+  "trailingComma": "es5"
 }

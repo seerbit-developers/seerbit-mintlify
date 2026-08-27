@@ -4,16 +4,11 @@
   "name": "SeerBit Documentation",
   "fonts": {
     "family": "MazzardM",
-    "source": "/assets/fonts/MazzardM-Regular.ttf",
+    "source": "/assets/fonts/MazzardM-Regular.woff2",
     "format": "woff2",
     "heading": {
       "family": "MazzardM",
-      "source": "/assets/fonts/MazzardM-Bold.ttf",
-      "format": "woff2"
-    },
-    "paragraph": {
-      "family": "MazzardM",
-      "source": "/assets/fonts/MazzardM-Bold.ttf",
+      "source": "/assets/fonts/MazzardM-Bold.woff2",
       "format": "woff2"
     }
   },
@@ -32,7 +27,45 @@
         "groups": [
           {
             "group": "Home",
-            "pages": ["index"]
+            "pages": [
+              "index"
+            ]
+          },
+          {
+            "group": "Integrations",
+            "pages": [
+              "accept-payments",
+              "integration-checklist",
+              "simple-checkout",
+              "standard-checkout",
+              "sub-account",
+              "e-commerce-plugin"
+            ]
+          },
+          {
+            "group": "Payment Features",
+            "pages": [
+              "payments",
+              "invoicing",
+              "bulk-invoicing",
+              "subscriptions",
+              "payment-links",
+              "virual-accounts",
+              "card-tokenisation",
+              "pocket",
+              "payout"
+            ]
+          },
+          {
+            "group": "After Payment",
+            "pages": [
+              "verify-payments",
+              "receive-settlements",
+              "failed-transactions",
+              "refunds",
+              "webhook-events",
+              "webhook-events-v2"
+            ]
           }
         ]
       },

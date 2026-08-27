@@ -1,3 +1,161 @@
+@font-face {
+  font-family: 'MazzardM';
+  src: url('/assets/fonts/MazzardM-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MazzardM';
+  src: url('/assets/fonts/MazzardM-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MazzardH';
+  src: url('/assets/fonts/MazzardH-Black.woff2') format('woff2');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MazzardH';
+  src: url('/assets/fonts/MazzardH-BlackItalic.woff2') format('woff2');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Plugin cards (e.g. WooCommerce, Shopify) */
+
+.card-div-style {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 8px;
+  max-height: min-content;
+}
+
+.card-div-style img{
+  width: auto;
+  height: 3rem;
+}
+
+.commerce-card-content{
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row-reverse;
+  align-items: flex-end;
+  margin-top: 4px;
+}
+
+.commerce-platform-logo {
+  display: block;
+  box-sizing: border-box;
+  width: auto;
+  height: 2.75rem;
+  max-width: 9rem;
+  margin: 0 0 12px;
+  padding: 0.45rem;
+  border: 1px solid #e4e7ec;
+  border-radius: 0.5rem;
+  background: #ffffff;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.dark .commerce-platform-logo {
+  border-color: #3a4358;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+/* Buttons */
+
+.seerbit-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.seerbit-button-md {
+  padding: 10px 24px;
+  font-size: 0.95rem;
+}
+
+.seerbit-button-sm {
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  gap: 4px;
+  border-radius: 6px;
+}
+
+.seerbit-button-primary {
+  background-color: #ff3c38;
+  color: #ffffff;
+  border: 1px solid #ff3c38;
+}
+
+.seerbit-button-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(255, 60, 56, 0.25);
+}
+
+.seerbit-button-secondary {
+  background-color: transparent;
+  color: #000000;
+  border: 1px solid #e4e7ec;
+}
+
+.dark .seerbit-button-secondary {
+  color: #ffffff;
+  border-color: #2a3041;
+}
+
+.seerbit-button-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+.dark .seerbit-button-secondary:hover {
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.06);
+}
+
+.seerbit-button-black {
+  background-color: #151c30;
+  color: #ffffff;
+  border: 1px solid #151c30;
+}
+
+.seerbit-button-black:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+.dark .seerbit-button-black {
+  background-color: #ffffff;
+  color: #151c30;
+  border-color: #ffffff;
+}
+
+.dark .seerbit-button-black:hover {
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.15);
+}
+
 .seerbit-hero {
   display: flex;
   flex-direction: column;
@@ -108,7 +266,7 @@
   margin-top: 20px;
 }
 
-.seerbit-subscribe-form input[type="email"] {
+.seerbit-subscribe-form input[type='email'] {
   flex: 1;
   min-width: 0;
   padding: 10px 14px;
@@ -119,13 +277,13 @@
   color: #000000;
 }
 
-.dark .seerbit-subscribe-form input[type="email"] {
+.dark .seerbit-subscribe-form input[type='email'] {
   background-color: #151c30;
   border-color: #2a3041;
   color: #ffffff;
 }
 
-.dark .seerbit-subscribe-form input[type="email"]::placeholder {
+.dark .seerbit-subscribe-form input[type='email']::placeholder {
   color: #6b7280;
 }
 
@@ -186,7 +344,8 @@
 
 .seerbit-custom-footer {
   width: 100%;
-  margin-top: 128px;
+  margin-top: 64px;
+  margin-bottom: -64px;
   padding: 64px 48px 24px;
   background-color: #151c30;
   color: #ffffff;
@@ -346,7 +505,7 @@
     flex-wrap: wrap;
   }
 
-  .seerbit-subscribe-form input[type="email"] {
+  .seerbit-subscribe-form input[type='email'] {
     min-width: 180px;
   }
 
@@ -403,7 +562,7 @@
     gap: 10px;
   }
 
-  .seerbit-subscribe-form input[type="email"],
+  .seerbit-subscribe-form input[type='email'],
   .seerbit-subscribe-form button {
     width: 100%;
     box-sizing: border-box;

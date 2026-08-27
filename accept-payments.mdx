@@ -1,0 +1,52 @@
+---
+title: Accept Payments
+---
+
+import { Button } from '/snippets/button.mdx';
+
+Build a payment checkout or use SeerBit's prebuilt checkout page to accept online payments
+
+## SeerBit Checkout
+
+The SeerBit Checkout is a hosted payment page that allows you to collect payments securely and fast using any of our [payment methods](payment-methods). The checkout works on all devices and help in increasing conversion rate for your customers making payments on your website or application
+
+- Mobile Responsive - Fully responsive design
+- International - Supports over 15 [currencies](currency-code) and multiple [payment methods](payment-methods)
+- Checkout Adverts - Display adverts of your products or services to customers on checkout
+- Complaince - Fully PCI compliant checkout
+
+<Button href="https://www.dashboard.seerbit.com/#/auth/login" variant={"black"} newTab>Explore SeerBit Checkout</Button>
+
+## Integration Types
+
+Accept payments on your website or mobile applications with seerBit using our multiple payment methods.
+
+- [Simple Checkout](simple-checkout) - Simple Checkout our simplest integration method and requires little technical knowledge. SeerBit inline code is a smart payment form that works seamlessly across devices and is designed to increase your conversion rate. It supports all the payment methods you get with the checkout standard integration.
+- [Standard Checkout](standard-checkout) - SeerBit Checkout Standard Initialises a transaction from merchants server to generate a payment link which redirects your customers to a page to make payment and after payment has been made the customer is redirected back to the merchants website.
+- [SDKs & Libraries](sdk-libraries) - Our Software Development Kits remove the need to handle sensitive data by enabling you to process payments and transactions in the same secure way as Simple Checkout and Standard Checkout.
+- [E-commerce Plugins](e-commerce-plugins) - Get up and running quickly, processing online payments with an e-commerce plugin.
+
+> <b>To make API calls on SeerBit, you'll have to pass a Bearer Token. To generate a bearer token you simply</b>
+>
+> - Call [https://seerbitapi.com/api/v2/encrypt/keys](https://seerbitapi.com/api/v2/encrypt/keys)
+> - Pass your secret and public key.
+> - You'll be authenticated and receive a token to process further API calls.
+
+## Payment Methods
+
+Let your customers pay with our variety of payment methods like bank debits or transfers, USSD, Card, MOMO and POS. Payment methods help boost conversion.
+
+[Explore payment methods](payment-methods)
+
+![payment methods image](/assets/payment-methods.svg)
+
+## Testing your integration
+
+There are several test cards and test bank account you can use to make sure/ test your integration and ensure you are ready for production. Use them with any CVV and a future expiry date.
+
+[See a full list of testing credentials](testing)
+
+| Card Number | Card Type | Expiry Date | CVC | PIN |
+| --- | --- | --- | --- | --- |
+| 5123450000000008 | Mastercard | 12/2026 | 123 | 0000 |
+| 6280511000000095 | Verve Card  12/2026 | 123 | 0000 |
