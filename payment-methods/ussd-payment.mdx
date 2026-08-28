@@ -1,0 +1,144 @@
+---
+title: USSD
+---
+
+This payment method allows you to collect payments offline from your customers. Payment is completed by the customer dialling a USSD code on their mobile device.
+
+## Before you begin
+
+> Ensure you have your public key. You can find this on the SeerBit Merchant dashboard under accounts > api keys. If you don’t have an account with us yet, you can [create a test account](https://dashboard.seerbit.com/#/auth/register) now
+
+## How it works
+
+1.  To initiate a USSD payment, make a request to the USSD payments service with the payments/initiates endpoint.
+2.  When the request is made you are expected to get a dial code.
+3.  Customer completes transactions using the USSDdial code generated
+4.  Verify the payment
+
+## Initialising a USSD Payment
+
+For the full specification, see our [API Reference]()
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments/initiates
+```
+
+### Request Sample
+
+The code snippet below shows an example request for generating a payment link to complete a payment
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTION_KEY' \
+--data-raw '{
+    "publicKey":"YOUR_PUBLIC_KEY",
+    "amount":"100",
+    "fullName": "FirstName LastName",
+    "mobileNumber": "customer mobile number",
+    "email":"firstname@mail.com",
+    "currency": "NGN",
+    "country": "NG",
+    "paymentReference": "dsffererer",
+    "callbackUrl": "http://yourdomain.com",
+    "redirectUrl": "http://yourdomain.com",
+    "paymentType": "USSD",
+    "bankCode":"044"
+  }'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://seerbitapi.com/api/v2/payments/initiates',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+  },
+  body: JSON.stringify({
+    publicKey: 'YOUR_PUBLIC_KEY',
+    amount: '100',
+    fullName: 'FirstName LastName',
+    mobileNumber: 'customer mobile number',
+    email: 'firstname@mail.com',
+    currency: 'NGN',
+    country: 'NG',
+    paymentReference: 'dsffererer',
+    callbackUrl: 'http://yourdomain.com',
+    redirectUrl: 'http://yourdomain.com',
+    paymentType: 'USSD',
+    bankCode: '044',
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments/initiates',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "publicKey":"YOUR_PUBLIC_KEY",
+    "amount":"100",
+    "fullName": "FirstName LastName",
+    "mobileNumber": "customer mobile number",
+    "email":"firstname@mail.com",
+    "currency": "NGN",
+    "country": "NG",
+    "paymentReference": "dsffererer",
+    "callbackUrl": "http://yourdomain.com",
+    "redirectUrl": "http://yourdomain.com",
+    "paymentType": "USSD",
+    "bankCode":"044"
+  }',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+### Response Sample
+
+The code snippet below shows an example request for generating a payment link to complete a payment
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": null,
+    "payments": {
+      "paymentReference": "dsffererer",
+      "linkingReference": "CSEERBIT724622561618580872054",
+      "providerreference": "8206",
+      "ussdDailCode": "*901*000*8206#"
+    },
+    "message": null
+  }
+}
+```

@@ -1,0 +1,149 @@
+---
+title: Mobile Money - MOMO
+---
+
+Mobile money is an e-wallet payment method in Africa which allows you to accept payments from your customers with their mobile money wallets
+
+Mobile Money payment method is available to customers in Ghana, Kenya, Uganda, Tanzania, Senegal, Burkina Faso, Ivory Coast, Cameroon, and Mali
+
+## Before you begin
+
+> Ensure you have your public key. You can find this on the SeerBit Merchant dashboard under accounts > api keys. If you don’t have an account with us yet, you can [create a test account](https://dashboard.seerbit.com/#/auth/register) now
+
+## How it works
+
+1.  To initiate a mobile money transaction, make a request to the mobile money service with the payments/initiates endpoint.
+2.  When the request is made you are expected to get a "Transaction in progress" response with a code INP from SeerBit.
+3.  Once the customer authorises the transaction from his mobile device, you will be notified via webhook with the final status of the transaction or requery the verify payment enpoint.
+4.  Verify the payment
+
+## Initializing a MOMO Payment
+
+For the full specification, see our [API Reference]()
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments/initiates
+```
+
+### Request Sample
+
+The code snippet below shows an example request for generating a payment link to complete a payment
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTION_KEY' \
+--data-raw '{
+  "fullName":"FirstName LastName",
+  "email":"firstname@mail.com",
+  "mobileNumber":"23309494949498",
+  "publicKey":"merchant_publicKey",
+  "paymentReference": "MOMOTYTSF4VA",
+  "deviceType":"nokia 3310",
+  "sourceIP":"1.0.1.0",
+  "currency": "UGX",
+  "productDescription": "snacks",
+  "country": "UG",
+  "fee": "1.00",
+  "network":"MTN",
+  "voucherCode":"",
+  "amount": "10.01",
+  "paymentType": "MOMO"
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://seerbitapi.com/api/v2/payments/initiates',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+  },
+  body: '{   \n  "fullName":"FirstName LastName",\n  "email":"firstname@mail.com",\n  "mobileNumber":"23309494949498",\n  "publicKey":"merchant_publicKey",\n  "paymentReference": "MOMOTYTSF4VA",\n  "deviceType":"nokia 3310",\n  "sourceIP":"1.0.1.0",\n  "currency": "UGX",\n  "productDescription": "snacks",\n  "country": "UG",\n  "fee": "1.00",\n  "network":"MTN",\n  "voucherCode":"",\n  "amount": "10.01",\n}',
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments/initiates',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+  "fullName":"FirstName LastName",
+  "email":"firstname@mail.com",
+  "mobileNumber":"23309494949498",
+  "publicKey":"merchant_publicKey",
+  "paymentReference": "MOMOTYTSF4VA",
+  "deviceType":"nokia 3310",
+  "sourceIP":"1.0.1.0",
+  "currency": "UGX",
+  "productDescription": "snacks",
+  "country": "UG",
+  "fee": "1.00",
+  "network":"MTN",
+  "voucherCode":"",
+  "amount": "10.01",
+  "paymentType": "MOMO"
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+### Response Sample
+
+The code snippet below shows an example request for generating a payment link to complete a payment
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "INP",
+    "payments": {
+      "paymentReference": "O67456S537798799QWEWAT0MPTYP",
+      "linkingReference": "CF323190231596441884237"
+    },
+    "message": "Kindly Enter Otp"
+  }
+}
+```
+
+> Current providers for MOMO providers are : **MTN**, **Airtel/Tigo** and **Vodafone**.
+
+## Testing MOMO Payment
+
+Create a MOMO transaction following the steps above.
+
+- Numbers and OTP
+  Number: `23309494949494` `23309494949495`<br/>
+  OTP: `349275`
+- Number only OTP not required
+  Number: `3309494949494` `23309494949495`

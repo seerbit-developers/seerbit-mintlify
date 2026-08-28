@@ -1,0 +1,143 @@
+---
+title:
+---
+
+## Verify Payments (Client-side callback)
+
+SeerBit’s inline script `(SeerbitPay({...}, callback))` includes a **callback function** you can define when initiating the payment. SeerBit will call that function with a response object after the user completes (or closes) the checkout modal. You can inspect that response to see the payment result in real-time.After a payment has been completed, verify the payment with the payment status check endpoint. To verify a payment make a GET request to the status check endpoint using the transaction reference.<br/>
+To call this endpoint, get your `Bearer Token`
+
+```javascript
+function callback(response, closeModal) {
+    console.log(response) //response of transaction
+},
+
+function close(close) {
+    console.log(close) //transaction close
+}
+```
+
+This is useful for showing immediate UI feedback, but you should **not rely on it alone** to finalize the order on your backend.
+
+## Verify Payments (Server-side status verification)
+
+After a transaction, you can **verify the payment server-side** using SeerBit’s **status check API**. This gives the definitive payment result.
+
+##### How this works:
+
+- After payment, save the `transaction reference` (tranref/paymentReference) you generated.
+- Call the SeerBit **status query endpoint** with your server’s `Bearer Token`:
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://seerbitapi.com/api/v3/payments/query/{paymentReference}
+```
+
+SeerBit will return structured details showing whether the payment succeeded (e.g., gatewayMessage: "Successful", success codes, amount, etc.). You can then update your order or database based on this verified result.
+
+#### Response Sample
+
+The code snippet below shows an example response for verifying a payment
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "message": "Successful",
+    "payments": {
+      "redirectLink": "https://checkout.seerbitapi.com/#/",
+      "amount": 10.15,
+      "fee": "0.15",
+      "mobilenumber": "404",
+      "publicKey": "MERCHANT_PUBLIC_KEY",
+      "paymentType": "CARD",
+      "productId": "",
+      "productDescription": "Goods and services",
+      "maskedPan": "4187-45XX-XXXX-3456",
+      "gatewayMessage": "Successful",
+      "gatewayCode": "00",
+      "gatewayref": "SEERBIT1303494716633",
+      "businessName": "Test Business",
+      "mode": "live",
+      "callbackurl": "https://seerbit.com",
+      "redirecturl": "https://checkout.seerbitapi.com/#/",
+      "channelType": "VISA",
+      "sourceIP": "",
+      "deviceType": "Desktop",
+      "cardBin": "418745",
+      "lastFourDigits": "3456",
+      "country": "NG",
+      "currency": "NGN",
+      "paymentReference": "TestReference",
+      "paymentBreakdown": {
+        "amount": 10.0,
+        "fee": 0.15,
+        "total": 10.15
+      },
+      "reason": "Successful",
+      "transactionProcessedTime": "2024-12-06 15:18:36.404709127"
+    },
+    "customers": {
+      "customerId": "SBTb77e16b073ea491",
+      "customerName": "John Doe",
+      "customerMobile": "404",
+      "customerEmail": "ts@emaildomain.com",
+      "fee": "0.15"
+    }
+  }
+}
+```
+
+## Webhooks (real-time server notifications)
+
+For fully automated backend processing, set up **webhooks** in your SeerBit merchant dashboard. SeerBit will send **POST notifications** to your webhook endpoint whenever events, including payment completion, occur.
+
+##### Webhook benefits:
+
+- You don’t need to poll the status API.
+- Your system gets notified automatically when a transaction is confirmed.
+- Looser coupling between frontend and backend.
+
+##### Typical setup:
+
+1. Create a secure HTTP endpoint on your server.
+2. Register its URL in **Account Settings → Webhooks** in the SeerBit merchant dashboard.
+3. Handle incoming POSTs (look at eventType to check for transaction success).
+4. Reply with HTTP **200 OK** to acknowledge receipt.
+
+## Verify Recurrent Subscriptions
+
+This operation allows you to check the status of a subscription via the subscription status check api. This is done by making a GET request to the endpoint below with the transaction's billingId.
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/recurring/billingId/{billingId}
+```
+
+#### Response Sample
+
+The code snippet below shows an example response for verifying a subscription
+
+```json
+{
+    "status": "SUCCESS",
+    "data": {
+        "subscriptions": {
+            "publicKey": "SBTEST**********************ZYviTF",
+            "amount": "20",
+            "country": "NG",
+            "customerId": "651d33a62ad69c9f37c4",
+            "cardName": "Bola Olat",
+            "cardNumber": "2223-00xx-xxxx-0007",
+            "plan": "ae702f51220000722dca",
+            "status": "ACTIVE",
+            "billingId": "WQ6676yPOpr12348o",
+            "authorizationCode": "2beb0ccdd347e604552a",
+            "startDate": "2019-01-11 00:00:00",
+        }
+      }
+    };
+```

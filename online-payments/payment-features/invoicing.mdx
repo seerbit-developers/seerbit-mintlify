@@ -1,0 +1,565 @@
+---
+title: Invoicing
+---
+
+Create and send invoices without code on the [merchant dashboard](https://dashboard.seerbit.com/#/auth/register) or use the invoicing API below to advance and automate how you collect payments from your customers.
+
+## Creating and sending an invoice
+
+For the full specification, see our [API Reference](https://apis.seerbit.com/)
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://merchant.seerbitapi.com/invoice/create
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for creating and sending an invoice
+
+**All body parameters are required**
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://merchant.seerbitapi.com/invoice/create' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data-raw '{
+    "publicKey":"YOUR_PUBLIC_KEY",
+    "orderNo": "333333221321",
+    "dueDate": "2022-10-23",
+    "currency": "NGN",
+    "receiversName": "Jane Smith",
+    "customerEmail": "janesmith@emaildomain.com",
+    "invoiceItems": [
+        {
+            "itemName": "Bluetooth Pods",
+            "quantity": 1,
+            "rate": 25000,
+            "tax": 7.5
+        },
+        {
+            "itemName": "Quest 10",
+            "quantity": 4,
+            "rate": 100000,
+            "tax": 7.5
+        }
+    ]
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://merchant.seerbitapi.com/invoice/create',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer TOKEN',
+  },
+  body: JSON.stringify({
+    publicKey: 'YOUR_PUBLIC_KEY',
+    orderNo: '333333221321',
+    dueDate: '2022-10-23',
+    currency: 'NGN',
+    receiversName: 'Jane Smith',
+    customerEmail: 'janesmith@emaildomain.com',
+    invoiceItems: [
+      {
+        itemName: 'Bluetooth Pods',
+        quantity: 1,
+        rate: 25000,
+        tax: 7.5,
+      },
+      {
+        itemName: 'Quest 10',
+        quantity: 4,
+        rate: 100000,
+        tax: 7.5,
+      },
+    ],
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://merchant.seerbitapi.com/invoice/create',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "publicKey":"YOUR_PUBLIC_KEY",
+    "orderNo": "333333221321",
+    "dueDate": "2022-10-23",
+    "currency": "NGN",
+    "receiversName": "Jane Smith",
+    "customerEmail": "janesmith@emaildomain.com",
+    "invoiceItems": [
+        {
+            "itemName": "Bluetooth Pods",
+            "quantity": 1,
+            "rate": 25000,
+            "tax": 7.5
+        },
+        {
+            "itemName": "Quest 10",
+            "quantity": 4,
+            "rate": 100000,
+            "tax": 7.5
+        }
+    ]
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer TOKEN'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for creating and sending an invoice
+
+```json
+{
+  "message": "Invoice created successfully ",
+  "payload": {
+    "InvoiceID": 92,
+    "InvoiceNo": "SBT-INV-000092"
+  },
+  "code": "00"
+}
+```
+
+## Re-send an Invoice
+
+For the full specification, see our [API Reference](https://apis.seerbit.com/)
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://merchant.seerbitapi.com/invoice/{{publicKey}}/send/{{InvoiceNo}}
+```
+
+#### Request Sample
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/send/{{InvoiceNo}}' \
+--header 'Authorization: Bearer TOKEN' \
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'GET',
+  url: 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/send/{{InvoiceNo}}',
+  headers: {
+    Authorization: 'Bearer TOKEN',
+  },
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/send/{{InvoiceNo}}',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'GET',
+
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer TOKEN'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response to resend an invoice
+
+```json
+{
+  "message": "Invoice has been sent successfully",
+  "code": "00"
+}
+```
+
+## Get invoice by customer email
+
+For the full specification, see our [API Reference](https://apis.seerbit.com/)
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://merchant.seerbitapi.com/invoice/{{publicKey}}/customer/{{customerEmail}}
+```
+
+#### Request Sample
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/customer/{{customerEmail}}' \
+--header 'Authorization: Bearer TOKEN' \
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'GET',
+  url: 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/customer/{{customerEmail}}',
+  headers: {
+    Authorization: 'Bearer TOKEN',
+  },
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/customer/{{customerEmail}}',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'GET',
+
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer TOKEN'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response to get invoice by customer email
+
+```json
+{
+    "payload": [
+        {
+            "invoiceId": 66,
+            "invoiceNo": "SBT-INV-000066",
+            "totalAmount": 529.75,
+            "subTotal": 500.00,
+            "tax": 29.75,
+            "dueDate": "2022-10-22",
+            "currency": "NGN",
+            "invoiceItems": [
+                {
+                    "itemName": "Bag",
+                    "unitPrice": 100,
+                    "vat": 5.95,
+                    "amount": 100,
+                    "quantity": 4
+                },
+                {
+                    "itemName": "Bag",
+                    "unitPrice": 400,
+                    "vat": 23.80,
+                    "amount": 400,
+                    "quantity": 4
+                }
+            ],
+            "customer": {
+                "externalIdentify": "289276",
+                "businessName": "Jane Smith Ent",
+                "customerName": "Jane Smith",
+                "customerEmail": "js@emaildomian.com",
+                "businessId": "00000051",
+                "id": 19
+            },
+            "billingCycle": false,
+            "payButtonOnInvoices": false,
+            "enableAdvancedOptions": false,
+            "partialPayment": false,
+            "status": "DRAFT",
+            "createdAt": "2022-10-18T17:23:13.259"
+        },
+        {
+            "invoiceId": 67,
+            "invoiceNo": "SBT-INV-000067",
+            "totalAmount": 529.75,
+            "subTotal": 500.00,
+            "tax": 29.75,
+            "dueDate": "2022-10-23",
+            "currency": "NGN",
+            "invoiceItems": [
+                {
+                    "itemName": "Bag",
+                    "unitPrice": 100.00,
+                    "vat": 5.95,
+                    "amount": 100.00,
+                    "quantity": 4
+                },
+                {
+                    "itemName": "Bag",
+                    "unitPrice": 400.00,
+                    "vat": 23.80,
+                    "amount": 400.00,
+                    "quantity": 4
+                }
+            ],
+
+    "code": "00"
+}
+```
+
+## Get invoice by InvoiceNo
+
+For the full specification, see our [API Reference](https://apis.seerbit.com/)
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://merchant.seerbitapi.com/invoice/{{publicKey}}/{{InvoiceNo}}
+```
+
+#### Request Sample
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/{{InvoiceNo}}' \
+--header 'Authorization: Bearer TOKEN' \
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'GET',
+  url: 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/{{InvoiceNo}}',
+  headers: {
+    Authorization: 'Bearer TOKEN',
+  },
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/{{InvoiceNo}}',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'GET',
+
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer TOKEN'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response to get an invoice by invoice number
+
+```json
+{
+  "payload": {
+    "invoiceId": 54,
+    "invoiceNo": "SBT-INV-000054",
+    "totalAmount": 556.0,
+    "subTotal": 556.0,
+    "externalBusiness_id": "00000051",
+    "discount": 0.0,
+    "dueDate": "2022-10-12",
+    "currency": "NGN",
+    "invoiceItems": [
+      {
+        "itemName": "Ada Ada iyoo",
+        "unitPrice": 556.0,
+        "vat": 0.0,
+        "amount": 556.0,
+        "quantity": 278
+      }
+    ],
+    "customer": {},
+    "billingCycle": false,
+    "payButtonOnInvoices": false,
+    "enableAdvancedOptions": false,
+    "partialPayment": false,
+    "status": "DRAFT",
+    "createdAt": "2022-10-12T10:27:45.732"
+  },
+  "code": "00"
+}
+```
+
+## Get invoice by orderNo
+
+For the full specification, see our [API Reference](https://apis.seerbit.com/)
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://merchant.seerbitapi.com/invoice/{{publicKey}}/order/{{orderNo}}
+```
+
+#### Request Sample
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/order/{{orderNo}}' \
+--header 'Authorization: Bearer TOKEN' \
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'GET',
+  url: 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/order/{{orderNo}}',
+  headers: {
+    Authorization: 'Bearer TOKEN',
+  },
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://merchant.seerbitapi.com/invoice/{{publicKey}}/order/{{orderNo}}',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'GET',
+
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer TOKEN'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response to get an invoice by invoice order
+
+```json
+{
+  "payload": {
+    "invoiceId": 54,
+    "invoiceNo": "SBT-INV-000054",
+    "totalAmount": 556.0,
+    "subTotal": 556.0,
+    "externalBusiness_id": "00000051",
+    "publicKey": "SBPUBK_TCDUH6MNIDLHMJXJEJLBO6ZU2RNUUPHI",
+    "testKey": "SBTESTPUBK_4v0JR58modUFJjF1Es206pveBQjOLxe2",
+    "supportEmail": "ts@greentechng.com",
+    "customerEmail": "qwertypoiuy@mailinator.com",
+    "businessName": "Green Technological Concepts",
+    "discount": 0.0,
+    "dueDate": "2022-10-12",
+    "currency": "NGN",
+    "invoiceItems": [
+      {
+        "itemName": "Ada Ada iyoo",
+        "unitPrice": 556.0,
+        "vat": 0.0,
+        "amount": 556.0,
+        "quantity": 278
+      }
+    ],
+    "customer": {},
+    "billingCycle": false,
+    "payButtonOnInvoices": false,
+    "enableAdvancedOptions": false,
+    "partialPayment": false,
+    "status": "DRAFT",
+    "createdAt": "2022-10-12T10:27:45.732"
+  },
+  "code": "00"
+}
+```

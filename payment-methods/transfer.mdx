@@ -1,0 +1,136 @@
+---
+title: Transfer
+---
+
+This payment method allows your customers to make payments through bank transfer.
+
+## Before you begin
+
+> Ensure you have your public key. You can find this on the SeerBit Merchant dashboard under accounts > api keys. If you don’t have an account with us yet, you can [create a test account](https://dashboard.seerbit.com/#/auth/register) now
+
+## Initialising a transfer Payment
+
+For the full specification, see our [API Reference]()
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments/initiates
+```
+
+### Request Sample
+
+The code snippet below shows an example request for generating a bank account number to complete a payment
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTION_KEY' \
+--data-raw '{
+    "publicKey":"YOUR_PUBLIC KEY",
+    "amount":"100",
+    "fullName": "Jane Doe",
+    "mobileNumber": "0887522256",
+    "email":"youremail@domain.com",
+    "currency": "NGN",
+    "country": "NG",
+    "paymentReference": "dsffererer",
+    "callbackUrl": "http://checkout-seerbit.surge.sh",
+    "redirectUrl": "http://checkout-seerbit.surge.sh",
+    "paymentType": "TRANSFER"
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://seerbitapi.com/api/v2/payments/initiates',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+  },
+  body: JSON.stringify({
+    publicKey: 'YOUR_PUBLIC KEY',
+    amount: '100',
+    fullName: 'Jane Doe',
+    mobileNumber: '0887522256',
+    email: 'youremail@domain.com',
+    currency: 'NGN',
+    country: 'NG',
+    paymentReference: 'dsffererer',
+    callbackUrl: 'http://checkout-seerbit.surge.sh',
+    redirectUrl: 'http://checkout-seerbit.surge.sh',
+    paymentType: 'TRANSFER',
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments/initiates',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "publicKey":"YOUR_PUBLIC KEY",
+    "amount":"100",
+    "fullName": "Jane Doe",
+    "mobileNumber": "0887522256",
+    "email":"youremail@domain.com",
+    "currency": "NGN",
+    "country": "NG",
+    "paymentReference": "dsffererer",
+    "callbackUrl": "http://checkout-seerbit.surge.sh",
+    "redirectUrl": "http://checkout-seerbit.surge.sh",
+    "paymentType": "TRANSFER"
+
+    }',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+### Response Sample
+
+The code snippet below shows an example response showing bank account details
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "payments": {
+      "paymentReference": "dsfr55266tyt5554y166",
+      "walletName": "SEERBIT(Merchant Name)",
+      "wallet": "9979878249",
+      "bankName": "Providus Bank",
+      "accountNumber": "9979878249"
+    },
+    "message": "ACCOUNT OPENED SUCCESSFULLY"
+  }
+}
+```

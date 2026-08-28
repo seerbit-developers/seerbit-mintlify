@@ -1,0 +1,38 @@
+---
+title: Card Payments
+---
+
+Cards are one of the most popular ways to make payments online with a large global reach. SeerBit supports the most popular card types with a simple implentation.
+
+## Before you begin
+
+Ensure you have your public key. You can find this on the SeerBit Merchant dashboard under accounts > api keys. If you don’t have an account with us yet, you can [create a test account](https://dashboard.seerbit.com/#/auth/register) now
+
+## Card Payment Process
+
+1. Customers enters card details on merchant website.
+2. SeerBit checks that the details provided are valid (e.g the expiry date entered is not in the past)
+3. **Authentication** : Some cards may prompt the card holder to enter a pin or a one time password sent to the card holder's phone or email to authenticate the transaction.
+4. **Authorization** : The bank checks for sufficient funds on the card holder's account. if successful the amount is held in the customers account and released to the merchant on capture
+5. **Capture** : The money moves from the card holder's account (issuing bank) to the merchant account immediately after authorization
+
+> **Note**: By default, all card payments are captured immediately after authorization unless a capture delay or manual capture has been setup by the merchant. Read on how to setup a pre-authorized payment
+
+### How it works
+
+1. Collect the customers details (Fullname, Email and Mobile Number) and Card details.
+2. Make a request to the payment service with the payment/initiates endpoint.
+3. Based on the cardholders card type the seerBit selects an auth method.
+
+## Initializing a Card Payment
+
+For the full specification, see our [API Reference]()
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments/initiates
+```
+
+### Request Sample
+

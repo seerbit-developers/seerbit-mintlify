@@ -5,12 +5,7 @@
   "fonts": {
     "family": "MazzardM",
     "source": "/assets/fonts/MazzardM-Regular.woff2",
-    "format": "woff2",
-    "heading": {
-      "family": "MazzardM",
-      "source": "/assets/fonts/MazzardM-Bold.woff2",
-      "format": "woff2"
-    }
+    "format": "woff2"
   },
   "colors": {
     "primary": "#FF3C38",
@@ -22,50 +17,83 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Documentation",
+        "tab": "Home",
         "icon": "house",
+        "pages": ["index"]
+      },
+      {
+        "tab": "Documentation",
+        "icon": "book-open",
         "groups": [
           {
-            "group": "Home",
+            "group": "Online Payments",
             "pages": [
-              "index"
+              {
+                "group": "Integrations",
+                "pages": [
+                  "/online-payments/integrations/accept-payment",
+                  "/online-payments/integrations/integration-checklist",
+                  "/online-payments/integrations/simple-checkout",
+                  "/online-payments/integrations/standard-checkout",
+                  "/online-payments/integrations/sub-account",
+                  "/online-payments/integrations/e-commerce-plugin"
+                ]
+              },
+              {
+                "group": "Payment Features",
+                "pages": [
+                  "/online-payments/payment-features/payment",
+                  "/online-payments/payment-features/invoicing",
+                  "/online-payments/payment-features/bulk-invoicing",
+                  "/online-payments/payment-features/subscription",
+                  "/online-payments/payment-features/payment-link",
+                  "/online-payments/payment-features/virtual-account",
+                  "/online-payments/payment-features/card-tokenisation",
+                  "/online-payments/payment-features/pocket",
+                  "/online-payments/payment-features/payout",
+                  "/online-payments/payment-features/payout-v2"
+                ]
+              },
+              {
+                "group": "After Payment",
+                "pages": [
+                  "/online-payments/after-payments/verify-payment",
+                  "/online-payments/after-payments/receive-settlement",
+                  "/online-payments/after-payments/failed-transaction",
+                  "/online-payments/after-payments/refund",
+                  "/online-payments/after-payments/webhook-events",
+                  "/online-payments/after-payments/webhook-events-v2"
+                ]
+              }
             ]
           },
           {
-            "group": "Integrations",
+            "group": "Payment Methods",
             "pages": [
-              "accept-payments",
-              "integration-checklist",
-              "simple-checkout",
-              "standard-checkout",
-              "sub-account",
-              "e-commerce-plugin"
+              { "group": "Payment", "pages": ["/payment-methods/overview"] },
+              {
+                "group": "Payment Methods",
+                "pages": [
+                  "/payment-methods/bank-account",
+                  "/payment-methods/card-payment",
+                  "/payment-methods/mobile-money",
+                  "/payment-methods/transfer",
+                  "/payment-methods/ussd-payment"
+                ]
+              }
             ]
           },
           {
-            "group": "Payment Features",
-            "pages": [
-              "payments",
-              "invoicing",
-              "bulk-invoicing",
-              "subscriptions",
-              "payment-links",
-              "virual-accounts",
-              "card-tokenisation",
-              "pocket",
-              "payout"
-            ]
+            "group": "GROUP 3 NAME",
+            "pages": []
           },
           {
-            "group": "After Payment",
-            "pages": [
-              "verify-payments",
-              "receive-settlements",
-              "failed-transactions",
-              "refunds",
-              "webhook-events",
-              "webhook-events-v2"
-            ]
+            "group": "GROUP 4 NAME",
+            "pages": []
+          },
+          {
+            "group": "GROUP 5 NAME",
+            "pages": []
           }
         ]
       },
@@ -93,16 +121,7 @@
     }
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
   },
   "footer": {
     "socials": {

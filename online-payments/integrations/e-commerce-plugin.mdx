@@ -23,8 +23,8 @@ Use any of our recommended solutions for your platform.
 
 <CardGroup cols={2}>
   <Card title="" img="/assets/woo-commerce.webp" horizontal>
+      <img className="commerce-platform-logo" src="/assets/woo-commerce.svg" alt="WooCommerce logo" />
     <h3 id="woocommerce" className="visually-hidden">WooCommerce</h3>
-    <img className="commerce-platform-logo" src="/assets/woo-commerce.svg" alt="WooCommerce logo" />
     <p className="commerce-card-description">
       Enable payments on your WordPress store with SeerBit’s official WooCommerce plugin. It
       supports cards, bank transfers, and mobile money.
@@ -43,8 +43,8 @@ Use any of our recommended solutions for your platform.
   </Card>
 
   <Card title="" img="/assets/magento.svg">
+        <img className="commerce-platform-logo" src="/assets/magento-logo.svg" alt="Magento logo" />
     <h3 id="magento" className="visually-hidden">Magento (Adobe Commerce)</h3>
-    <img className="commerce-platform-logo" src="/assets/magento-logo.svg" alt="Magento logo" />
     <p className="commerce-card-description">
       Integrate SeerBit with your Magento 2 checkout for enterprise-grade payment processing.
     </p>
@@ -59,48 +59,92 @@ Use any of our recommended solutions for your platform.
       <a href="https://github.com/seerbit/magento2-module?tab=readme-ov-file" style={{ fontSize: "12px" }}>Installation Guide →</a>
       <Button href="https://github.com/seerbit/magento2-module" size="sm" newTab>Setup</Button>
     </div>
+
   </Card>
 
-  <Card title="" img="/assets/wix.webp">
-    <h3 id="wix" className="visually-hidden">Wix</h3>
-    <img className="commerce-platform-logo" src="/assets/wix-logo.svg" alt="Wix logo" />
-    <p className="commerce-card-description">Connect SeerBit to your Wix store without writing code.</p>
-    <h4 id="wix-setup-and-installation" className="commerce-subheading">Installation & Setup</h4>
-    <ol>
-      <li>Follow the <a href="https://support.wix.com/en/article/connecting-seerbit-as-a-payment-provider">Wix Help Center guide for connecting SeerBit</a>.</li>
-    </ol>
-    <p><strong>Resource:</strong> <a href="https://support.wix.com/en/article/connecting-seerbit-as-a-payment-provider">Wix testing guide</a></p>
-    <div className="commerce-card-content">
-      <a href="https://support.seerbit.com/how-to-set-up-seerbit-on-wix" style={{ fontSize: "12px" }}>Installation Guide →</a>
-      <Button href="https://support.wix.com/en/article/connecting-seerbit-as-a-payment-provider" size="sm" newTab>Install</Button>
-    </div>
-  </Card>
+<Card title="" img="/assets/wix.webp">
+  <img className="commerce-platform-logo" src="/assets/wix-logo.svg" alt="Wix logo" />
+  <h3 id="wix" className="visually-hidden">
+    Wix
+  </h3>
+  <p className="commerce-card-description">
+    Connect SeerBit to your Wix store without writing code.
+  </p>
+  <h4 id="wix-setup-and-installation" className="commerce-subheading">
+    Installation & Setup
+  </h4>
+  <ol>
+    <li>
+      Follow the{' '}
+      <a href="https://support.wix.com/en/article/connecting-seerbit-as-a-payment-provider">
+        Wix Help Center guide for connecting SeerBit
+      </a>
+      .
+    </li>
+  </ol>
+  <p>
+    <strong>Resource:</strong>{' '}
+    <a href="https://support.wix.com/en/article/connecting-seerbit-as-a-payment-provider">
+      Wix testing guide
+    </a>
+  </p>
+  <div className="commerce-card-content">
+    <a href="https://support.seerbit.com/how-to-set-up-seerbit-on-wix" style={{ fontSize: '12px' }}>
+      Installation Guide →
+    </a>
+    <Button
+      href="https://support.wix.com/en/article/connecting-seerbit-as-a-payment-provider"
+      size="sm"
+      newTab
+    >
+      Install
+    </Button>
+  </div>
+</Card>
 
-  <Card title="" img="/assets/zoho.svg">
-    <h3 id="zoho-books" className="visually-hidden">Zoho Books</h3>
-    <img className="commerce-platform-logo" src="/assets/zoho-logo.svg" alt="Zoho Books logo" />
-    <p className="commerce-card-description">
-      Send invoices and receive payments across multiple African countries with SeerBit’s Zoho
-      Books extension.
-    </p>
-    <h4>Prerequisites</h4>
-    <ul>
-      <li>An active <a href="https://www.seerbit.com/intergrations-docs/zoho-books-doc">Zoho Books account</a></li>
-      <li>An active <a href="https://www.dashboard.seerbitapi.com/">SeerBit account</a></li>
-      <li>Administrator access to both platforms</li>
-    </ul>
-    <h4 id="zoho-setup-and-installation" className="commerce-subheading">Installation & Setup</h4>
-    <ol><li>Enable SeerBit in Zoho Books through the Integration Directory.</li></ol>
-    <p><strong>Resource:</strong> <a href="https://www.seerbit.com/intergrations-docs/zoho-books-doc">Zoho Books testing guide</a></p>
-    <div className="commerce-card-content">
-      <a href="https://www.seerbit.com/intergrations-docs/zoho-doc" style={{ fontSize: "12px" }}>Installation Guide →</a>
-      <Button href="https://www.seerbit.com/intergrations-docs/zoho-doc" size="sm" newTab>Setup</Button>
-    </div>
-  </Card>
+<Card title="" img="/assets/zoho.svg">
+  <img className="commerce-platform-logo" src="/assets/zoho-logo.svg" alt="Zoho Books logo" />
+  <h3 id="zoho-books" className="visually-hidden">
+    Zoho Books
+  </h3>
+  <p className="commerce-card-description">
+    Send invoices and receive payments across multiple African countries with SeerBit’s Zoho Books
+    extension.
+  </p>
+  <h4>Prerequisites</h4>
+  <ul>
+    <li>
+      An active{' '}
+      <a href="https://www.seerbit.com/intergrations-docs/zoho-books-doc">Zoho Books account</a>
+    </li>
+    <li>
+      An active <a href="https://www.dashboard.seerbitapi.com/">SeerBit account</a>
+    </li>
+    <li>Administrator access to both platforms</li>
+  </ul>
+  <h4 id="zoho-setup-and-installation" className="commerce-subheading">
+    Installation & Setup
+  </h4>
+  <ol>
+    <li>Enable SeerBit in Zoho Books through the Integration Directory.</li>
+  </ol>
+  <p>
+    <strong>Resource:</strong>{' '}
+    <a href="https://www.seerbit.com/intergrations-docs/zoho-books-doc">Zoho Books testing guide</a>
+  </p>
+  <div className="commerce-card-content">
+    <a href="https://www.seerbit.com/intergrations-docs/zoho-doc" style={{ fontSize: '12px' }}>
+      Installation Guide →
+    </a>
+    <Button href="https://www.seerbit.com/intergrations-docs/zoho-doc" size="sm" newTab>
+      Setup
+    </Button>
+  </div>
+</Card>
 
   <Card title="" img="/assets/ecwid.png">
+      <img className="commerce-platform-logo" src="/assets/ecwid-logo.png" alt="Ecwid logo" />
     <h3 id="ecwid" className="visually-hidden">Ecwid</h3>
-    <img className="commerce-platform-logo" src="/assets/ecwid-logo.png" alt="Ecwid logo" />
     <p className="commerce-card-description">Accept payments on Ecwid storefronts across web and social platforms.</p>
     <h4 id="ecwid-setup-and-installation" className="commerce-subheading">Installation & Setup</h4>
     <ol>

@@ -1,0 +1,454 @@
+---
+title: Virtual Account
+---
+
+The Virtual Account API allows you to create reserve accounts for your customers to make payments.
+
+## Create Virtual Account
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/virtual-accounts
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for creating a virtual account
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/virtual-accounts' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data-raw '{
+    "publicKey": "YOUR_PUBLIC_KEY",
+    "fullName": "Jane Smith",
+    "bankVerificationNumber":"",
+    "currency": "NGN",
+    "country": "NG",
+    "reference": "FIRST_VIRTUAl_17",
+    "email": "js@emaildomain.com"
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://seerbitapi.com/api/v2/virtual-accounts',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY',
+  },
+  body: JSON.stringify({
+    publicKey: 'YOUR_PUBLIC_KEY',
+    fullName: 'Jane Smith',
+    bankVerificationNumber: '',
+    currency: 'NGN',
+    country: 'NG',
+    reference: 'FIRST_VIRTUAl_17',
+    email: 'js@emaildomain.com',
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/virtual-accounts',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "publicKey": "YOUR_PUBLIC_KEY",
+    "fullName": "Jane Smith",
+    "bankVerificationNumber":"",
+    "currency": "NGN",
+    "country": "NG",
+    "reference": "FIRST_VIRTUAl_17",
+    "email": "js@emaildomain.com"
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for creating a virtual account
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "S20",
+    "payments": {
+      "reference": "FIRST_VIRTUAl_7",
+      "walletName": "SEERBIT(Business Name)",
+      "bankName": " 9PAYMENT SERVICE BANK",
+      "accountNumber": "Account Number"
+    },
+    "message": "Account created "
+  }
+}
+```
+
+## Get Virtual Account
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/virtual-accounts/{{paymentreference}}
+```
+
+#### Request Sample
+
+The code snippet below shows an example request to get virtual account
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/virtual-accounts/{{paymentreference}}' \
+--header 'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'GET',
+  url: 'https://seerbitapi.com/api/v2/virtual-accounts/{{paymentreference}}',
+  headers: {
+    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+  },
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/virtual-accounts/{{paymentreference}}',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'GET',
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer YOUR_ENCRPTION_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response to get all created links
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "payments": {
+      "reference": "VA_1", // virtual account reference
+      "linkingReference": "9PSB641860391656618499020",
+      "walletName": "SEERBIT(Business Name)",
+      "wallet": "Account Number",
+      "bankName": "_9PAYMENT_SERVICE_BANK",
+      "accountNumber": "Account Number"
+    },
+    "message": ""
+  }
+}
+```
+
+## Delete a Virtual Account
+
+<Badge color="red">DELETE</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/virtual-accounts/{{reference}}
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for deleting virtual account
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/virtual-accounts/{{reference}}' \
+--header 'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'DEL',
+  url: 'https://seerbitapi.com/api/v2/virtual-accounts/{{reference}}',
+  headers: {
+    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+  },
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/virtual-accounts/{{reference}}',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'DEL',
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer YOUR_ENCRPTION_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for deleting a virtual account
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "message": "Virtual account has been deleted"
+  }
+}
+```
+
+## Get Payment
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/virtual-accounts/YOUR_PUBLIC_KEY/{{accountNumber}}
+```
+
+#### Request Sample
+
+The code snippet below shows an example request to get payments
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/virtual-accounts/YOUR_PUBLIC_KEY/{{accountNumber}}' \
+--header 'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'GET',
+  url: 'https://seerbitapi.com/api/v2/virtual-accounts/YOUR_PUBLIC_KEY/{{accoutNumber}}',
+  headers: {
+    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+  },
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/virtual-accounts/YOUR_PUBLIC_KEY/{{accountNumber}}',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'GET',
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer YOUR_ENCRPTION_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for getting a payment
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "payload": [
+      {
+        "id": 14705414,
+        "fullName": "Customer Name",
+        "publicKey": "YOUR_PUBLIC_KEY",
+        "processor": "_9PAYMENT_SERVICE_BANK",
+        "paymentType": "TRANSFER",
+        "shopperReference": null,
+        "amount": 100.0,
+        "productId": null,
+        "productDescription": null,
+        "email": "customeremail@gmail.com",
+        "quantity": null,
+        "maskedPan": null,
+        "gateway": "_9PAYMENT_SERVICE_BANK",
+        "gatewayMessage": "Successful",
+        "gatewayCode": "00",
+        "transactionRef": "GT-01",
+        "gatewayRef": "100004230627104826104793084015",
+        "businessName": "Business Name",
+        "fee": null,
+        "mode": "LIVE",
+        "callbackUrl": null,
+        "redirectUrl": null,
+        "channelType": "transfer",
+        "paymentKey": null,
+        "sourceIP": null,
+        "deviceType": null,
+        "clientAppCode": null,
+        "cardBin": null,
+        "lastFourDigits": null,
+        "type": null,
+        "linkingreference": null,
+        "country": "NG",
+        "currency": "NGN",
+        "smsProvider": null,
+        "customerId": null,
+        "internalreference": "_SBT_N7N7EU523C",
+        "accountNumber": "customer account number",
+        "narration": null,
+        "creditAccountName": "Seerbit(Tola Sambo)",
+        "transferType": "RESERVE_ACCOUNT",
+        "paymentReference": "GT-01_SBT_N7N7EU523C",
+        "batchId": null,
+        "sessionId": null,
+        "bankName": "",
+        "creditAccountNumber": "4015310501",
+        "bankCode": null,
+        "alternatePaymentReference": null,
+        "settlementCode": "00",
+        "settlementMessage": "Push Successful",
+        "settlementTime": "2023-06-27 11:49:37",
+        "orderStatusCode": null,
+        "orderStatusMessage": null,
+        "status": "PUSHED",
+        "mobileNumber": "404",
+        "dateOfBirth": null,
+        "branchPhoneNumber": null,
+        "transferedAmount": 100.0,
+        "scheduleId": null,
+        "isCardInternational": "LOCAL",
+        "reason": "Successful",
+        "retry": false,
+        "metaData": null,
+        "event": [],
+        "order": [],
+        "createdAt": "2023-06-27T10:49:28.000+0000",
+        "updatedAt": "2023-06-27T10:49:28.000+0000",
+        "cardName": null,
+        "isNigeriancard": null,
+        "cardCountry": null,
+        "intCurrency": null,
+        "rate": null,
+        "inCardProcessingFee": null,
+        "intAmountCharge": null,
+        "processorCode": "00",
+        "processorMessage": "Successful",
+        "invoiceNumber": null,
+        "billId": null,
+        "locationPhoneNumber": null,
+        "pocketReferenceId": null,
+        "transferAccountType": "STATIC",
+        "bearer": "MERCHANT",
+        "transLink": null,
+        "vendorId": null,
+        "payLinkEnvironment": null,
+        "payLinkStatus": null,
+        "payLinkAmount": null,
+        "payLinkAdditionalData": null,
+        "payLinkName": null,
+        "payLinkDescription": null,
+        "payLinkRedirectUrl": null,
+        "payLinkSuccessMessage": null,
+        "paymentLinkId": null,
+        "payLinkCustomizationName": null,
+        "payLinkFrequency": null,
+        "payLinkIsOneTimeUse": false,
+        "terminalId": null,
+        "stan": null,
+        "transactionComplete": null,
+        "cardExpiryMonth": null,
+        "cardExpiryYear": null,
+        "tokenize": false
+      }
+    ],
+    "message": "successful"
+  }
+}
+```

@@ -20,7 +20,7 @@ The SeerBit Sub-Account API allows you to create and manage sub-accounts for you
 
 > All SeerBit API calls require authentication using a Bearer token. You must generate this token before making any requests to the Sub-Account endpoint.
 
-##### Step 1: Generate Encrypted Secret Key
+##### Generate Encrypted Secret Key
 
 To obtain a Bearer token, you need to encrypt your API keys.
 
@@ -30,7 +30,7 @@ To obtain a Bearer token, you need to encrypt your API keys.
 https://seerbitapi.com/api/v2/encrypt/keys
 ```
 
-###### Headers:
+##### Headers:
 
 ```json
 {
@@ -38,7 +38,7 @@ https://seerbitapi.com/api/v2/encrypt/keys
 }
 ```
 
-###### Request Body:
+#### Request Body
 
 ```json
 {
@@ -46,7 +46,7 @@ https://seerbitapi.com/api/v2/encrypt/keys
 }
 ```
 
-###### Example cURL:
+##### Example cURL:
 
 ```bash
 curl --location 'https://seerbitapi.com/api/v2/encrypt/keys' \
@@ -56,7 +56,7 @@ curl --location 'https://seerbitapi.com/api/v2/encrypt/keys' \
 }'
 ```
 
-###### Response (Success - 200):
+#### Response (Success - 200):
 
 ```json
 {
@@ -83,14 +83,14 @@ Once you have your Bearer token, you can create sub-accounts for your business o
 https://seerbitapi.com/api/v2/sub-accounts
 ```
 
-##### Request Headers
+#### Request Headers
 
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
 | Content Type | `string` | Must be **application/json** | Yes |
 | Authorization | `string` | Bearer token obtained from the encryption endpoint. | Yes |
 
-##### Request Parameters
+#### Request Parameters
 
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
@@ -228,7 +228,7 @@ Create split configurations on the go during payment initialization when split d
 https://seerbitapi.com/api/v2/payments
 ```
 
-###### Parameter Description
+##### Parameter Description
 
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
@@ -238,7 +238,7 @@ https://seerbitapi.com/api/v2/payments
 | subAccountCode | `string` | Sub account Code | Yes |
 | value | `string` | Amount to be settled | Yes |
 
-##### Request Sample
+#### Request Sample
 
 The code snippet below shows an example request for generating a payment link to complete a payment with dynamic split settlement
 
@@ -357,7 +357,7 @@ echo $response;
 
 </CodeGroup>
 
-##### Response Sample
+#### Response Sample
 
 The code snippet below shows an example request for generating a bearer token
 
