@@ -70,7 +70,7 @@
           {
             "group": "Payment Methods",
             "pages": [
-              { "group": "Payment", "pages": ["/payment-methods/overview"] },
+              "/payment-methods/overview",
               {
                 "group": "Payment Methods",
                 "pages": [
@@ -84,16 +84,36 @@
             ]
           },
           {
-            "group": "GROUP 3 NAME",
-            "pages": []
+            "group": "Libraries & Plugins",
+            "pages": ["/libraries-and-plugins/overview", "/libraries-and-plugins/isv-pos"]
           },
           {
-            "group": "GROUP 4 NAME",
-            "pages": []
+            "group": "Testing",
+            "pages": ["/testing/overview"]
           },
           {
-            "group": "GROUP 5 NAME",
-            "pages": []
+            "group": "Development Resources",
+            "pages": [
+              {
+                "group": "Hash",
+                "pages": [
+                  "/development-resources/hash/hash-endpoint",
+                  "/development-resources/hash/key-encryption"
+                ]
+              },
+              {
+                "group": "Responses",
+                "pages": [
+                  "/development-resources/responses/raw-acquirer-responses",
+                  "/development-resources/responses/response-handling",
+                  "/development-resources/responses/seerbit-status-code"
+                ]
+              },
+              {
+                "group": "Currency Codes",
+                "pages": ["/development-resources/currency-codes/overview"]
+              }
+            ]
           }
         ]
       },

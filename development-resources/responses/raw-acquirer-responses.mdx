@@ -1,0 +1,16 @@
+---
+title: Raw Acquirer Responses
+---
+
+A successful payment request (HTTP status code 200/OK) doesn't automatically mean the payment was successful. The transaction can be refused or cancelled for some reason. When this happens, the response includes a resultCode of refused or Cancelled with a refusalReason field explaining why the transaction didn't succeed. The refusal reason is primarily based on the authorisation response code we receive from the issuer or card scheme, known as 'raw acquirer response'.
+
+## Mastercard and Visa Raw responses
+
+These are the most common raw reponses from Visa and Mastercard for refused or cancelled transactions. The response code returns with or without a leading zero
+
+| Type      | Raw Responses                          | Description                                                                                                                                                                                                            |
+| --------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cancelled | 00: Approved or completed successfully | The transaction was cancelled after being initially approved by the issuer. This can be due to various reasons, for example, if the shopper returns goods after purchase                                               |
+| Refused   | 01: Refer to card issuer               | The transaction was refused by the card issuer. The shopper should contact their bank for clarification. The shopper can try again after resolving the issue with their bank, or use another payment method            |
+| Refused   | 03: Invalid merchant                   | The transaction was refused by the card issuer. The shopper should contact their bank for clarification. The shopper can try again after resolving the issue with their bank, or use another payment method            |
+| Refused   | 04: Capture card / Pick-up             | The card issuer requests to retain the card. This can be due to a suspected counterfeit or stolen card. This reason is used in an E-Commerce environment although it originates from a POS (Point Of Sale) environment |

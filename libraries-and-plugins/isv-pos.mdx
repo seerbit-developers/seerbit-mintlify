@@ -1,0 +1,282 @@
+---
+title: ISV POS Firebase Implementation
+---
+
+This page outlines the integration architecture for Independent Software Vendor (ISV) applications (e.g.,Odoo, Sage, Salesforce, Microsoft Business Central, and Finance & Operations) to connect to Seerbit’s Firebase-basedPOS communication infrastructure
+
+> **Note**: The Firebase-based approach is platform-agnostic and designed to work across different backend languages (Python, Java, JS/TS, Go).
+
+> **Requirements**: Before starting integration, ensure the following (table below) are in place.
+
+| Component                  | Description                                                                         |
+| -------------------------- | ----------------------------------------------------------------------------------- |
+| **Firebase Admin SDK**     | Required to listen to Seerbit Firebase collections securely.                        |
+| **Service Account JSON**   | Secure credentials file provided by Seerbit to authenticate your app.               |
+| **ISV Listener App**       | Your ERP/CRM plugin/backend that subscribes to transaction updates.                 |
+| **Reconciliation Handler** | Logic to reconcile transactions based on id, transactionRef, transactionValue, etc. |
+
+## Integration Steps
+
+### 1: Add Firebase Admin SDK to Your Project
+
+Firebase Admin SDK enables server-side interaction with Firebase, including real-time listeners and secure database writes.
+
+##### Language Support
+
+| Language       | Installation Command            |
+| -------------- | ------------------------------- |
+| **Python**     | `pip install firebase-admin`    |
+| **JavaScript** | `npm install firebase-admin`    |
+| **Java**       | Use _Maven_ or _Gradle_         |
+| **Go**         | `go get firebase.google.com/go` |
+
+[Official Guide](https://firebase.google.com/docs/admin/setup)
+
+### 2: Setup Firebase Credentials
+
+Seerbit will provide a Service Account JSON file. This file contains credentials to authenticate your application securely with Firebase.
+
+> **Security Note**: Never commit this file to source control. Use environment variables or secure vaults for production.
+
+The code snippet below shows an example implementation.
+
+<CodeGroup>
+    
+```python Python
+import firebase_admin from firebase_admin 
+import credentials
+cred = credentials.Certificate(
+"path/to/serviceAccountKey.json"
+)
+```
+
+```javascript NODE
+var admin = require('firebase-admin');
+var serviceAccount = require('path/to/serviceAccountKey.json');
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
+```
+
+```java Java
+FileInputStream serviceAccount =
+new FileInputStream(
+"path/to/serviceAccountKey.json"
+);
+FirebaseOptions options = new FirebaseOptions.Builder()
+ .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+ .build();
+FirebaseApp.initializeApp(options);
+```
+
+```go Go
+import (
+"fmt"
+
+"context"
+
+firebase
+"firebase.google.com/go"
+
+"firebase.google.com/go/auth"
+
+"google.golang.org/api/option"
+
+)
+opt := option.WithCredentialsFile(
+"path/to/serviceAccountKey.json"
+)
+app, err := firebase.NewApp(context.Background(), nil, opt)
+if
+ err != nil {
+
+return
+ nil, fmt.Errorf(
+"error initializing app: %v"
+, err)
+```
+
+</CodeGroup>
+
+### 3a: Initiate Payment
+
+Using the sample payload below as a reference, push the payment information (Generated from ERP) to the transactions collection:
+
+#### Sample Payload
+
+```json
+{
+  "id": "id-1234",
+  "merchantid": "",
+  "metadata": "",
+  "posid": "22147776",
+  "pubkey": "",
+  "receivedDateTime": "30/06/2025 13:45",
+  "sessionId": "",
+  "status": "open",
+  "transactionRef": "",
+  "transactionTime": "",
+  "transactionValue": "1.50"
+}
+```
+
+### 3b: Listen to Firebase Collections
+
+The Firebase collections emit **transaction events** from the collections below :
+
+- Reconciliations
+
+#### Sample Payload
+
+```python
+import firebase_admin
+from firebase_admin import firestore
+import time
+
+# Get Firestore client
+db = firestore.client()
+
+
+# Define callback for listening to changes
+def on_snapshot(col_snapshot, changes, read_time):
+    print(f"--- Change detected at {read_time} ---")
+
+    for change in changes:
+        if change.type.name == "ADDED":
+            print(
+                f"New document: {change.document.id} => "
+                f"{change.document.to_dict()}"
+            )
+
+        elif change.type.name == "MODIFIED":
+            print(
+                f"Modified document: {change.document.id} => "
+                f"{change.document.to_dict()}"
+            )
+
+        elif change.type.name == "REMOVED":
+            print(f"Removed document: {change.document.id}")
+
+
+# Start listening to a collection
+collection_ref = db.collection("myCollection")
+query_watch = collection_ref.on_snapshot(on_snapshot)
+
+
+# Keep the program running
+print("Listening to Firestore changes... (Ctrl+C to stop)")
+
+while True:
+    time.sleep(60)
+```
+
+### 4: Process the Incoming Event
+
+Your plugin/backend should implement logic to:
+
+- Match the transaction to internal records using fields like merchant_id, pos_id, id, transactionRef, amount.
+- Update invoice/payment status inside the ERP/CRM system.
+
+### 5: Handle Reconciliation
+
+##### A reconciliation endpoint or logic is necessary to:
+
+- Validate payment integrity.
+- Retry or reject duplicate transactions.
+- Confirm matching amounts and payment status ( completed , failed ).
+
+##### Recommended approach:
+
+1. On POS transaction completion, receive event via Firebase.
+2. Fetch internal ERP invoice details using reference (id, transactionRef).
+3. Call Seerbit’s reconciliation endpoint (or internal match function).
+4. Mark ERP invoice as paid/unpaid accordingly.
+
+#### Sample Payload
+
+```json
+{
+  "id": "id-1234",
+  "merchantid": "",
+  "metadata": "",
+  "posid": "22147776",
+  "pubkey": "",
+  "receivedDateTime": "30/06/2025 13:45",
+  "sessionId": "",
+  "status": "open",
+  "transactionRef": "",
+  "transactionTime": "",
+  "transactionValue": "1.50"
+}
+```
+
+##### Payload Description
+
+| Field              | Description                                                                                                                                    | Required? |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| `id`               | ID from the ERP system                                                                                                                         | Mandatory |
+| `posid`            | Payment terminal ID                                                                                                                            | Mandatory |
+| `merchantid`       | Merchant ERP ID                                                                                                                                | Mandatory |
+| `transactionValue` | Transaction amount                                                                                                                             | Mandatory |
+| `status`           | Status of the transaction. Possible values: **open**, **pending**, **completed**, **failed**                                                   | Mandatory |
+| `sessionId`        | Transaction reference on SeerBit                                                                                                               | Mandatory |
+| `transactionRef`   | ERP transaction reference                                                                                                                      | Mandatory |
+| `receivedDateTime` | Payment type should be set to The time the transaction was initiated on the ERP.(mm/dd/yyyyHH:mm)                                              | Mandatory |
+| `transactionTime`  | Time transaction completed on SeerBit                                                                                                          | Mandatory |
+| `metadata`         | Any additional data from ERP. This can be of any data type but should be stringified. This will be sent back to the reconciliations collection | Mandatory |
+| `publicKey`        | Merchant's SeerBit publickey                                                                                                                   | Mandatory |
+
+> **Note**: All fields values should be sent as string format. Send an empty string if value is unavailable. However, id, posid, transactionValue, status, transactionRef, receivedDateTime should have actual values.
+
+## Platform-Specific Notes
+
+##### Odoo (v15 - v18)
+
+- Use python-firebase or REST wrapper for real-time interaction.
+- Integrate with account.payment and pos.order models.
+- Add cron job fallback for missed Firebase events.
+
+##### Sage X3 / Sage 300
+
+- Use Node.js backend service or scheduled listener.
+- Maintain sync between POS and ERP through Firebase events.
+
+##### Salesforce
+
+- Use Apex with Firebase-compatible middleware (Node.js/GCP Functions).
+- Map transaction records to Opportunity/Invoice objects.
+
+##### Microsoft Business Central & F&O
+
+- Integrate via Azure Function or custom AL module.
+- Trigger payment application via incoming transaction JSON payload.
+
+### Error Handling & Edge Cases
+
+| Scenario                             | Handling Recommendation                                       |
+| ------------------------------------ | ------------------------------------------------------------- |
+| **Duplicate Transaction Ref**        | Store transaction references and discard duplicates           |
+| **Firebase message loss or timeout** | Implement reconciliation polling fallback every 5–10 mins     |
+| **Mismatched amounts**               | Flag for manual reconciliation or automated exception logging |
+| **User ID not found**                | Return error and write to failed transaction queue            |
+
+### Best Practices
+
+- Always validate data received from Firebase against internal references.
+- Use structured logs and error tracking (e.g., Sentry, ELK, or Firebase Crashlytics).
+- Implement retry mechanisms for failed webhook or Firebase event processing.
+- Keep reconciliation logic idempotent (i.e., safe to repeat without duplication).
+
+### Security Considerations
+
+- Always use HTTPS endpoints when writing back to Firebase.
+- Keep your Firebase Admin credentials secure.
+- Rotate service account keys periodically.
+- Validate all incoming data formats to avoid injection or logic errors.
+
+### Test Plan
+
+- Simulate payment from POS and verify it is picked up by ISV plugin.
+- Trigger Firebase message loss scenario and test reconciliation fallback.
+- Validate multiple transactions from same POS device in succession.
+- Test data corruption or tampering and confirm handling logic.
