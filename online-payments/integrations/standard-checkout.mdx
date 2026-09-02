@@ -151,7 +151,7 @@ Authorization: Bearer YOUR\_ENCRYPTED\_KEY
 - tokenize – Boolean for tokenization
 - splitCode – Split rule code
 
-For the full specification, see our [API Reference](api-reference)
+For the full specification, see our [API Reference](/api-reference)
 
 #### Request Sample
 
@@ -303,10 +303,10 @@ The code snippet below shows an example request for generating a bearer token
 ## Notes
 
 - Always use the redirectLink to send customers to the SeerBit checkout page.
-- Set up [webhooks](webhooks) for secure, server-side payment confirmation. Do not rely solely on browser redirects.
+- Set up [webhooks](/online-payments/after-payments/webhook-events) for secure, server-side payment confirmation. Do not rely solely on browser redirects.
 - If your business model requires the customer to pay the transaction fee, you must add this charge to the total amount you request. The fee will be deducted during settlement.
-- For testing, use SeerBit [test cards](testing).
+- For testing, use SeerBit [test cards](/testing/overview).
 
 ## Troubleshooting
 
-If the payment modal does not appear, check your browser console for errors (commonly a missing publicKey). For full parameter details, visit the [Standard Checkout API Reference](api-reference/standard-checkout/generate-hash).
+If the payment modal does not appear, check your browser console for errors (commonly a missing publicKey). For full parameter details, visit the [Standard Checkout API Reference](/api-reference).

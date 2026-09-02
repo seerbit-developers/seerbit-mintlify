@@ -121,7 +121,7 @@
         "tab": "API Reference",
         "icon": "book-marked",
         "openapi": {
-          "source": "/openapi.yml"
+          "source": "https://raw.githubusercontent.com/seerbit/openapi/refs/heads/master/specs/external-api.yml"
         }
       }
     ]

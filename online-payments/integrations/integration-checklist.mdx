@@ -40,16 +40,16 @@ Welcome! This checklist is your step-by-step guide to building a complete, robus
 
 - **Choose Your Integration Method**: Pick the method that fits your needs:
 
-  - **Simple Checkout**: An inline, PCI-compliant payment form that works seamlessly across devices. [Learn more](/simple-checkout).
-  - **Standard Checkout**: Generate a secure checkout link via the /payment/initialize endpoint. [Learn more](/standard-checkout).
-  - **E-commerce Plugins**: Integrate SeerBit with popular platforms. [Learn more](/e-commerce-plugin).
-- **Run a Test Transaction**: Use our [test card](/testing) to simulate a successful payment. No real funds are debited.
+  - **Simple Checkout**: An inline, PCI-compliant payment form that works seamlessly across devices. [Learn more](/online-payments/integrations/simple-checkout).
+  - **Standard Checkout**: Generate a secure checkout link via the /payment/initialize endpoint. [Learn more](/online-payments/integrations/standard-checkout).
+  - **E-commerce Plugins**: Integrate SeerBit with popular platforms. [Learn more](/online-payments/integrations/e-commerce-plugin).
+- **Run a Test Transaction**: Use our [test card](/testing/overview) to simulate a successful payment. No real funds are debited.
 
 ## Phase 2: Implement Real-Time Notifications
 
 Enable instant updates for your transactions.
 
-- Set Up Webhooks: Configure a webhook URL in your dashboard to receive POST requests whenever an event occurs (e.g., transaction status updates). Each notification includes an eventType indicating the trigger. [Learn more](webhook-events).
+- Set Up Webhooks: Configure a webhook URL in your dashboard to receive POST requests whenever an event occurs (e.g., transaction status updates). Each notification includes an eventType indicating the trigger. [Learn more](/online-payments/after-payments/webhook-events).
 
 ## Phase 3: Prepare to Go Live
 
@@ -78,13 +78,13 @@ Switch from testing to processing real payments.
 
 The core of your SeerBit integration is being able to make payments and handle their subsequent states.
 
-1. **Make a payment**<br /> Make a successful payment with any of our [Online Payment](/accept-payment) Integrations.
+1. **Make a payment**<br /> Make a successful payment with any of our [Online Payment](/online-payments/integrations/accept-payment) Integrations.
 2. **Refund a payment**<br /> It is important to handle situations where you may need to cancel or refund a payment.
-3. **Integrate additional payment methods**<br /> ‍Add additional [Payment Methods](/payment-methods) to your account for your shoppers countries. It is also important you can handle the different [Status Codes](/seerbit-status-codes), such as pending, which is more common for local payment methods.
+3. **Integrate additional payment methods**<br /> ‍Add additional [Payment Methods](/payment-methods/overview) to your account for your shoppers countries. It is also important you can handle the different [Status Codes](/development-resources/responses/seerbit-status-code), such as pending, which is more common for local payment methods.
 
 ## Webhooks
 
-SeerBit uses [webhooks](/webhooks) to inform your system on payment statuses, results of actions such as refunds, receiving the payment result of some local payment methods, and other events.
+SeerBit uses [webhooks](/online-payments/after-payments/webhook-events) to inform your system on payment statuses, results of actions such as refunds, receiving the payment result of some local payment methods, and other events.
 
 1. **Expose an endpoint to handle webhooks events**<br /> You need to expose an endpoint in your system to be able to receive our webhooks events.
 2. **Configure the webhooks to send to your endpoint**<br /> Login to your merchant dashboard in order to set the endpoint of your webhook handler.
