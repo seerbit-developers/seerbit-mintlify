@@ -1,0 +1,183 @@
+---
+title: Payout
+---
+
+With the endpoints here, you can make payments to other banks.
+
+> Please note that to use the signature endpoint and the transfer to other banks via API, you need to be approved by the compliance team.
+
+## Account Enquiry
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/payout/account-enquiry
+```
+
+Use this to reconfirm bank account name for transfers
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/payout/account-enquiry' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_BEARER_TOKEN_HERE' \
+--data-raw '
+	{
+    "accountnumber": {{account number}},
+    "bankcode": {{ bank code }}
+}'
+```
+
+## Bank List
+
+This API shows a list of supported Nigerian banks
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/banks/category/NIP
+```
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/banks' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_BEARER_TOKEN_HERE' \
+--header 'Public-Key: your_public_key_here' \
+```
+
+## Generate OTP
+
+An OTP is required to authorize a payout transaction. Use the `Get OTP` endpoint.
+
+> Note: The OTP provided in the `otp` field should be passed as the `passKey` in the generate
+> signature and payout request.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/getOtp
+```
+
+#### Request Sample
+
+```bash cUL
+curl --location 'https://pocket.seerbitapi.com/pocket/getOtp' \
+--header 'Public-Key: your_public_key_here' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer your_bearer_token_here' \
+--data-raw '
+	{
+  	"actionItem": "APPROVE_DISBURSEMENT",
+  	"pocketId": "your_pocket_id_here"
+}'
+```
+
+#### Response Sample
+
+This a sample response code
+
+```json
+{
+  "responseCode": "00",
+  "message": "Success",
+  "data": {
+    "otp": "028087",
+    "category": "APPROVE_DISBURSEMENT",
+    "expires": "2025-02-25T19:20:12.649104071"
+  }
+}
+```
+
+## Generate Signature
+
+Instead of manually creating a signature, use the `Get Signature` endpoint.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/payout/get-signature
+```
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/payout/get-signature' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {{bearerToken}}' \
+--data '
+{
+	"reference": "JIN-12345678901101",
+	"amount": "10",
+	"currency": "NGN",
+	"description": "test",
+	"accountNumber": "{{accountNumber}}",
+	"bankCode": "000013",
+	"actionType": "APPROVE_DISBURSEMENT",
+	"passKey": "028087"
+}'
+```
+
+#### Response Sample
+
+This a sample response code
+
+```json
+{
+	"responseCode" : "00",
+	"message" : "Success",
+	"data" : "
+    	{
+        {signature}
+      }"
+}
+```
+
+> **Note**: The value in the `data` field is the generated signature. This signature changes for every transaction.
+
+## Inititate Payout
+
+Use the `Initiate Payout` endpoint, passing the generated signature in the request body.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/payout/encrypted/pocket-id/{{pocketID}}
+```
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/payout/encrypted/pocket-id/{{pocketID}}' \
+--header 'Content-Type: application/json' \
+--header 'Public-Key: {{publicKey}}' \
+--header 'Authorization: Bearer {{bearerToken}}' \
+--data '
+	{
+		"reference": "JIN-12345678901101",
+		"amount": "10",
+		"currency": "NGN","description": "test",
+		"accountNumber": "{{accountNumber}}",
+		"bankCode": "000013",
+		"passKey": "028087",
+		"actionType": "APPROVE_DISBURSEMENT",
+		"signature": "{{signature}}"
+	}'
+```
+
+#### Response Sample
+
+This a sample response code
+
+```json
+{
+  "responseCode": "00",
+  "message": "Successful",
+  "data": {
+    "reference": "JIN-12345678901101",
+    "linkingreference": "F00230472990"
+  }
+}
+```

@@ -1,0 +1,28 @@
+---
+title: Failed Transactions
+---
+
+Transactions fail for a variety of reasons and it can be frustrating when it leads to loss of prospective customers. Majority of these payments fail for a good amount of reasons in order to minimize the possibility of a fraudulent transaction.
+
+We continuously work to reduce decline rates for payments processed on SeerBit with our advanced fraud detection and management tools.
+
+##### Other Reasons for Failed Transaction
+
+1. Transaction failure due to card issuer
+2. Invalid API calls
+
+## Transaction Failure due to card issuer
+
+When a customer initiates a payment. A debit request is sent to the issuer of the customer’s card. The request analyzes various signals such as card information, card expiry date, CVC and customer’s spending habits.<br/>
+If the payment is declined by the card issuer, SeerBit has much information needed to understand why the transaction failed. The information is provided on the dashboard and API level. Sample reasons can be: Insufficient funds, transaction not permitted to card holder or do not honor.
+
+## Mastercard and Visa Raw Responses
+
+These are the most common raw responses from Visa and Mastercard for refused or cancelled transactions. The response code returns with or without a leading zero
+
+| Type      | Raw Responses                          | Description                                                                                                                                                                                                             |
+| --------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cancelled | 00: Approved or completed successfully | The transaction was cancelled after being initially approved by the issuer. This can be due to various reasons, for example, if the shopper returns goods after purchase.                                               |
+| Refused   | 01: Refer to card issuer               | The transaction was refused by the card issuer. The shopper should contact their bank for clarification. The shopper can try again after resolving the issue with their bank, or use another payment method             |
+| Refused   | 03: Invalid merchant                   | The transaction was refused by the card issuer. The shopper should contact their bank for clarification. The shopper can try again after resolving the issue with their bank, or use another payment method.            |
+| Refused   | 04: Capture card / Pick-up             | The card issuer requests to retain the card. This can be due to a suspected counterfeit or stolen card. This reason is used in an E-Commerce environment although it originates from a POS (Point Of Sale) environment. |

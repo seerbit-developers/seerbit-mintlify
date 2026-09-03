@@ -1,0 +1,57 @@
+---
+title: Hash
+---
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/encrypt/hashs
+```
+
+### Request Sample
+
+The code snippet below shows an example response for creating a subscription
+
+```json
+{
+  "publicKey": "SBTEST**************************viTF",
+  "paymentReference": "WQ6676yPOpr12348o",
+  "planId": "",
+  "cardNumber": "2223000000000007",
+  "expiryMonth": "05",
+  "callbackUrl": "https://checkout.seerbitapi.com",
+  "expiryYear": "21",
+  "cvv": "100",
+  "amount": "20",
+  "currency": "NGN",
+  "productDescription": "Test Token",
+  "productId": "Terrain",
+  "country": "NG",
+  "startDate": "2019-01-11 00:00:00",
+  "cardName": "Bola Olat",
+  "billingCycle": "DAILY",
+  "email": "johndoe@gmail.com",
+  "mobileNumber": "09022323537",
+  "billingPeriod": "4",
+  "subscriptionAmount": false
+}
+```
+
+### Response Sample
+
+The code snippet below shows an example response for creating a subscription
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "S20",
+    "payments": {
+      "paymentReference": "WQ6676yPOpr12348o",
+      "linkingReference": "F194900041578648252258",
+      "redirectUrl": "https://staging.seerbitapigateway.com/seerbit/card-dispatch?sredref=F194900041578648252258"
+    },
+    "message": "Transaction is pending"
+  }
+}
+```

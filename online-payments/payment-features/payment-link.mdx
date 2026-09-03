@@ -1,0 +1,467 @@
+---
+title: Payment Link
+---
+
+SeerBit payment link is a payment feature that allows merchant create a payment link and share to the customer, to make instant online payments.
+
+## Create Payment Link
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for creating a payment link
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data-raw '{
+  "status":"ACTIVE",
+  "paymentLinkName": "Donations",
+  "description":"Give out donations",
+  "currency": "NGN",
+  "successMessage":"Thank you for your payment",
+  "publicKey":"YOUR_PUBLIC_KEY",
+ "customizationName":"testing1",
+  "paymentFrequency":"ONE_TIME",
+  "paymentReference": "",
+  "email":"js@emaildomain.com",
+  "requiredFields": {
+      "address":true,
+      "amount":true,
+      "customerName":true,
+      "mobileNumber":true,
+      "invoiceNumber":false
+  },
+  "additionalData":"Customer Email: js@mailinator.com",
+  "linkExpirable":false,
+  "expiryDate":"",
+  "oneTime":false
+
+}'
+
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY',
+  },
+  body: JSON.stringify({
+    status: 'ACTIVE',
+    paymentLinkName: 'Donations',
+    description: 'Give out donations',
+    currency: 'NGN',
+    successMessage: 'Thank you for your payment',
+    publicKey: 'YOUR_PUBLIC_KEY',
+    customizationName: 'testing1',
+    paymentFrequency: 'ONE_TIME',
+    paymentReference: '',
+    email: 'js@emaildomain.com',
+    requiredFields: {
+      address: true,
+      amount: true,
+      customerName: false,
+      mobileNumber: true,
+      invoiceNumber: false,
+    },
+    additionalData: 'Customer Email: js@mailinator.com',
+    linkExpirable: false,
+    expiryDate: '',
+    oneTime: false,
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+  "status":"ACTIVE",
+  "paymentLinkName": "Donations",
+  "description":"Give out donations",
+  "currency": "NGN",
+  "successMessage":"Thank you for your payment",
+  "publicKey":"YOUR_PUBLIC_KEY",
+ "customizationName":"testing1",
+  "paymentFrequency":"ONE_TIME",
+  "paymentReference": "",
+  "email":"js@emaildomain.com",
+  "requiredFields": {
+      "address":true,
+      "amount":true,
+      "customerName":false,
+      "mobileNumber":true,
+      "invoiceNumber":false
+  },
+  "additionalData":"Customer Email: js@mailinator.com",
+  "linkExpirable":false,
+  "expiryDate":"",
+  "oneTime":false
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for creating a payment link
+
+```json
+{
+
+    "data": {
+        "paymentLinks": {
+            "publicKey": "SBPUBK_******************PHI",
+            "status": "ACTIVE",
+            "additionalData": "custom1:null||custom2:null||custom3:null",
+            "paymentLinkName": "Donationas",
+            "description": "Donation",
+            "successMessage": "Payment made successfully!",
+            "paymentLinkId": "000000000",
+            "currency": "NGN",
+            "paymentReference": ""  // optional,
+            "paymentFrequency": "RECURRENT",
+            "paymentLinkUrl": "https://pay.seerbitapi.com/paymentLinkId",
+            "customizationName": "utbesti22",
+            "environment": "LIVE",
+            "requiredFields": {
+                "address": true,
+                "amount": true,
+                "customerName": true,
+                "mobileNumber": true,
+                "invoiceNumber": false
+            },
+            "expiryDuration": 0,
+            "linkExpirable": false,
+            "createdAt": "2021-09-21T10:49:17.728",
+            "updatedAt": "2021-09-21T10:49:17.728",
+            "oneTime": false,
+            "splitPayment": false
+        }
+    }
+
+}
+```
+
+## Get Merchant Payment Link
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publickKey}
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for getting merchant payment link
+
+<CodeGroup>
+ 
+```bash cURL
+curl --location 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publickKey}' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  'method': 'GET',
+  'url': 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publickKey}',
+  'headers': {
+    'Authorization': 'Bearer YOUR_ENCRYPTED_KEY'
+  },
+
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publickKey}',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'GET',
+ ,
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response to get all created links
+
+```json
+{
+  "currentPage": 0,
+  "responseCode": "00",
+  "payload": [
+    {
+      "businessId": "00000051",
+      "publicKey": "publickey",
+      "status": "ACTIVE",
+      "amount": 10000.0,
+      "customisationName": "SeerBitPay",
+      "additionalData": "",
+      "paymentLinkName": "SeerBit Payment Link",
+      "description": "Buy Items",
+      "paymentLinkId": "00000000",
+      "paymentFrequency": "ONE_TIME",
+      "paymentLinkUrl": "https://pay.seerbitapi.com/paymentLinkID",
+      "pocketReference": "",
+      "environment": "LIVE",
+      "requiredFields": {
+        "address": true,
+        "amount": false,
+        "customerName": true,
+        "mobileNumber": false,
+        "invoiceNumber": false
+      },
+      "expiryDuration": 0,
+      "linkExpirable": false,
+      "customTime": "",
+      "createdAt": "2021-07-17T12:05:55",
+      "updatedAt": "2021-07-17T12:05:55",
+      "oneTime": false,
+      "splitPayment": false
+    }
+  ],
+  "responseMessage": "successful"
+}
+```
+
+## Update Payment Link
+
+<Badge color="yellow">PUT</Badge>
+
+```bash
+https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for updating a payment link
+
+<CodeGroup>
+
+```bash cURL
+curl --location --request PUT 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data-raw '{
+    "paymentLinkId":{paymentlinkid},
+    "status":"INACTIVE",
+    "description":"Test paymentLink",
+    "successMessage":"Payment made successfully!",
+    "businessName":"My Business",
+    "publicKey":"publickKey",
+      "customizationName":"my_link_3",
+      "paymentFrequency":"RECURRENT",
+      "email":"customer@seerbit.com",
+      "requiredFields": {
+          "address":true,
+          "amount":true,
+          "customerName":true,
+          "mobileNumber":true,
+          "invoiceNumber":false
+      },
+      "linkExpirable":false,
+      "expiryDate":"",
+      "oneTime":false
+
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'PUT',
+  url: 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY',
+  },
+  body: JSON.stringify({
+    paymentLinkId: '0000000',
+    status: 'INACTIVE',
+    description: 'Test paymentLink',
+    successMessage: 'Payment made successfully!',
+    businessName: 'My Business',
+    publicKey: 'publickKey',
+    customizationName: 'my_link_3',
+    paymentFrequency: 'RECURRENT',
+    email: 'customer@seerbit.com',
+    requiredFields: {
+      address: true,
+      amount: true,
+      customerName: true,
+      mobileNumber: true,
+      invoiceNumber: false,
+    },
+    linkExpirable: false,
+    expiryDate: '',
+    oneTime: false,
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'PUT',
+  CURLOPT_POSTFIELDS =>'{
+    "paymentLinkId":"0000000",
+    "status":"INACTIVE",
+    "description":"Test paymentLink",
+    "successMessage":"Payment made successfully!",
+    "businessName":"My Business",
+    "publicKey":"publickKey",
+      "customizationName":"my_link_3",
+      "paymentFrequency":"RECURRENT",
+      "email":"customer@seerbit.com",
+      "requiredFields": {
+          "address":true,
+          "amount":true,
+          "customerName":true,
+          "mobileNumber":true,
+          "invoiceNumber":false
+      },
+      "linkExpirable":false,
+      "expiryDate":"",
+      "oneTime":false
+
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for updating a payment link
+
+```json
+{
+  "data": {
+      "paymentLinks": {
+          "publicKey": "PublicKey",
+          "status": "INACTIVE",
+          "description": "Test paymentLink",
+          "successMessage": "Payment made successfully!",
+          "paymentLinkId": "0000000",
+          "paymentFrequency": "RECURRENT",
+          "paymentLinkUrl": "null/my_link_3",
+          "customizationName": "my_link_3",
+          "environment": "LIVE",
+          "requiredFields": {
+              "address": true,
+              "amount": true,
+              "customerName": true,
+              "mobileNumber": true,
+              "invoiceNumber": false
+          },
+          "expiryDuration": 0,
+          "linkExpirable": false,
+          "updatedAt": "2021-09-21T11:12:57.404",
+          "oneTime": false,
+          "splitPayment": false
+      }
+  }
+}
+```
+
+## Delete a Payment Link
+
+<Badge color="red">DELETE</Badge>
+
+```bash
+https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/deleteLink/{paymentLinkId}
+```
+
+#### Response Sample
+
+The code snippet below shows an example response for deleting a payment link
+
+```json
+{
+  "status": "Deleted"
+}
+```

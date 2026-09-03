@@ -1,0 +1,555 @@
+---
+title: Card Tokenise and Charge
+---
+
+The Card Tokenize and Charge API allows you to charge a tokenized payment method.
+
+After the initial successful payment with a customer's card, it is possible to store their card authorisation for future transactions. Merchants that are not PCI compliant can leverage our [Simple Checkout](/online-payments/integrations/simple-checkout) or our [Sdk Libraries](/libraries-and-plugins/overview) to store the card token securely, which can be used for future charges.
+
+To commence the first charge, it is required to follow local regulations that necessitate users to authenticate their card through a two-factor authentication process in the initial charge transaction. This is done to verify that the card is valid and it belongs to the user initializing the transaction and that it can be charged for subsequent transactions. Additionally a minimum amount of NGN 50.00, GHS 1, KES 1, or USD 0.50 is required to be passed in the request body for the first charge.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments/create-token
+```
+
+## Create Card Token
+
+#### Request Sample
+
+The code snippet below shows an example response for creating a card token
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments/create-token' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data-raw '{
+    "publicKey": "YOUR_PUBLIC_KEY",
+    "amount": "50",
+    "fullName": "Jane Smith",
+    "mobileNumber": "03447522256",
+    "redirectUrl":"http://example.com",
+    "currency": "NGN",
+    "country": "NG",
+    "paymentReference": "204g4de74a7ib0j18dg6bi521aiaejf4",
+    "email": "janesmith@seerbit.com",
+    "paymentType": "CARD",
+    "cardNumber": "512348984984988883",
+    "expiryMonth": "01",
+    "expiryYear": "25",
+    "cvv":"000",
+    "pin":"2222"
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://seerbitapi.com/api/v2/payments/create-token',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY',
+  },
+  body: JSON.stringify({
+    publicKey: 'YOUR_PUBLIC_KEY',
+    amount: '50',
+    fullName: 'Jane Smith',
+    mobileNumber: '03447522256',
+    redirectUrl: 'http://example.com',
+    currency: 'NGN',
+    country: 'NG',
+    paymentReference: '204g4de74a7ib0j18dg6bi521aiaejf4',
+    email: 'janesmith@seerbit.com',
+    paymentType: 'CARD',
+    cardNumber: '512348984984988883',
+    expiryMonth: '01',
+    expiryYear: '25',
+    cvv: '000',
+    pin: '2222',
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments/create-token',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "publicKey": "YOUR_PUBLIC_KEY",
+    "amount": "50",
+    "fullName": "Jane Smith",
+    "mobileNumber": "03447522256",
+    "redirectUrl":"http://example.com",
+    "currency": "NGN",
+    "country": "NG",
+    "paymentReference": "204g4de74a7ib0j18dg6bi521aiaejf4",
+    "email": "janesmith@seerbit.com",
+    "paymentType": "CARD",
+    "cardNumber": "512348984984988883",
+    "expiryMonth": "01",
+    "expiryYear": "25",
+    "cvv":"000",
+    "pin":"2222"
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for creating a card token
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "S20",
+    "message": "Transaction is pending",
+    "payments": {
+      "paymentReference": "{{paymentReference}}",
+      "linkingReference": "SEERBIT60416746746373661414266005",
+      "redirectUrl": "https://seerbitapi.com/50E84E82C25D"
+    }
+  }
+}
+```
+
+##### Parameter Description
+
+| Name          | Type     | Description                                                | Required? |
+| ------------- | -------- | ---------------------------------------------------------- | --------- |
+| public Key    | `string` | public key - this can be copied from the SeerBit dashboard | Yes       |
+| amount        | `string` | amount to be charged                                       | Yes       |
+| fullname      | `string` | customer's full name                                       | Yes       |
+| mobile number | `string` | customer's mobile number                                   | Yes       |
+| currency      | `string` | currency in which you want to charge                       | Yes       |
+| country       | `string` | country of the business or currency                        | Yes       |
+| email         | `string` | customer's email                                           | Yes       |
+| paymentType   | `string` | payment type should be set to CARD                         | Yes       |
+| cardNumber    | `string` | debit or credit card number                                | Yes       |
+| expiryMonth   | `string` | debit or credit card expiry month. E.g 12 means december   | Yes       |
+| expiryYear    | `string` | debit or credit card expiry year. E.g 23 means 2023        | Yes       |
+| cvv           | `string` | customer's digits at the back of the card                  | Yes       |
+| pin           | `string` | card pin                                                   | Yes       |
+| redirectURL   | `string` | page to be redirected to after successful authentication   | Yes       |
+
+## Get Card Authorization Code
+
+After the first successful transaction, you can query the transaction with the payment reference endpoint to confirm the status of transaction. The queried payment reference returns the authorizationCode that will be used for subsequent charges. Below is a sample response.
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://seerbitapi.com/api/v3/payments/query/{{paymentReference}}
+```
+
+#### Response Sample
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "message": "Successful",
+    "payments": {
+      "amount": 50,
+      "mobilenumber": "08387522256",
+      "publicKey": "{{publicKey}}",
+      "paymentType": "CARD",
+      "maskedPan": "5123-40xx-xxxx-0008",
+      "gatewayMessage": "Successful",
+      "gatewayCode": "00",
+      "gatewayref": "SEERBIT674774783883",
+      "businessName": "Green Technological Concepts",
+      "mode": "live",
+      "channelType": "MASTERCARD",
+      "cardBin": "5123",
+      "lastFourDigits": "0008",
+      "country": "NG",
+      "currency": "NGN",
+      "paymentReference": "{{paymentReference}}",
+      "transactionProcessTime": "2022-08-25 08:57:45.634",
+      "reason": "Successful",
+      "authorizationCode": "6636373737222"
+    },
+    "customers": {
+      "customerId": "SBT56736733yye663737",
+      "customerName": "Jane Smith",
+      "customerMobile": "08387522256",
+      "customerEmail": "seerbit@emaildomain.com"
+    }
+  }
+}
+```
+
+##### Parameter Description
+
+| Name              | Description                             |
+| ----------------- | --------------------------------------- |
+| authorizationCode | authorization code to charge a customer |
+| customerId        | unique customer identification          |
+| maskedPan         | masked card number                      |
+
+## Charge Authorisation Token
+
+To charge a card token, simply send the authorizationCode along with the amount to be charged using the charge authorization API
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments/charge-token
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for charging a token
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments/charge-token' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data '{
+    "publicKey": "YOUR_PUBLIC_KEY",
+    "amount": "110",
+    "paymentReference": "charge_test_3451",
+    "authorizationCode": "ye773838jje8837abe"
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://seerbitapi.com/api/v2/payments/charge-token',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY',
+  },
+  body: JSON.stringify({
+    publicKey: 'YOUR_PUBLIC_KEY',
+    amount: '110',
+    paymentReference: 'charge_test_3451',
+    authorizationCode: 'ye773838jje8837abe',
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments/charge-token',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "publicKey": "YOUR_PUBLIC_KEY",
+    "amount": "110",
+    "paymentReference": "charge_test_3451",
+    "authorizationCode": "ye773838jje8837abe"
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for charging a token
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "message": "APPROVED",
+    "payments": {
+      "paymentReference": "9288383999393",
+      "linkingReference": "SEERBIT43376378378377720196"
+    }
+  }
+}
+```
+
+## Bulk Charge Token
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments/bulk-tokenize-charge
+```
+
+#### Request Sample
+
+The code snippet below shows an example response for bulk charging a token
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments/bulk-tokenize-charge' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data '
+[
+    {
+        "publicKey": "publickKey",
+        "amount": "11",
+        "paymentReference": "reference",
+        "authorizationCode": "authorizationCode"
+    },
+    {
+        "publicKey": "publickKey",
+        "amount": "11",
+        "paymentReference": "reference",
+        "authorizationCode": "authorizationCode"
+    },
+    {
+        "publicKey": "publickKey",
+        "amount": "11",
+        "paymentReference": "reference",
+        "authorizationCode": "authorizationCode"
+    },
+    {
+        "publicKey": "publickKey",
+        "amount": "11",
+        "paymentReference": "reference",
+        "authorizationCode": "authorizationCode"
+    }
+]'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://seerbitapi.com/api/v2/payments/bulk-tokenize-charge',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY',
+  },
+  body: JSON.stringify([
+    {
+      publicKey: 'publickKey',
+      amount: '11',
+      paymentReference: 'reference',
+      authorizationCode: 'authorizationCode',
+    },
+    {
+      publicKey: 'publickKey',
+      amount: '11',
+      paymentReference: 'reference',
+      authorizationCode: 'authorizationCode',
+    },
+    {
+      publicKey: 'publickKey',
+      amount: '11',
+      paymentReference: 'reference',
+      authorizationCode: 'authorizationCode',
+    },
+    {
+      publicKey: 'publickKey',
+      amount: '11',
+      paymentReference: 'reference',
+      authorizationCode: 'authorizationCode',
+    },
+  ]),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments/bulk-tokenize-charge',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'
+[
+    {
+        "publicKey": "publickKey",
+        "amount": "11",
+        "paymentReference": "reference",
+        "authorizationCode": "authorizationCode"
+    },
+    {
+        "publicKey": "publickKey",
+        "amount": "11",
+        "paymentReference": "reference",
+        "authorizationCode": "authorizationCode"
+    },
+    {
+        "publicKey": "publickKey",
+        "amount": "11",
+        "paymentReference": "reference",
+        "authorizationCode": "authorizationCode"
+    },
+    {
+        "publicKey": "publickKey",
+        "amount": "11",
+        "paymentReference": "reference",
+        "authorizationCode": "authorizationCode"
+    }
+]',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for bulk charging a token
+
+```json
+{
+  "code": "00",
+  "message": "Successful",
+  "payload": {
+    "batchId": "d4wnvzc"
+  }
+}
+```
+
+## Query Bulk Charge with BatchId
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments/bulk-tokenize-charge-search?batchId={{batchId}}
+```
+
+#### Response Sample
+
+The code snippet below shows an example response for querying a bulkchargeToken with the batchId
+
+```json
+{
+  "code": "00",
+  "message": "Successful",
+  "payload": {
+    "content": [
+      {
+        "id": 7,
+        "authorizationCode": "authocode",
+        "statusCode": "00",
+        "message": "Successful",
+        "createdAt": "2022-10-12T09:58:40.102",
+        "updatedAt": "2022-10-12T09:58:40.102",
+        "batchId": "k2auyutyr",
+        "currency": "NGN",
+        "cardBin": "5123400",
+        "cardLastFourDigits": "0739",
+        "cardType": "VISA",
+        "amount": "10.00"
+      },
+      {
+        "id": 8,
+        "authorizationCode": "authocode",
+        "statusCode": "00",
+        "message": "Successful",
+        "createdAt": "2022-10-12T09:58:46.443",
+        "updatedAt": "2022-10-12T09:58:46.443",
+        "batchId": "kuiuyu",
+        "currency": "NGN",
+        "cardBin": "5123400",
+        "cardLastFourDigits": "0008",
+        "cardType": "VISA",
+        "amount": "15.00"
+      }
+    ],
+    "pageable": {
+      "sort": {
+        "sorted": true,
+        "unsorted": false,
+        "empty": false
+      },
+      "pageNumber": 0,
+      "pageSize": 10,
+      "offset": 0,
+      "paged": true,
+      "unpaged": false
+    },
+    "last": true,
+    "totalElements": 2,
+    "totalPages": 1,
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "first": true,
+    "numberOfElements": 2,
+    "size": 10,
+    "number": 0,
+    "empty": false
+  }
+}
+```

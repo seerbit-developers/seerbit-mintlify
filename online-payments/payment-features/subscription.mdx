@@ -1,0 +1,764 @@
+---
+title: Recurring Payments (Subscriptions)
+---
+
+Recurring payments or subscriptions are scheduled payments to pay for products or services that occurs frequently. For example, a cardholder paying for an on-demand internet service provider's monthly subscription fee without having to manually pay every month.
+
+After first successful payment from the customers card, the card is stored as a token which will be used for subsequent transactions.
+
+> Note that recurrent transaction works only for cards
+
+# Create Subscription
+
+You can create a plan by calling the 'Create Plan' endpoint or you can do this directly from the SeerBit Merchant Dashboard
+
+## Authenticating your API calls
+
+### Key Encryption
+
+This service allows you to generate a bearer token that will be used in authenticating your API calls to SeerBit. It expects a string of your 'email' & 'password' in a JSON request. SeerBit in turn returns the token in the encryptedKey field.
+
+See sample request and response below.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://merchant.seerbitapi.com/authservice/api/v1/auth/login
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for generating a bearer token
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://merchant.seerbitapi.com/authservice/api/v1/auth/login' \
+--header 'sb-partner-id: 1' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "email": "testaccount@email.com",
+    "password": "password!"
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://merchant.seerbitapi.com/authservice/api/v1/auth/login',
+  headers: {
+    'sb-partner-id': '1',
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    email: 'opeyemi.daniyan@seerbit.com',
+    password: 'Untamed1010@',
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+require_once 'HTTP/Request2.php';
+$request = new HTTP_Request2();
+$request->setUrl('https://merchant.seerbitapi.com/authservice/api/v1/auth/login');
+$request->setMethod(HTTP_Request2::METHOD_POST);
+$request->setConfig(array(
+  'follow_redirects' => TRUE
+));
+$request->setHeader(array(
+  'sb-partner-id' => '1',
+  'Content-Type' => 'application/json'
+));
+$request->setBody('{\n    "email": "opeyemi.daniyan@seerbit.com",\n    "password": "Untamed1010@"\n}');
+try {
+  $response = $request->send();
+  if ($response->getStatus() == 200) {
+    echo $response->getBody();
+  }
+  else {
+    echo 'Unexpected HTTP status: ' . $response->getStatus() . ' ' .
+    $response->getReasonPhrase();
+  }
+}
+catch(HTTP_Request2_Exception $e) {
+  echo 'Error: ' . $e->getMessage();
+}
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example request for generating a bearer token
+
+<CodeGroup>
+
+```json 200:OK
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "EncryptedSecKey": {
+      "encryptedKey": "WquhSwMepYp6k+AIAlU1Jp18QwRWMm2SK0WVIOACIArw6ao3Ql4qKOMGwFVMvI9nOiM1xarW6qAIxE+GTOyINRVQnnFuy2EJk+DwmCgiFUuRVkOIdMBgwpJTCSzcFFfD"
+    },
+    "message": "Successful"
+  }
+}
+```
+
+```json 400:Bad Request
+{
+  "message": "Bad Request",
+  "error": "There has been a problem with reading or understanding the request."
+}
+```
+
+```json 404:Not Found
+{
+  "error": "Not Found"
+}
+```
+
+```json 500:Internal Server Error
+{
+  "message": "Internal Server Error",
+  "error": "PROCESSING"
+}
+```
+
+</CodeGroup>
+
+## Create Plan
+
+For the full specification, see our [API Reference](/api-reference)
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://merchants.seerbitapi.com/api/v1/recurrent/plan/create
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for creating a subscription
+
+> Billing Cycle should be set to : _**DAILY**_, _**WEEKLY**_, _**MONTHLY**_ or _**ANNUALLY**_
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://merchants.seerbitapi.com/api/v1/recurrent/plan/create' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer Token' \
+--data '{
+    "productId": "<Plan name>",
+    "productDescription": "<Description of Plan>",
+    "amount": "100",
+    "billingCycle": "HOURLY",
+    "limit": 5,
+    "publicKey": "<public key>",
+    "country": "NG",
+    "currency": "NGN",
+    "allowPartialDebit": false
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://merchants.seerbitapi.com/api/v1/recurrent/plan/create',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer Token',
+  },
+  body: JSON.stringify({
+    productId: '<Plan Name>',
+    productDescription: '<Description of Plan>',
+    amount: '100',
+    billingCycle: 'HOURLY',
+    limit: 5,
+    publicKey: '<Public key>',
+    country: 'NG',
+    currency: 'NGN',
+    allowPartialDebit: false,
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+?php
+$curl = curl_init();
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://merchants.seerbitapi.com/api/v1/recurrent/plan/create',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "productId": "<Plan Name>",
+    "productDescription": "<Description of Plan>",
+    "amount": "100",
+    "billingCycle": "HOURLY",
+    "limit": 5,
+    "publicKey": "<Public Key>",
+    "country": "NG",
+    "currency": "NGN",
+    "allowPartialDebit": false
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer Token'
+  ),
+));
+$response = curl_exec($curl);
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for creating a subscription
+
+<CodeGroup>
+
+```json 200:OK
+{
+  "payload": {
+    "country": "NG",
+    "createdAt": 1715607343498,
+    "amount": 100,
+    "productId": "<Plan name>",
+    "billingCycle": "HOURLY",
+    "currency": "NGN",
+    "payUrl": "https://pay.seerbitapi.com/db1ea861993689a57dac",
+    "details": {
+      "country": "NG",
+      "amount": 100,
+      "productId": "<Plan name>",
+      "allowPartialDebit": false,
+      "payLinkUrl": "https://pay.seerbitapi.com/db1ea861993689a57dac",
+      "publicKey": "<public key>",
+      "createdAt": 1715607343498,
+      "trialDuration": 0,
+      "trialPeriod": false,
+      "billingCycle": "HOURLY",
+      "limit": 5,
+      "planId": "db1ea861993689a57dac",
+      "currency": "NGN",
+      "id": 20031,
+      "productDescription": "<description of plan>",
+      "updatedAt": null,
+      "status": "ACTIVE"
+    },
+    "publicKey": "<public key>",
+    "plan": "db1ea861993689a57dac",
+    "productDescription": "<description of plan>"
+  },
+  "message": "Successful",
+  "status": "SUCCESS",
+  "responseCode": "00"
+}
+```
+
+```json 400:Bad Request
+{
+  "message": "Bad Request",
+  "error": "There has been a problem with reading or understanding the request."
+}
+```
+
+```json 401:Unauthourized
+{
+  "message": "Invalid Authentication Token",
+  "error": "INPUT"
+}
+```
+
+</CodeGroup>
+
+## Get Merchant Subscription
+
+The Get Merchant Subscription returns all customer subscriptions. Included in the response is authorizationCode which can be used for separate charges to the customer
+
+For the full specification, see our [API Reference](/api-reference)
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/recurring/publicKey/{publicKey}
+```
+
+#### Request Sample
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/recurring/publicKey/{publicKey}' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'GET',
+  url: 'https://seerbitapi.com/api/v2/recurring/publicKey/{publicKey}',
+  headers: {
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY',
+  },
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/recurring/publicKey/{publicKey}',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'GET',
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+### Response Sample
+
+The code snippet below shows an example response to get merchant subscription
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "subscriptions": [
+      {
+        "publicKey": "SBTEST**************************viTF",
+        "amount": "20",
+        "country": "NG",
+        "customerId": "651d33a62ad69c9f37c4",
+        "cardName": "Jane Smith",
+        "cardNumber": "2223-00xx-xxxx-0007",
+        "plan": "ae702f51220000722dca",
+        "status": "ACTIVE",
+        "billingId": "WQ6676yPOpr12348o",
+        "authorizationCode": "2beb0ccdd347e604552a",
+        "startDate": "2019-01-11 00:00:00",
+        "createdAt": 1578648329000
+      },
+      {
+        "publicKey": "SBTEST**************************viTF",
+        "amount": "100",
+        "country": "NG",
+        "customerId": "ba981a0b7ed1c68ad245",
+        "cardName": "Jane Smith",
+        "cardNumber": "5123-45xx-xxxx-0008",
+        "plan": "ead5e697f42c1cd60813",
+        "status": "ACTIVE",
+        "billingId": "PUBK_PjQ5d1578649732262",
+        "authorizationCode": "145a3bb3418824c14d65",
+        "startDate": "2020-10-01 10:47:49",
+        "createdAt": 1578649752000
+      }
+    ],
+    "code": "00",
+    "message": "successful"
+  }
+}
+```
+
+# Charge Subscription
+
+For the full specification, see our [API Reference](/api-reference)
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/recurring/charge
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for charging a customer with an authorizationCode
+
+> **Authorise Charge** - Authorisation Code is gotten when a subscription has been successfully completed
+
+<CodeGroup>
+    
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/recurring/charge' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data-raw '{
+	"amount":"200", 
+	"publicKey":"YOUR_PUBLIC_KEY", 
+	"email":"js@emaildomain.com", 
+  	"allowPartialDebit":"true",
+	"authorizationCode":"1234567898765325", 
+	"paymentReference":"2938765582R37065687631",
+	"currency":"NGN"
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://seerbitapi.com/api/v2/recurring/charge',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY',
+  },
+  body: JSON.stringify({
+    amount: '200',
+    publicKey: 'YOUR_PUBLIC_KEY',
+    email: 'js@emaildomain.com',
+    allowPartialDebit: 'true',
+    authorizationCode: '1234567898765325',
+    paymentReference: '2938765582R37065687631',
+    currency: 'NGN',
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/recurring/charge',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+	"amount":"200",
+	"publicKey":"YOUR_PUBLIC_KEY",
+	"email":"js@emaildomain.com",
+  "allowPartialDebit":"true",
+	"authorizationCode":"1234567898765325",
+	"paymentReference":"2938765582R37065687631",
+	"currency":"NGN"
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for charging a subscription
+
+<CodeGroup>
+    
+```json 200:OK
+{
+  "status": "SUCCESS",
+  "data": {
+     "code": "00",
+     "payments": {
+         "code": "00",
+         "message": "Successful",
+         "paymentReference": "2938765582R37065687631",
+         "publicKey": "SBTEST**************************viTF",
+         "amount": "200",
+         "currency": "NGN",
+         "country": "NG",
+         "email": "js@emaildomain.com", 
+         "productDescription": "Authorised charge"
+      },
+      "message": "Successful"
+	}
+}
+```
+
+```json 400:Bad Request
+{
+  "message": "Bad Request",
+  "error": "There has been a problem with reading or understanding the request."
+}
+```
+
+```json 401:Unauthorized
+{
+  "message": "Invalid Authentication Token",
+  "error": "INPUT"
+}
+```
+
+</CodeGroup>
+
+# Get Customer Subscription
+
+For the full specification, see our [API Reference](/api-reference)
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/recurring/{publicKey}/customerId/{customerId}
+```
+
+#### Request Sample
+
+<CodeGroup>
+    
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/recurring/{publicKey}/customerId/{customerId}' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'GET',
+  url: 'https://seerbitapi.com/api/v2/recurring/{publicKey}/customerId/{customerId}',
+  headers: {
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY',
+  },
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/recurring/publicKey/{publicKey}',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'GET',
+  CURLOPT_HTTPHEADER => array(
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response to get customer subscription by customerId
+
+```json
+{
+	"status": "SUCCESS",
+	"data": {
+    "subscriptions": [
+      {
+        "publicKey": "SBTEST**************************viTF",
+        "amount": "100",
+        "country": "NG",
+        "customerId": "ba981a0b7ed1c68ad245",
+        "cardName": "Jane Smith",
+        "cardNumber": "5123-45xx-xxxx-0008",
+        "plan": "ead5e697f42c1cd60813",
+        "status": "ACTIVE",
+        "billingId": "PUBK_PjQ5d1578649732262",
+        "authorizationCode": "145a3bb3418824c14d65",
+        "startDate": "2020-10-01 10:47:49",
+        "createdAt": 1578649752000
+      },
+      {
+        "publicKey": "SBTEST**************************viTF",
+        "amount": "20000",
+        "country": "NG",
+        "customerId": "ba981a0b7ed1c68ad245",
+        "cardName": "John Smith",
+        "cardNumber": "5123-45xx-xxxx-0008",
+        "plan": "80b0854b35a0e279efc3",
+        "status": "INACTIVE",
+        "billingId": "PUBK_PjQ5d1578650322483",
+        "authorizationCode": "ddfce36aa4f3abc7cf72",
+        "startDate": "2020-10-01 10:58:25",
+        "createdAt": 1578650353000
+      }
+    ],
+    "code": "00",
+ }
+```
+
+# Update Customer Subscription
+
+For the full specification, see our [API Reference](/api-reference)
+
+<Badge color="yellow">PUT</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/recurring/updates
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for updating a subscription
+
+> For credit cards you can update the previously stored payment details, this may be required when the card expiry date or the billing/delivery address changes.
+
+<CodeGroup>
+    
+```bash cURL
+curl --location --request PUT 'https://seerbitapi.com/api/v2/recurring/updates' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data '{
+	"amount":"20000",
+	"currency":"NGN",
+	"country":"NG",
+	"mobileNumber":"08033456500", 
+	"billingId":"PUBK_PjQ5d1578650322483", 
+	"publicKey":"YOUR_PULIC_KEY", 
+	"status":"INACTIVE"
+}'
+```
+
+```javascRipt NODE
+var request = require('request');
+var options = {
+  'method': 'PUT',
+  'url': 'https://seerbitapi.com/api/v2/recurring/updates',
+  'headers': {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ENCRYPTED_KEY'
+  },
+  body: JSON.stringify({
+    "amount": "20000",
+    "currency": "NGN",
+    "country": "NG",
+    "mobileNumber": "08033456500",
+    "billingId": "PUBK_PjQ5d1578650322483",
+    "publicKey": "YOUR_PULIC_KEY",
+    "status": "INACTIVE"
+  })
+
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/recurring/updates',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'PUT',
+  CURLOPT_POSTFIELDS =>'{
+"amount":"20000",
+"currency":"NGN",
+"country":"NG",
+"mobileNumber":"08033456500",
+"billingId":"PUBK_PjQ5d1578650322483",
+"publicKey":"YOUR_PULIC_KEY",
+"status":"INACTIVE"
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for updating a subscription
+
+```json
+"status": "SUCCESS",
+    "data": {
+      "subscriptions": {
+        "publicKey": "SBTEST**************************viTF",
+        "amount": "20000",
+        "country": "NG",
+        "customerId": "ba981a0b7ed1c68ad245",
+        "cardName": "Jane Smith",
+        "cardNumber": "5123-45xx-xxxx-0008",
+        "plan": "80b0854b35a0e279efc3",
+        "status": "INACTIVE",
+        "billingId": "PUBK_PjQ5d1578650322483",
+        "authorizationCode": "ddfce36aa4f3abc7cf72",
+        "startDate": "2020-10-01 10:58:25",
+        "createdAt": 1578650353000
+      },
+      "code": "00",
+      "message": "Successful"
+  }
+```
+

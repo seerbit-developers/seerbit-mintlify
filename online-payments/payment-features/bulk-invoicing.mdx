@@ -1,0 +1,233 @@
+---
+title: Bulk Invoicing
+---
+
+Create and send bulk invoices .
+
+## Creating and sending bulk an invoice
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://merchant.seerbitapi.com/invoice/{{PUBLIC_KEY}}/bulk-requests
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for creating and sending bulk invoice
+
+**All body parameters are required**
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://merchant.seerbitapi.com/invoice/{{PUBLIC_KEY}}/bulk-requests' \
+ --header 'Authorization: Bearer {{TOKEN}}' \
+ --header 'Content-Type: application/json' \
+ --data-raw '
+ [
+   {
+     "orderNo": "AZPOP12929322",
+     "dueDate": "2025-03-19",
+     "currency": "NGN",
+     "customerEmail": "testtechblazer1@mailinator.com",
+     "invoiceItems": [
+        {
+           "itemName": "Air Pod 2",
+           "quantity": 1,
+           "rate": 5,
+           "tax": 1.5
+       },
+       {
+           "itemName": "Quest 1",
+           "quantity": 4,
+           "rate": 10,
+           "tax": 2.5
+       },
+       {
+           "itemName": "Earpod",
+           "quantity": 1,
+           "rate": 100,
+           "tax": 0.5
+       }
+     ]
+   },
+   {
+         "orderNo": "AZPOP12929323",
+         "dueDate": "2025-03-28",
+         "currency": "NGN",
+         "receiversName": "Frank John",
+         "customerEmail": "testtechblazer2@mailinator.com",
+         "invoiceItems": [
+           {
+             "itemName": "Power Bulb",
+             "quantity": 10,
+             "rate": 5,
+             "tax": 0.5
+           }
+        ]
+      }
+   ]'
+```
+
+```javascript NODE
+const axios = require('axios');
+
+const PUBLIC_KEY = 'YOUR_PUBLIC_KEY';
+const TOKEN = 'YOUR_BEARER_TOKEN';
+
+const url = `https://merchant.seerbitapi.com/invoice/${PUBLIC_KEY}/bulk-requests`;
+
+const payload = [
+  {
+    orderNo: 'AZPOP12929322',
+    dueDate: '2025-03-19',
+    currency: 'NGN',
+    customerEmail: 'testtechblazer1@mailinator.com',
+    invoiceItems: [
+      {
+        itemName: 'Air Pod 2',
+        quantity: 1,
+        rate: 5,
+        tax: 1.5,
+      },
+      {
+        itemName: 'Quest 1',
+        quantity: 4,
+        rate: 10,
+        tax: 2.5,
+      },
+      {
+        itemName: 'Earpod',
+        quantity: 1,
+        rate: 100,
+        tax: 0.5,
+      },
+    ],
+  },
+  {
+    orderNo: 'AZPOP12929323',
+    dueDate: '2025-03-28',
+    currency: 'NGN',
+    receiversName: 'Frank John',
+    customerEmail: 'testtechblazer2@mailinator.com',
+    invoiceItems: [
+      {
+        itemName: 'Power Bulb',
+        quantity: 10,
+        rate: 5,
+        tax: 0.5,
+      },
+    ],
+  },
+];
+
+axios
+  .post(url, payload, {
+    headers: {
+      Authorization: `Bearer ${TOKEN}`,
+      'Content-Type': 'application/json',
+    },
+  })
+  .then((response) => {
+    console.log(response.data);
+  })
+  .catch((error) => {
+    if (error.response) {
+      console.error(error.response.data);
+    } else {
+      console.error(error.message);
+    }
+  });
+```
+
+```php PHP
+<?php
+
+$publicKey = 'YOUR_PUBLIC_KEY';
+$token = 'YOUR_BEARER_TOKEN';
+
+$url = "https://merchant.seerbitapi.com/invoice/{$publicKey}/bulk-requests";
+
+$payload = [
+    [
+        "orderNo" => "AZPOP12929322",
+        "dueDate" => "2025-03-19",
+        "currency" => "NGN",
+        "customerEmail" => "testtechblazer1@mailinator.com",
+        "invoiceItems" => [
+            [
+                "itemName" => "Air Pod 2",
+                "quantity" => 1,
+                "rate" => 5,
+                "tax" => 1.5
+            ],
+            [
+                "itemName" => "Quest 1",
+                "quantity" => 4,
+                "rate" => 10,
+                "tax" => 2.5
+            ],
+            [
+                "itemName" => "Earpod",
+                "quantity" => 1,
+                "rate" => 100,
+                "tax" => 0.5
+            ]
+        ]
+    ],
+    [
+        "orderNo" => "AZPOP12929323",
+        "dueDate" => "2025-03-28",
+        "currency" => "NGN",
+        "receiversName" => "Frank John",
+        "customerEmail" => "testtechblazer2@mailinator.com",
+        "invoiceItems" => [
+            [
+                "itemName" => "Power Bulb",
+                "quantity" => 10,
+                "rate" => 5,
+                "tax" => 0.5
+            ]
+        ]
+    ]
+];
+
+$ch = curl_init($url);
+
+curl_setopt_array($ch, [
+    CURLOPT_RETURNTRANSFER => true,
+    CURLOPT_POST => true,
+    CURLOPT_HTTPHEADER => [
+        "Authorization: Bearer {$token}",
+        "Content-Type: application/json"
+    ],
+    CURLOPT_POSTFIELDS => json_encode($payload)
+]);
+
+$response = curl_exec($ch);
+$error = curl_error($ch);
+
+curl_close($ch);
+
+if ($error) {
+    echo "cURL Error: " . $error;
+} else {
+    echo $response;
+}
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response for creating and sending an invoice
+
+```json
+{
+    "message": "Invoice created successfully ",
+    "code": "00"
+}
+```
+
+

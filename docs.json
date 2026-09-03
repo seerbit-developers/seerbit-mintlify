@@ -1,66 +1,147 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mintlify Starter Kit",
-  "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+  "name": "SeerBit Documentation",
+  "fonts": {
+    "family": "MazzardM",
+    "source": "/assets/fonts/MazzardM-Regular.woff2",
+    "format": "woff2"
   },
-  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#FF3C38",
+    "light": "#FF3C38",
+    "dark": "#FF3C38"
+  },
+  "favicon": "/favicon.ico",
+
   "navigation": {
-    "pages": [
+    "tabs": [
       {
-        "group": "Getting Started",
-        "pages": [
-          "index",
-          "quickstart"
+        "tab": "Home",
+        "icon": "house",
+        "pages": ["index"]
+      },
+      {
+        "tab": "Documentation",
+        "icon": "book-open",
+        "groups": [
+          {
+            "group": "Online Payments",
+            "pages": [
+              {
+                "group": "Integrations",
+                "pages": [
+                  "/online-payments/integrations/accept-payment",
+                  "/online-payments/integrations/integration-checklist",
+                  "/online-payments/integrations/simple-checkout",
+                  "/online-payments/integrations/standard-checkout",
+                  "/online-payments/integrations/sub-account",
+                  "/online-payments/integrations/e-commerce-plugin"
+                ]
+              },
+              {
+                "group": "Payment Features",
+                "pages": [
+                  "/online-payments/payment-features/payment",
+                  "/online-payments/payment-features/invoicing",
+                  "/online-payments/payment-features/bulk-invoicing",
+                  "/online-payments/payment-features/subscription",
+                  "/online-payments/payment-features/payment-link",
+                  "/online-payments/payment-features/virtual-account",
+                  "/online-payments/payment-features/card-tokenisation",
+                  "/online-payments/payment-features/pocket",
+                  "/online-payments/payment-features/payout",
+                  "/online-payments/payment-features/payout-v2"
+                ]
+              },
+              {
+                "group": "After Payment",
+                "pages": [
+                  "/online-payments/after-payments/verify-payment",
+                  "/online-payments/after-payments/receive-settlement",
+                  "/online-payments/after-payments/failed-transaction",
+                  "/online-payments/after-payments/refund",
+                  "/online-payments/after-payments/webhook-events",
+                  "/online-payments/after-payments/webhook-events-v2"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Payment Methods",
+            "pages": [
+              "/payment-methods/overview",
+              {
+                "group": "Payment Methods",
+                "pages": [
+                  "/payment-methods/bank-account",
+                  "/payment-methods/card-payment",
+                  "/payment-methods/mobile-money",
+                  "/payment-methods/transfer",
+                  "/payment-methods/ussd-payment"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "Libraries & Plugins",
+            "pages": ["/libraries-and-plugins/overview", "/libraries-and-plugins/isv-pos"]
+          },
+          {
+            "group": "Testing",
+            "pages": ["/testing/overview"]
+          },
+          {
+            "group": "Development Resources",
+            "pages": [
+              {
+                "group": "Hash",
+                "pages": [
+                  "/development-resources/hash/hash-endpoint",
+                  "/development-resources/hash/key-encryption"
+                ]
+              },
+              {
+                "group": "Responses",
+                "pages": [
+                  "/development-resources/responses/raw-acquirer-responses",
+                  "/development-resources/responses/response-handling",
+                  "/development-resources/responses/seerbit-status-code"
+                ]
+              },
+              {
+                "group": "Currency Codes",
+                "pages": ["/development-resources/currency-codes/overview"]
+              }
+            ]
+          }
         ]
-      }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+      },
+      {
+        "tab": "API Reference",
+        "icon": "book-marked",
+        "openapi": {
+          "source": "https://raw.githubusercontent.com/seerbit/openapi/refs/heads/master/specs/external-api.yml"
         }
-      ]
-    }
+      }
+    ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/assets/logo/Seerbit_Docs.svg",
+    "dark": "/assets/logo/Seerbit_Docs_dark.svg"
+  },
+  "icons": {
+    "library": "lucide"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://app.mintlify.com"
+      "label": "Sign up",
+      "href": "https://dashboard.seerbit.com/"
     }
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
   },
   "footer": {
     "socials": {

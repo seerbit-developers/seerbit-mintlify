@@ -1,0 +1,135 @@
+---
+title: Bank Account
+---
+
+This payment method allows your customers to make payments through their internet banking portal or by providing their bank account number and authenticating using an OTP sent to their mobile phone number or email registered to that account
+
+## Before you begin
+
+> Ensure you have your public key. You can find this on the SeerBit Merchant dashboard under accounts > api keys. If you don’t have an account with us yet, you can [create a test account](https://dashboard.seerbit.com/#/auth/register) now
+
+## How it works
+
+1.  To initiate a direct bank debit payment, make a request to the account payments service with the payments/initiates endpoint.
+2.  When the request is made you are expected to get a pending response.
+3.  The response from banks differ, some banks will return with a redirect url while others will not.
+4.  When a redirect url is returned, you are expected to redirect to the link supplied which will take the customer to the bank page. On this page, customer is expected to enter the OTP sent to their registered phone number or email with the bank. After the OTP is submitted, SeerBit redirects back to the redirect url supplied by the merchant.
+5.  When the redirect url is not returned, the transaction would be awaiting validation.
+6.  To validate the transaction the customer gets an OTP( one time password) via the registered number with the bank or via email.
+7.  Use the OTP entered by the customer and reference to call the payments/validate endpoint to complete the transaction.​
+8.  Verify the payment​
+
+## Initialising a Bank Account Payment
+
+For the full specification, see our [API Reference](/api-reference)
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments/initiates
+```
+
+### Request Sample
+
+The code snippet below shows an example request for generating a payment link to complete a payment
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTION_KEY' \
+--data-raw '{
+	"publicKey":"Your_public_key",
+	"amount":"2000.00",
+	"fee":"10",
+	"fullName":"John Doe",
+	"mobileNumber":"08037456590",
+	"currency":"NGN",
+	"country":"NG",
+	"paymentReference":"UYTRE234566677RDFGFDDSS",
+	"email":"johndoe@gmail.com",
+	"productId":"Foods",
+	"productDescription":"Uba Account Transaction ",
+	"clientAppCode":"kpp64",
+	"redirectUrl":"https://checkout.seerbit.com",
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://seerbitapi.com/api/v2/payments/initiates',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+  },
+  body: '{\n	"publicKey":"Your_public_key",\n	"amount":"2000.00",\n	"fee":"10",\n	"fullName":"John Doe",\n	"mobileNumber":"08037456590",\n	"currency":"NGN",\n	"country":"NG",\n	"paymentReference":"UYTRE234566677RDFGFDDSS",\n	"email":"johndoe@gmail.com",\n	"productId":"Foods",\n	"productDescription":"Uba Account Transaction ",\n	"clientAppCode":"kpp64",\n	"redirectUrl":"https://checkout.seerbit.com",\n}',
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments/initiates',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+	"publicKey":"Your_public_key",
+	"amount":"2000.00",
+	"fee":"10",
+	"fullName":"John Doe",
+	"mobileNumber":"08037456590",
+	"currency":"NGN",
+	"country":"NG",
+	"paymentReference":"UYTRE234566677RDFGFDDSS",
+	"email":"johndoe@gmail.com",
+	"productId":"Foods",
+	"productDescription":"Uba Account Transaction ",
+	"clientAppCode":"kpp64",
+	"redirectUrl":"https://checkout.seerbit.com",
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+### Response Sample
+
+The code snippet below shows an example request for generating a payment link to complete a payment
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "S20",
+    "payments": {
+      "paymentReference": "UYTRE234566677RDFGFDDSS",
+      "linkingReference": "F320660611587911267617"
+    },
+    "message": "Transaction is pending"
+  }
+}
+```

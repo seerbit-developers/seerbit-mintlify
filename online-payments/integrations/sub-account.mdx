@@ -1,0 +1,391 @@
+---
+title: "SeerBit Sub-Account Integration & Dynamic Split"
+---
+
+## Overview
+
+The SeerBit Sub-Account API allows you to create and manage sub-accounts for your business. Sub-accounts enable you to split settlements with multiple parties, manage marketplace payments, and organize funds across different business units or merchants.<br /> This documentation provides a complete guide to integrating the Sub-Account API into your application, from authentication to creating sub-accounts with optional pocket integration.
+
+### Prerequisites
+
+> Before you begin, ensure you have the following:
+
+- SeerBit Merchant Account - Sign up at [dashboard.seerbit.com](https://dashboard.seerbit.com/#/auth/register)
+- **API Keys** - Retrieve your Public Key and Secret Key from your merchant dashboard under **Settings \> API Keys**.
+
+  - Public Key (starts with SBTESTPUBK\* for test environment or SBPUBK\* for live)
+  - Secret Key (starts with SBTESTSECK\* for test environment or SBSECK\* for live)
+
+#### Authentication
+
+> All SeerBit API calls require authentication using a Bearer token. You must generate this token before making any requests to the Sub-Account endpoint.
+
+##### Generate Encrypted Secret Key
+
+To obtain a Bearer token, you need to encrypt your API keys.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/encrypt/keys
+```
+
+##### Headers:
+
+```json
+{
+  "Content-Type": "application/json"
+}
+```
+
+#### Request Body
+
+```json
+{
+  "key": "YOUR_SECRET_KEY.YOUR_PUBLIC_KEY"
+}
+```
+
+##### Example cURL:
+
+```bash
+curl --location 'https://seerbitapi.com/api/v2/encrypt/keys' \
+--header 'Content-Type: application/json' \
+--data '{
+  "key": "SBTESTSECK_9Cb8dbqR5Rc2JwZaa77P5QYHzQaeGUcrkEMD1dEi.SBTESTPUBK_9sN3TuLgW6a9redEfY48cKKkUa09Pz2u"
+}'
+```
+
+#### Response (Success - 200):
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "EncryptedSecKey": {
+      "encryptedKey": "oAX1OeAlwNt9BI5VEwBLlxtWgL2WaLT9kTc4EMaaZgXMfdhHXaqqVgapnQSOO4OZM2oLRPtqjJzwNLEEGqFSvam8MFz06U4fl/5TVwfWLMsHq4mML9ExIaXRVn3bVm8"
+    },
+    "message": "Successful"
+  }
+}
+```
+
+> **Important**: The encryptedKey returned in this response is your Bearer token. Use this token in the Authorization header for all subsequent API calls.
+
+#### Creating a Sub-Account
+
+Once you have your Bearer token, you can create sub-accounts for your business operations.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/sub-accounts
+```
+
+#### Request Headers
+
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| Content Type | `string` | Must be **application/json** | Yes |
+| Authorization | `string` | Bearer token obtained from the encryption endpoint. | Yes |
+
+#### Request Parameters
+
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| publicKey | `string` | Merchant public key (starts with SBPUBK\_) | Yes |
+| subAccountName | `string` | Name to identify this sub-account | Yes |
+| bankCode | `string` | CBN bank code (e.g., 057 for Zenith, 033 for UBA). | Yes |
+| bankName | `string` | Full name of the bank | Yes |
+| bankAccountNumber | `string` | 10-digit account number for settlements | Yes |
+| email | `string` | Contact email address for notifications | Yes |
+| bankAccountName | `string` | Account name as registered with the bank | Yes |
+| subPocket | `boolean` | Pocket ID - Required when **isSubPocket** is true | Conditional |
+| isSubPocket | `string` | Set to true to link this sub-account to a pocket, **false** otherwise | Yes |
+| currency | `string` | The transaction currency (e.g., NGN, USD). | Yes |
+
+##### Complete Request Example cURL
+
+```bash
+curl --location 'https://seerbitapi.com/api/v2/sub-accounts' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer oAX1OeAlwNt9BI5VEwBLlxtWgL2WaLT9kTc4EMaaZgXMfdhHXaqqVgapnQSOO4OZM2oLRPtqjJzwNLEEGqFSvam8MFz06U4fl/5TVwfWLMsRHq4mML9ExIaXRVn3bVm8' \
+--data-raw '{
+	"publicKey": "SBTESTPUBK_9sN3TuLgW6a9redEfY48cKKkUa09Pz2u",
+ 	"subAccountName": "Lagos Retail Store",
+ 	"bankCode": "057",
+ 	"bankName": "Zenith Bank",
+ 	"bankAccountNumber": "1234567890",
+ 	"phoneNumber": "08012345678",
+ 	"email": "lagos.store@example.com",
+ 	"bankAccountName": "LAGOS RETAIL LIMITED",
+ 	"subPocket": "PKT_ABC123XYZ",
+ 	"isSubPocket": true,
+ 	"currency": "NGN"
+}'
+```
+
+##### Response Examples
+
+<CodeGroup>
+
+```json 201:Created
+{  
+"status": "SUCCESS",  
+"data": {  
+	"code": "00",  
+	"subAccount": {  
+		"subAccountCode": "lagos-retail-store-Qx7aL9",  
+		"subAccountName": "Lagos Retail Store",  
+		"bankCode": "057",  
+		"bankName": "Zenith Bank",  
+		"bankAccountNumber": "1234567890",  
+		"email": "lagos.store@example.com",  
+		"isSubPocket": true,  
+		"subPocket": "PKT_ABC123XYZ",  
+		"status": "ACTIVE",  
+		"createdAt": "2026-01-26T10:30:00.000Z"  
+		},  
+	"message": "Sub-account created successfully"  
+}  
+}  
+```
+
+```json 400:Bad Request
+{
+"status": "ERROR",  
+"data": {  
+	"code": "E01",  
+	"message": "Invalid bank code provided. Please use a valid CBN bank code."  
+}
+}
+```
+
+```json 401:Unauthorized
+{  
+"status": "ERROR",  
+"data": {  
+	"code": "E02",  
+	"message": "Invalid or expired Bearer token. Please generate a new token."  
+}  
+}
+```
+
+</CodeGroup>
+
+### Integration Notes & Best Practices
+
+#### Authentication Token Management
+
+- **Token Validity**: Bearer tokens have a limited lifespan. Implement token refresh logic in your application.
+- **Secure Storage**: Store your Secret Key securely. Never expose it in client-side code or version control systems.
+- **Token Format**: Always prefix your token with Bearer in the Authorization header (note the space).
+
+#### Sub-Account Configuration
+
+1. Public Key
+
+   - Public keys start with **SBPUBK\_** prefix.
+   - Available in your dashboard under **Settings \> API Keys**.
+   - Replace **YOUR\_PUBLIC\_KEY** with your actual merchant public key.
+2. Bank Code Verification
+
+   - Use the official CBN (Central Bank of Nigeria) bank codes.
+   - Common bank codes:
+
+     - 057 - Zenith Bank
+     - 033 - United Bank for Africa (UBA)
+     - 058 - Guaranty Trust Bank (GTB)
+     - 011 - First Bank of Nigeria
+     - 032 - Union Bank
+   - Contact SeerBit support for a complete list of supported banks
+3. Pocket Integration:
+
+   - When **isSubPocket** is set to `true`, the subPocket field becomes **mandatory**.
+   - Ensure the **Pocket ID** exists and is active before linking
+   - Pocket IDs can be obtained from the SeerBit Pocket API
+   - If you're not using pockets, set **isSubPocket** to `false` and omit the **subPocket** field
+4. Account Name Validation:
+
+   - The **bankAccountName** must match the registered account name with the bank.
+   - Account name mismatches may cause settlement failures
+   - Verify account details before creating the sub-account.
+
+#### Common Use Cases
+
+1. **Marketplace Settlement**<br /> Create sub-accounts for each vendor on your marketplace to automatically split payments.
+2. **Franchise Management**<br /> Set up sub-accounts for each franchise location to track and settle payments independently.
+3. **Multi-Business Management**<br /> Manage multiple business units with separate settlement accounts under one parent merchant account.
+
+## Dynamic Split Payment
+
+Create split configurations on the go during payment initialization when split details aren't predetermined.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments
+```
+
+##### Parameter Description
+
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| type | `string` | Value can be FLAT (fixed amounts) or PERCENTAGE (percentage-based) | Yes |
+| transactionFee | `string` | Who pays transaction fees: all, all-proportional, account, or subaccount (ALL\_ACCOUNTS, PROPORTIONATE, SUB\_ACCOUNT, PARENT\_ACCOUNT) | Yes |
+| bearerSubAccountCode | `string` | Required if transactionFee is SUB\_ACCOUNT then pass the sub account code | No |
+| subAccountCode | `string` | Sub account Code | Yes |
+| value | `string` | Amount to be settled | Yes |
+
+#### Request Sample
+
+The code snippet below shows an example request for generating a payment link to complete a payment with dynamic split settlement
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data-raw '{
+    "publicKey": "YOUR_PUBLIC_KEY",
+    "amount": "500",
+    "currency": "NGN",
+    "country": "NG",
+    "paymentReference": "payment_reference",
+    "email": "ts@emaildomain.com",
+    "fullName": "Halil TS",
+    "tokenize": "false",
+    "callbackUrl": "https://seerbit.com",
+    "splits": {
+        "type": "FLAT",
+        "transactionFee": "PARENT_ACCOUNT",  //  ALL_ACCOUNTS, PROPORTIONATE, SUB_ACCOUNT, PARENT_ACCOUNT
+        "bearerSubAccountCode": "SUBACCT001",
+        "items": [
+            {
+                "subAccountCode": "SUBACCT001",
+                "value": "3.01"
+            },
+            {
+                "subAccountCode": "ops-costs-2sD4kA",
+                "value": "2.00"
+            }
+        ]
+    }
+}'
+```
+
+```javascript NODE
+var request = require("request");
+var options = {
+  method: "POST",
+  url: "https://seerbitapi.com/api/v2/payments",
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: "Bearer YOUR_ENCRYPTED_KEY",
+  },
+  body: JSON.stringify({
+    publicKey: "YOUR_PUBLIC_KEY",
+    amount: "500",
+    currency: "NGN",
+    country: "NG",
+    paymentReference: "payment_reference",
+    email: "ts@emaildomain.com",
+    fullName: "Halil TS",
+    tokenize: "false",
+    callbackUrl: "https://seerbit.com",
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "publicKey": "YOUR_PUBLIC_KEY",
+    "amount": "500",
+    "currency": "NGN",
+    "country": "NG",
+    "paymentReference": "payment_reference",
+    "email": "ts@emaildomain.com",
+    "fullName": "Halil TS",
+    "tokenize": "false",
+    "callbackUrl": "https://seerbit.com",
+    "splits": {
+        "type": "FLAT",
+        "transactionFee": "SUB_ACCOUNT",  //  ALL_ACCOUNTS, PROPORTIONATE, SUB_ACCOUNT, PARENT_ACCOUNT
+        "bearerSubAccountCode": "SUBACCT001",
+        "items": [
+            {
+                "subAccountCode": "SUBACCT001",
+                "value": "3.01"
+            },
+            {
+                "subAccountCode": "ops-costs-2sD4kA",
+                "value": "2.00"
+            }
+        ]
+    }
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example request for generating a bearer token
+
+<CodeGroup>
+
+```json 200:OK
+{
+"status": "SUCCESS",
+"data": {
+        "code": "00",
+        "payments": {
+                     "redirectLink": "http://checkout.seerbitapi.com/#/?mid=merchantpublickey&paymentReference=643108207792124616573324",
+                     "paymentStatus": "08"
+        },
+      "message": "Successful"
+  }
+}
+```
+
+```json 409:Conflict
+{
+  "message": "Transaction Exists",
+  "error": "PROCESSING"
+}
+```
+
+</CodeGroup>
+
+## Notes
+
+Note that in cases where you require your customers to bear the charge for a transaction, the agreed charge should be added to the transaction amount. This charge will be deducted after the transaction is completed and the merchant settled the transaction amount.<br /> Merchant is expected to use the redirect link returned in the repsonse to navigate to the seerBit checkout modal to continue the transaction

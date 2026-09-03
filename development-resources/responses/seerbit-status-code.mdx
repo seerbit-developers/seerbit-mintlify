@@ -1,0 +1,157 @@
+---
+title: SeerBit Status Code
+---
+
+SeerBit uses conventional HTTP response codes to indicate the success or failure of an API request. In general: Codes in the **2xx** range indicate success. Codes in the **Sxx** range indicate an error that failed given the information provided (e.g., a required parameter was omitted, a charge failed, etc.). The code S12 indicates failed transactions and is extended in other failed response codes with prefix SM\_.
+
+## Http Status Code
+
+| Code                                | Description                                                             |
+| ----------------------------------- | ----------------------------------------------------------------------- |
+| 200 - Ok                            | Everything as expected                                                  |
+| 400 - Bad request                   | The request was unacceptable, often due to missing a required parameter |
+| 401 - Invalid merchant key provided | No valid API key provided.                                              |
+| 402 - Request failed                | The parameters were valid but the request failed                        |
+| 404 - Not found                     | The requested resource is not found                                     |
+| 500-504 - Internal Server Error     | Something went wrong on Seerbit's end                                   |
+
+## SeerBit Status Code
+
+| Code      | Description                                                                                                                  |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `00`      | Successful                                                                                                                   |
+| `S0`      | Your transaction timed out. Please check status shortly                                                                      |
+| `S1`      | No valid API key provided.                                                                                                   |
+| `S2`      | Invalid Amount                                                                                                               |
+| `S3`      | Transaction not permitted by merchant                                                                                        |
+| `S4`      | Invalid Currency                                                                                                             |
+| `S5`      | Invalid/Missing parameters                                                                                                   |
+| `S6`      | Invalid country                                                                                                              |
+| `S7`      | Generic error occurred                                                                                                       |
+| `S10`     | Null/Missing authentication code                                                                                             |
+| `S11`     | Unable to connect to destination                                                                                             |
+| `S12`     | Transaction Failed                                                                                                           |
+| `S13`     | Invalid payout type                                                                                                          |
+| `S14`     | Transaction reference must be unique                                                                                         |
+| `S15`     | Invalid ID type                                                                                                              |
+| `S18`     | Transaction reference must be unique                                                                                         |
+| `S19`     | Validation Failed, Check Amount or Currency                                                                                  |
+| `S20`     | Transaction is pending                                                                                                       |
+| `S22`     | Card token generated                                                                                                         |
+| `S24`     | Invalid network                                                                                                              |
+| `S25`     | Sorry we could not complete your transaction. Please try again                                                               |
+| `S26`     | Sorry name validation failed. Please try again                                                                               |
+| `S404`    | No data found                                                                                                                |
+| `S12-15`  | Failure declined (no such issuer)                                                                                            |
+| `SM_01`   | Refer to card issuer                                                                                                         |
+| `SM_02`   | Refer to card issuer's special conditions                                                                                    |
+| `SM_03`   | Invalid merchant                                                                                                             |
+| `SM_04`   | Pick up card                                                                                                                 |
+| `SM_05`   | Do not honor                                                                                                                 |
+| `SM_06`   | Error                                                                                                                        |
+| `SM_07`   | Pick up card, special condition                                                                                              |
+| `SM_09`   | Request in progress                                                                                                          |
+| `SM_10`   | Approved for partial amount                                                                                                  |
+| `SM_11`   | Approved VIP                                                                                                                 |
+| `SM_12`   | Invalid transaction                                                                                                          |
+| `SM_13`   | Invalid amount                                                                                                               |
+| `SM_14`   | Invalid card number                                                                                                          |
+| `SM_14_1` | Invalid card CVV                                                                                                             |
+| `SM_14_2` | Invalid card expiry                                                                                                          |
+| `SM_15`   | No such issuer                                                                                                               |
+| `SM_16`   | Update Track #3                                                                                                              |
+| `SM_17`   | Customer cancellation                                                                                                        |
+| `SM_18`   | Customer dispute                                                                                                             |
+| `SM_19`   | Re-enter transaction                                                                                                         |
+| `SM_20`   | Invalid response                                                                                                             |
+| `SM_21`   | No action taken                                                                                                              |
+| `SM_22`   | Suspected malfunction                                                                                                        |
+| `SM_23`   | Unacceptable transaction fee                                                                                                 |
+| `SM_24`   | File update not supported by receiver                                                                                        |
+| `SM_25`   | Unable to locate record on file                                                                                              |
+| `SM_26`   | Duplicate file update record, old record replaced                                                                            |
+| `SM_27`   | File update field edit error                                                                                                 |
+| `SM_28`   | File update file locked out                                                                                                  |
+| `SM_29`   | File update not successful, contact acquirer                                                                                 |
+| `SM_30`   | Format error                                                                                                                 |
+| `SM_31`   | Bank not supported by switch                                                                                                 |
+| `SM_32`   | Completed partially                                                                                                          |
+| `SM_33`   | Expired card                                                                                                                 |
+| `SM_34`   | Suspected fraud                                                                                                              |
+| `SM_35`   | Card acceptor contact acquirer                                                                                               |
+| `SM_36`   | Restricted card                                                                                                              |
+| `SM_37`   | Card acceptor call acquirer security                                                                                         |
+| `SM_38`   | Allowable PIN tries exceeded                                                                                                 |
+| `SM_39`   | No credit account                                                                                                            |
+| `SM_40`   | Request function not supported                                                                                               |
+| `SM_41`   | Lost card                                                                                                                    |
+| `SM_42`   | No universal account                                                                                                         |
+| `SM_43`   | Stolen card, pick up                                                                                                         |
+| `SM_44`   | No investment account                                                                                                        |
+| `SM_51`   | Not sufficient funds                                                                                                         |
+| `SM_52`   | No cheque account                                                                                                            |
+| `SM_53`   | No savings account                                                                                                           |
+| `SM_54`   | Expired card                                                                                                                 |
+| `SM_55`   | Incorrect PIN                                                                                                                |
+| `SM_56`   | No card record                                                                                                               |
+| `SM_57`   | Transaction not permitted to card holder                                                                                     |
+| `SM_58`   | Transaction not permitted to acquirer                                                                                        |
+| `SM_59`   | Suspected fraud                                                                                                              |
+| `SM_60`   | Card acceptor contact acquirer                                                                                               |
+| `SM_61`   | Exceeds withdrawal amount limits                                                                                             |
+| `SM_62`   | Restricted card                                                                                                              |
+| `SM_63`   | Security violation                                                                                                           |
+| `SM_64`   | Original amount incorrect                                                                                                    |
+| `SM_65`   | Exceeds withdrawal frequency limit                                                                                           |
+| `SM_66`   | Card acceptor call acquirer's security department                                                                            |
+| `SM_67`   | Hard capture (requires that the card be picked up at ATM)                                                                    |
+| `SM_68`   | Response received too late                                                                                                   |
+| `SM_75`   | Allowable number of PIN tries exceeded                                                                                       |
+| `SM_81`   | Reserved for private use                                                                                                     |
+| `SM_90`   | Cut-off is in process (switch ending a day's business and starting the next). Transaction can be sent again in a few minutes |
+| `SM_91`   | Issuer or switch inoperative                                                                                                 |
+| `SM_92`   | Financial institution or intermediate network facility cannot be found for routing                                           |
+| `SM_93`   | Transaction cannot be completed; violation of law                                                                            |
+| `SM_94`   | Duplicate transaction                                                                                                        |
+| `SM_95`   | Reconcile Error                                                                                                              |
+| `SM_96`   | System Malfunction                                                                                                           |
+| `SM_97`   | Advises that reconciliation totals have been reset                                                                           |
+| `SM_98`   | MAC error                                                                                                                    |
+| `SM_99`   | Reserved for National Use                                                                                                    |
+| `SM_2`    | Transaction declined                                                                                                         |
+| `SM_7`    | Payment server processing error                                                                                              |
+| `SM_8`    | Transaction Declined - Transaction Type not supported                                                                        |
+| `SM_9`    | Bank declined transaction (Do not contact bank)                                                                              |
+| `SM_A`    | Transaction Aborted                                                                                                          |
+| `SM_B`    | Transaction Blocked                                                                                                          |
+| `SM_C`    | Transaction Cancelled                                                                                                        |
+| `SM_D`    | Deferred Transaction                                                                                                         |
+| `SM_E`    | Transaction Declined - Refer to card issuer                                                                                  |
+| `SM_F`    | 3D Secure authentication failed                                                                                              |
+| `SM_I`    | Card security code failed                                                                                                    |
+| `SM_L`    | Shopping transaction locked                                                                                                  |
+| `SM_N`    | Cardholder is not enrolled in 3D Secure                                                                                      |
+| `SM_P`    | Transaction is pending                                                                                                       |
+| `SM_R`    | Retry limits exceeded; transaction not processed                                                                             |
+| `SM_T`    | Address verification failed                                                                                                  |
+| `SM_U`    | Card security code failed                                                                                                    |
+| `SM_V`    | Address verification and card security code failed                                                                           |
+| `SMV_A`   | The signature on the response received from the issuer could not be validated                                                |
+| `SMV_C`   | Card brand not supported                                                                                                     |
+| `SMV_D`   | Error communicating with the directory server                                                                                |
+| `SMV_E`   | The cardholder is not enrolled                                                                                               |
+| `SMV_F`   | An error exists in the request format from the merchant                                                                      |
+| `SMV_I`   | Internal error                                                                                                               |
+| `SMV_M`   | The cardholder is not enrolled                                                                                               |
+| `SMV_N`   | Verification failed                                                                                                          |
+| `SMV_P`   | Error receiving input from issuer                                                                                            |
+| `SMV_S`   | The signature on the response received from the issuer could not be validated                                                |
+| `SMV_T`   | The cardholder session timed out and the cardholder's browser never returned from the issuer site                            |
+| `SMV_U`   | The verification was unable to be completed. This can be caused by network or system failures                                |
+| `INP`     | Transaction in progress                                                                                                      |
+| `INP2`    | Transaction is in progress                                                                                                   |
+| `X23`     | Transaction Expired                                                                                                          |
+| `SM_X23`  | Sorry your transaction has expired, please try again                                                                         |
+| `S24`     | Invalid network                                                                                                              |
+| `S25`     | Sorry we could not complete your transaction. Please try again                                                               |
+| `S26`     | Sorry name validation failed. Please try again                                                                               |

@@ -1,0 +1,312 @@
+---
+title: Standard checkout
+---
+
+**Ideal for**: Developers who require full backend control. This method enables you to generate secure, unique payment links for customers, perfect for invoicing, email payments, or complex order workflows
+
+## How it Works
+
+When a customer clicks a payment button in your application, your server sends a **POST** request to our API. We return a **redirect link** where the customer enters payment details. After payment, the user is redirected to your specified callbackUrl.
+
+## Authentication
+
+> Before making API calls, you must obtain a **Bearer Token** by encrypting your API keys.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/encrypt/keys
+```
+
+#### Request Sample
+
+The code snippet below shows an example request for generating a bearer token
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/encrypt/keys' \
+--header 'Content-Type: application/json' \
+--data '{
+  "key": "YOUR_SECRET_KEY.YOUR_PUBLIC_KEY"
+}'
+```
+
+```js NODE
+var request = require("request");
+var options = {
+  method: "POST",
+  url: "https://seerbitapi.com/api/v2/encrypt/keys",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    key: "YOUR_SECRET_KEY.YOUR_PUBLIC_KEY",
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/encrypt/keys',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+  "key": "YOUR_SECRET_KEY.YOUR_PUBLIC_KEY"
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example request for generating a bearer token
+
+<CodeGroup>
+
+```json 200:OK
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "EncryptedSecKey": {
+      "encryptedKey": "WquhSwMepYp6k+AIAlU1Jp18QwRWMm2SK0WVIOACIArw6ao3Ql4qKOMGwFVMvI9nOiM1xarW6qAIxE+GTOyINRVQnnFuy2EJk+DwmCgiFUuRVkOIdMBgwpJTCSzcFFfD"
+    },
+    "message": "Successful"
+  }
+}
+```
+
+```json 400:Bad Request
+{
+  "message": "Bad Request",
+  "error": "There has been a problem with reading or understanding the request."
+}
+```
+
+```json 404:Not Found
+{
+  "error": "Not Found"
+}
+```
+
+```json 500:Internal Server Error
+{
+  "message": "Internal Server Error",
+  "error": "PROCESSING"
+}
+```
+
+</CodeGroup>
+
+## Requesting a Payment/ Initialize a Transaction
+
+Once you have the Bearer Token, create a transaction when the customer is ready to pay.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments
+```
+
+##### Headers:
+
+Authorization: Bearer YOUR\_ENCRYPTED\_KEY
+
+##### Required Fields:
+
+- publicKey – Your SeerBit public key
+- amount – Amount to charge
+- currency – Transaction currency (e.g., NGN, USD)
+- country – Country of transaction
+- paymentReference – Unique identifier for the transaction
+- email – Customer’s email
+- fullName – Customer’s full name
+- callbackUrl – URL for post-payment redirection
+
+##### Optional Fields:
+
+- tokenize – Boolean for tokenization
+- splitCode – Split rule code
+
+For the full specification, see our [API Reference](/api-reference)
+
+#### Request Sample
+
+The code snippet below shows an example request for generating a payment link to complete a payment
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments' \ 
+--header 'Content-Type: application/json' \ 
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \ 
+--data-raw '{ 
+    "publicKey": "YOUR_PUBLIC_KEY", 
+    "amount": "5000.00", 
+    "currency": "NGN", 
+    "country": "NG", 
+    "paymentReference": " payment_reference ", 
+    "email": "customer@example.com", 
+
+    "fullName": "Jane Doe", 
+
+    “tokenize”:false, 
+    "callbackUrl": "https://yourwebsite.com/thank-you", 
+
+     “splitCode”:”” // Split rule Code 
+}'
+```
+
+```js NODE
+var request = require('request');
+var options = {
+  'method': 'POST',
+  'url': 'https://seerbitapi.com/api/v2/payments',
+  'headers': {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer YOUR_ENCRYPTED_KEY'
+  },
+  body: JSON.stringify({
+    "publicKey": "YOUR_PUBLIC_KEY",
+    "amount": "500",
+    "currency": "NGN",
+    "country": "NG",
+    "paymentReference": "payment_reference",
+    "email": "ts@emaildomain.com",
+    "fullName": "Halil TS",
+    "tokenize": "false",
+    "callbackUrl": "https://seerbit.com",
+    "splitCode": "" // Split rule code
+  })
+
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+    "publicKey": "YOUR_PUBLIC_KEY",
+    "amount": "500",
+    "currency": "NGN",
+    "country": "NG",
+    "paymentReference": "payment_reference",
+    "email": "ts@emaildomain.com",
+    "fullName": "Halil TS",
+    "tokenize": "false",
+    "callbackUrl": "https://seerbit.com",
+    "splitCode": "" // Split rule code
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Handling
+
+A successful response (code: "00") includes:
+
+- redirectLink: URL for customer payment
+- paymentStatus: e.g., "08" for initialized
+
+#### Response Sample
+
+The code snippet below shows an example request for generating a bearer token
+
+<CodeGroup>
+
+```json 200:OK
+{
+	"status": "SUCCESS", 
+	"data": { 
+		"code": "00", 
+		"payments": { "redirectLink":"http://checkout.seerbitapi.com/#/mid=
+        	merchantpublickey&paymentReference=643108207792124616573324", 
+		"paymentStatus": "08" 
+        },
+	"message": "Successful" 
+	} 
+}
+```
+
+```json 409:Conflict
+{
+    "message": "Transaction Exists",
+    "error": "PROCESSING"
+}
+```
+
+</CodeGroup>
+
+##### Parameter Description
+
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| publicKey | `string` | Your SeerBit public key, used for secure transactions. Obtain it from the [Merchant Dashboard](https://dashboard.seerbit.com/#/auth/login). | Yes |
+| amount | `string` | Amount to be charged. | Yes |
+| currency | `string` | The transaction currency (e.g., NGN, USD). | Yes |
+| country | `string` | This is the country from which the transaction is been carried out from | Yes |
+| paymentReference | `string` | This is the unique identifier for a transaction, to be generated by merchant. | Yes |
+| email | `string` | This is the email of the customer. | Yes |
+| fullName | `string` | Customer’s full name (first and last name separated by a space). | Yes |
+| tokenize | `boolean` |  | No |
+| callbackUrl | `string` |  | Yes |
+| splitCode | `string` |  | Yes |
+
+## Notes
+
+- Always use the redirectLink to send customers to the SeerBit checkout page.
+- Set up [webhooks](/online-payments/after-payments/webhook-events) for secure, server-side payment confirmation. Do not rely solely on browser redirects.
+- If your business model requires the customer to pay the transaction fee, you must add this charge to the total amount you request. The fee will be deducted during settlement.
+- For testing, use SeerBit [test cards](/testing/overview).
+
+## Troubleshooting
+
+If the payment modal does not appear, check your browser console for errors (commonly a missing publicKey). For full parameter details, visit the [Standard Checkout API Reference](/api-reference).

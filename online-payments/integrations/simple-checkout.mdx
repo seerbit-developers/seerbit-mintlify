@@ -1,0 +1,146 @@
+---
+title: Simple checkout
+---
+
+SeerBit Simple Checkout is an inline, responsive payment form that works seamlessly across all devices. It supports the full range of payment methods available through our standard checkout integration and is fully PCI-compliant. For details on supported payment methods, visit our [Payment Methods Overview](/payment-methods/overview).
+
+## How it Works
+
+Simple Checkout allows you to embed a payment form directly on your webpage using the SeerbitPay() JavaScript function. This function processes transactions based on your configuration. If you include a redirect\_url in your request, users will be redirected to that URL upon successful payment.
+
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| public\_key | `string` | Your SeerBit public key, used for secure transactions. Obtain it from the [Merchant Dashboard](https://dashboard.seerbit.com/#/auth/login). | Yes |
+| currency | `string` | The transaction currency (e.g., NGN, USD). | Yes |
+| tranref | `string` | Unique transaction reference. | Yes |
+| amount | `string` | Amount to be charged. | Yes |
+| description | `string` | Decription of the transaction | Yes |
+| full name | `string` | Customer’s full name (first and last name separated by a space). | Yes |
+
+## Before you begin
+
+1. Login to your [SeerBit Dashboard](https://dashboard.seerbit.com/#/auth/login).
+2. Navigate to **Settings \> API Keys**.
+3. Copy your **Public Key**.
+
+## Integration Steps
+
+### 1. Adding the Seerbit.js script to your page
+
+Include the SeerBit JavaScript library in your \<head\> section and the paywithSeerbit() function in your page body:
+
+```html
+<html>
+  <head>
+    <title>SeerBit Simple Checkout</title>
+    <script src="https://checkout.seerbitapi.com/api/v2/seerbit.js"></script>
+  </head>
+  <body>
+    <button onclick="paywithSeerbit()">Pay Now</button>
+  </body>
+</html>
+```
+
+### 2. Configure the Checkout
+
+Add a payment button and configure the SeerbitPay() function with your transaction details:
+
+```html
+<html>
+  <head>
+    <title>SeerBit Simple Checkout</title>
+    <script src="https://checkout.seerbitapi.com/api/v2/seerbit.js"></script>
+  </head>
+ <body>
+    <button onclick="paywithSeerbit()">Pay Now</button>
+
+    <script type ="text/javascript">
+      function paywithSeerbit() {
+        SeerbitPay ({
+        "public_key": "sbpub_yywuuuywyyttwttwy", //replace with your public key
+        "tranref": new Date().getTime(), // payment reference
+        "currency": "NGN",
+        "country": "NG",
+        "amount": "150.00",
+        "email": "test@emaildomain.com",
+        "mobile_no": "", // Mobile Number
+        "productId": "", // Product ID
+        "description": "", // Product Description
+        "setAmountByCustomer": false, //optional field. Set to true to allow customer set the amount
+        "full_name": "John Doe", // Mandatory. (system expects two strings, demarcated by a space)
+        "tokenize" : false, // set to true to allow token capture
+        "planId" : "", // subcription plan id.
+        "pocketReference" : "", // pocket reference number.
+        "splitCode" : "", // Split Rule Code.
+        "callbackurl": "http://yourdomain.com",
+        },
+        function callback(response, closeModal) {
+         console.log(response) //response of transaction
+        },
+        function close(close) {
+         console.log(close) //transaction close
+        })
+        }
+    </script>
+
+  </body>
+</html>
+```
+
+#### Optional Configuration
+
+Adding this will automatically inlcude all the features and payment methods the seerbit checkout has. Including our advanced fraud detection tools whenever your customers attempts to make a payment
+
+```json
+"decription": "test payment description",
+"splitCode": "100001", // enter your split code if you will using the split settlement feature
+```
+
+#### Dynamic Split Payment
+
+Dynamic split Payment allows you to share a single transaction with multiple accounts. You can either create the split in advance using Split Rule on the Dashboard and reference it with a splitCode, or define the split dynamically at the time of the transaction.
+
+```json
+"split": {
+  "type": "FLAT", // PERCENTAGE
+  "transactionFee": "SUB_ACCOUNT",  //  ALL_ACCOUNTS, PROPORTIONATE, SUB_ACCOUNT, PARENT_ACCOUNT
+  "items": [
+     {
+       "subAccountCode": "imshia-uba-programme-Qx7aL9",
+       "subAccountName": "",
+       "value": "3.01"
+     },
+     {
+       "subAccountCode": "ops-costs-2sD4kA",
+       "subAccountName": "",
+       "value": "2.00"
+      }
+    ]
+  }
+```
+
+#### Optional Customization
+
+You can tailor the checkout experience to match your brand.
+
+```javascript
+customization: { 
+    theme: { 
+        border_color: "000000", 
+        background_color: "F8F8F8", 
+        button_color: "2E6EEB", 
+    }, 
+    // Choose which payment methods to display 
+    payment_method: ["card", "account", "transfer", "wallet", "ussd"], 
+    confetti: true, // Show a fun celebration on successful payment 
+    logo: "https://yourlogo.url/logo.png", // Your brand logo 
+}
+```
+
+## Testing & Payment Verification
+
+Click your **Pay Now** button and use our [test cards](/testing/overview) to simulate transactions. No real funds will be debited.<br /> To learn how to verify payments, visit our [Payment Verification Guide](/online-payments/after-payments/verify-payment).
+
+## Troubleshooting
+
+If the payment modal does not appear, check your browser console for errors (commonly a missing public\_key). For full parameter details, visit the [Simple Checkout API Reference](/api-reference).

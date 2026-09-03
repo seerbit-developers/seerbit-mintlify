@@ -1,0 +1,344 @@
+---
+title: Card Payments
+---
+
+Cards are one of the most popular ways to make payments online with a large global reach. SeerBit supports the most popular card types with a simple implentation.
+
+## Before you begin
+
+Ensure you have your public key. You can find this on the SeerBit Merchant dashboard under accounts > api keys. If you don’t have an account with us yet, you can [create a test account](https://dashboard.seerbit.com/#/auth/register) now
+
+## Card Payment Process
+
+1. Customers enters card details on merchant website.
+2. SeerBit checks that the details provided are valid (e.g the expiry date entered is not in the past)
+3. **Authentication** : Some cards may prompt the card holder to enter a pin or a one time password sent to the card holder's phone or email to authenticate the transaction.
+4. **Authorization** : The bank checks for sufficient funds on the card holder's account. if successful the amount is held in the customers account and released to the merchant on capture
+5. **Capture** : The money moves from the card holder's account (issuing bank) to the merchant account immediately after authorization
+
+> **Note**: By default, all card payments are captured immediately after authorization unless a capture delay or manual capture has been setup by the merchant. Read on how to setup a pre-authorized payment
+
+### How it works
+
+1. Collect the customers details (Fullname, Email and Mobile Number) and Card details.
+2. Make a request to the payment service with the payment/initiates endpoint.
+3. Based on the cardholders card type the seerBit selects an auth method.
+
+## Initializing a Card Payment
+
+For the full specification, see our [API Reference](/api-reference)
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments/initiates
+```
+
+#### Request Sample
+
+The code snippet below shows an example response for creating a subscription
+
+<CodeGroup>
+    
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTION_KEY' \
+--data-raw '{
+	
+		"publicKey":"YOUR_PUBLIC_KEY",
+		"amount":"100.00",
+		"fee":"10",
+		"fullName":"John Doe",
+		"mobileNumber":"08032000001",
+		"currency":"NGN",
+		"country":"NG",
+		"paymentReference":"LKJHGFDR123UI23992JN23R",
+		"email":"johndoe@gmail.com",
+		"productId":"Foods",
+		"productDescription":"RASPBERRY",
+		"clientAppCode":"kpp64",
+		"redirectUrl":"",
+		"paymentType":"CARD",
+		"channelType":"Mastercard",
+		"deviceType":"Apple Laptop",
+	  	"sourceIP":"127.0.0.1:3456",
+		"cardNumber":"12345678900929",
+		"cvv":"123",
+		"expiryMonth":"12",
+		"expiryYear":"26",
+		"pin":"0000",
+		"retry":"false"
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://seerbitapi.com/api/v2/payments/initiates',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+  },
+  body: JSON.stringify({
+    publicKey: 'YOUR_PUBLIC_KEY',
+    amount: '100.00',
+    fee: '10',
+    fullName: 'John Doe',
+    mobileNumber: '08032000001',
+    currency: 'NGN',
+    country: 'NG',
+    paymentReference: 'LKJHGFDR123UI23992JN23R',
+    email: 'johndoe@gmail.com',
+    productId: 'Foods',
+    productDescription: 'RASPBERRY',
+    clientAppCode: 'kpp64',
+    redirectUrl: '',
+    paymentType: 'CARD',
+    channelType: 'Mastercard',
+    deviceType: 'Apple Laptop',
+    sourceIP: '127.0.0.1:3456',
+    cardNumber: '12345678900929',
+    cvv: '123',
+    expiryMonth: '12',
+    expiryYear: '26',
+    pin: '0000',
+    retry: 'false',
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments/initiates',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+
+		"publicKey":"YOUR_PUBLIC_KEY",
+		"amount":"100.00",
+		"fee":"10",
+		"fullName":"John Doe",
+		"mobileNumber":"08032000001",
+		"currency":"NGN",
+		"country":"NG",
+		"paymentReference":"LKJHGFDR123UI23992JN23R",
+		"email":"johndoe@gmail.com",
+		"productId":"Foods",
+		"productDescription":"RASPBERRY",
+		"clientAppCode":"kpp64",
+		"redirectUrl":"",
+		"paymentType":"CARD",
+		"channelType":"Mastercard",
+		"deviceType":"Apple Laptop",
+	  	"sourceIP":"127.0.0.1:3456",
+		"cardNumber":"12345678900929",
+		"cvv":"123",
+		"expiryMonth":"12",
+		"expiryYear":"26",
+		"pin":"0000",
+		"retry":"false"
+
+}',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example request for generating a payment link to complete a payment
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "S20",
+    "payments": {
+      "paymentReference": "LKJHGFDR123UI23992JN23R",
+      "linkingReference": "F468778061587905955047"
+    },
+    "message": "Kindly enter OTP"
+  }
+}
+```
+
+## Scenario 1 (Verve Card Type)
+
+1. The customers gets prompted to enter card pin.
+2. After the customer enters the card pin, call the payment service again using payment/initiates endpoint.
+3. An OTP (one time password) is sent to the cardholders registered phone number or email to validate the transaction.
+4. To Validate the transaction Call the Validate OTP payments/otp endpoint with the customers OTP and Pass the transactions linking reference in the request body.
+
+#### Request with PIN
+
+The code snippet below shows the sample request after passing the PIN
+
+<CodeGroup>
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTION_KEY' \
+--data '{
+	"transaction":
+		{
+		 "linkingreference":"F468778061587905955047",
+         "otp":"496865"
+         }
+}'
+```
+
+```javascript NODE
+var request = require('request');
+var options = {
+  method: 'POST',
+  url: 'https://seerbitapi.com/api/v2/payments/initiates',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+  },
+  body: JSON.stringify({
+    transaction: {
+      linkingreference: 'F468778061587905955047',
+      otp: '496865',
+    },
+  }),
+};
+request(options, function (error, response) {
+  if (error) throw new Error(error);
+  console.log(response.body);
+});
+```
+
+```php PHP
+<?php
+
+$curl = curl_init();
+
+curl_setopt_array($curl, array(
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments/initiates',
+  CURLOPT_RETURNTRANSFER => true,
+  CURLOPT_ENCODING => '',
+  CURLOPT_MAXREDIRS => 10,
+  CURLOPT_TIMEOUT => 0,
+  CURLOPT_FOLLOWLOCATION => true,
+  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+  CURLOPT_CUSTOMREQUEST => 'POST',
+  CURLOPT_POSTFIELDS =>'{
+	"transaction":
+					{
+						 "linkingreference":"F468778061587905955047",
+						 "otp":"496865"
+					}
+  }',
+  CURLOPT_HTTPHEADER => array(
+    'Content-Type: application/json',
+    'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+  ),
+));
+
+$response = curl_exec($curl);
+
+curl_close($curl);
+echo $response;
+```
+
+</CodeGroup>
+
+#### Response Sample
+
+The code snippet below shows an example response after entering the OTP
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "payments": {
+      "reference": "LKJHGFDR123UI23992JN23R",
+      "linkingreference": "F468778061587905955047"
+    },
+    "message": "Successful"
+  }
+}
+```
+
+## Scenario 2 (Master Card and Visa Card Type)
+
+1. The occurs for 3D secure card transactions.
+2. After the payment has been initiated, the card holder gets prompted to complete the payment on the card's bank page.
+3. For a successful initial call, code S20 will be returned with a redirect link in the redirectUrl field, merchant is expected to redirect to the link. Because of this merchant is expected to always pass the redirectUrl link that SeerBit should come back to after the payment is completed on 3Ds site.
+
+#### Response Sample
+
+The code snippet below shows an example request for generating a payment link to complete a payment
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "S20",
+    "payments": {
+      "paymentReference": "LKJHGFDR123UI23992JN23R",
+      "linkingReference": "F468778061587905955047",
+      "redirectUrl": "https://seerbitapigateway.com/seerbit/card-dispatch sredref=F468778061587905955047"
+    },
+    "message": "Transaction is pending"
+  }
+}
+```
+
+## Scenario 3
+
+1. The customers gets prompted to enter card pin.
+
+#### Response Sample
+
+The code snippet below shows an example request for generating a payment link to complete a payment
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "payments": {
+      "paymentReference": "92SQ2A3BCDE42RFR2AS122221",
+      "linkingReference": "F611305721592735518716"
+    },
+    "message": "Successful"
+  }
+}
+```
+
+## Testing your integration
+
+Click on the button below to be redirected to the SeerBit Checkout page and use any of the test cards or test bank account provided below
+
+| Card Number      | Card Type  | Expiry Date | CVC | PIN  |
+| ---------------- | ---------- | ----------- | --- | ---- |
+| 12345678900929   | Mastercard | 12/2026     | 123 | 0000 |
+| 6280511000000095 | Verve Card | 12/2026     | 123 | 0000 |

@@ -1,0 +1,517 @@
+---
+title: Pocket
+---
+
+The pocket functionality allows merchants to send out funds from their seerbit pockets, to other pockets, sub-pockets, or other banks (payout).
+
+> Please note that merchants must be approved if they are to use the payout feature (For API cases only).
+
+Once an account is approved on the seerbit merchant dashboard here, customer has a pocket Id attached to them. Merchant should then attempt logging in here on the pocket dashboard or reset password if the password reset email sent to merchant was missed.
+
+## Authentication
+
+This authenticates that user is valid for the pocket APIs. With the encrypted key, you can then have access to other endpoints.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/authenticate
+```
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/authenticate' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "email": "youremail.com",
+    "password": "password"
+}'
+```
+
+#### Response Sample
+
+The code snippet below shows a sample response
+
+```json
+{
+  "responseCode": "00",
+  "message": "Success",
+  "data": {
+    "bearerToken": "",
+    "expiryTime": "2025-04-22T20:09:09",
+    "requirePasswordChange": true
+  }
+}
+```
+
+## Changing Password
+
+Change your password only if it's required after your authentication
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/user/change-password
+```
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/user/change-password' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {{YourEncryptedKey}}' \
+--data-raw '{
+  		"currentPassowrd": "johndoe@email.com",
+ 	 	"newPassword": "password"
+}'
+```
+
+## Adding A Sub-Pocket
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/pocket-id/{{PocketID}}/sub-pocket
+```
+
+> The **'AddASubPocket'** API adds a sub pocket that's delegated to a merchant's third-party user.
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/pocket-id/{{PocketID}}/sub-pocket' \
+--header 'Public-Key: {{Publickey}}' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {{YourEncryptedKey}}' \
+--data-raw '[
+    {
+        "tagGroup": "",
+        "reference": "Create_subpo77899ck987et45",
+        "pocketFunction": "BOTH",
+        "currency": "NGN",
+        "tagName": "",
+        "selfOwned": false,
+        "pocketOwner": {
+            "existingPocketOwner": "false",
+            "pocketOwnerDetails": {
+                "firstName": "Bola",
+                "lastName": "Are",
+                "emailAddress": "youremail.com",
+                "phoneNumber": "08824485749",
+                "businessName": "samsn and sons"
+            }
+        }
+    }
+]
+'
+```
+
+#### Response Sample
+
+The code snippet below shows a sample response
+
+```json
+{
+  "responseCode": "00",
+  "message": "Success",
+  "data": [
+    {
+      "pocketId": "SBP0018103",
+      "parentId": 3771,
+      "bankAccountNumber": "7750209735",
+      "bankAccountName": "samsn and sons",
+      "bankCode": "WEMA",
+      "bankName": "Wema Bank",
+      "canRetailPockets": false,
+      "subPocketUserResponse": {
+        "userName": "youremail.com",
+        "password": "$2a$12$VCyQhEK0ULRoxuZXXEEzJ.N56.fE5tiY6u2fxm7KWzEAUnVVDMn5K"
+      }
+    }
+  ]
+}
+```
+
+Apart from the fields listed below, which are optional, other fields are mandatory.
+
+##### Parameters
+
+| Fields   | Description                               |
+| -------- | ----------------------------------------- |
+| tagGroup | A group identifier for tagging purposes.  |
+| tagName  | The specific tag name within the tagGroup |
+
+## Pocket to Pocket Transfer
+
+This allows you to make intra transfers between pockets.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/transfer/from-pocket/{{PocketID}}/to-pocket/{{PocketID}}
+```
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/transfer/from-pocket/{{PocketID}}/to-pocket/{{PocketID}}' \
+--header 'Content-Type: application/json' \
+--header 'Public-Key: your_public_key_here' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data-raw '{
+  "amount": 100,
+  "currency": "NGN",
+  "reference": "{{reference}}",
+  "description":"Test description"
+}
+```
+
+#### Response Sample
+
+The code snippet below shows a sample response
+
+```json
+{
+  "responseCode": "00",
+  "message": "Successful",
+  "data": {}
+}
+```
+
+## Get Pocket Details
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/pocket-id/{{PocketID}}
+```
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/pocket-id/{{PocketID}}' \
+--header 'Public-Key: your_public_key_here' \
+--header 'Authorization: Bearer TOKEN' \
+```
+
+#### Response Sample
+
+The code snippet below shows a sample response
+
+```json
+{
+  "responseCode": "00",
+  "message": "Success",
+  "data": {
+    "pocketId": "SBP0000000",
+    "accountNumber": "001005756",
+    "status": "ACTIVE",
+    "pocketFunction": "BOTH",
+    "availableBalanceAmount": "28999.00",
+    "availableBalanceCurrency": "NGN",
+    "ledgerBalanceAmount": "28999.00",
+    "ledgerBalanceCurrency": "NGN",
+    "parentId": 2028,
+    "fundingLink": "https://pay.seerbitapi.com?ps=gq8wLCuB&po=SBP0000000",
+    "accountVerifierScheme": "BVN",
+    "accountVerifierNumber": "000000000000",
+    "reference": "pck012",
+    "subPockets": null,
+    "pocketOwner": {
+      "pocketOwnerId": "txryfgqw",
+      "businessName": "J.D. Inc.",
+      "firstName": "John",
+      "lastName": "Doe",
+      "emailAddress": "user@maildomain.com",
+      "phoneNumber": "0818009876",
+      "ownerVerifierScheme": "NIN",
+      "ownerVerifierNumber": "00000000000"
+    },
+    "pocketAccounts": [
+      {
+        "accountId": "f594q2mix8yg",
+        "accountNumber": "4014123456",
+        "bankCode": "bank code",
+        "reference": "5z17gnfl8jy2u4etr"
+      }
+    ],
+    "pocketFundings": null,
+    "pocketLimits": [],
+    "pocketMomos": []
+  }
+}
+```
+
+## Get All Pockets
+
+This will allow you get all pockets assigned to a pocket.
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/pocket-id/{{PocketID}}
+```
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/pocket-id/{{PocketID}}' \
+--header 'Public-Key: your_public_key_here' \
+--header 'Authorization: Bearer TOKEN' \
+```
+
+#### Response Sample
+
+The code snippet below shows a sample response
+
+```json
+{
+  "responseCode": "00",
+  "message": "Success",
+  "data": {
+    "pocketId": "SBP0017194",
+    "accountNumber": "0010029240",
+    "status": "ACTIVE",
+    "pocketFunction": "BOTH",
+    "availableBalanceAmount": "820.00",
+    "availableBalanceCurrency": "NGN",
+    "ledgerBalanceAmount": "820.00",
+    "ledgerBalanceCurrency": "NGN",
+    "parentId": null,
+    "fundingLink": "?ps=gagY70Sx&po=SBP0017194",
+    "accountVerifierScheme": "BVN",
+    "accountVerifierNumber": "00000000000",
+    "reference": "primary-ihnwby90",
+    "tier": "UNLIMITED",
+    "subPockets": null,
+    "pocketOwner": {
+      "pocketOwnerId": "gagY70Sx",
+      "businessName": "Rexify",
+      "firstName": "Rexify",
+      "lastName": "Rexify",
+      "emailAddress": "Oguvic09@gmail.com",
+      "phoneNumber": "08160268415",
+      "ownerVerifierScheme": "NIN",
+      "ownerVerifierNumber": "00000000000"
+    },
+    "pocketAccounts": [
+      {
+        "accountId": "9npybxw3cq60",
+        "accountNumber": "7750209576",
+        "bankCode": "WEMA",
+        "bankName": "Wema Bank",
+        "reference": ""
+      }
+    ],
+    "pocketFundings": null,
+    "pocketLimits": [],
+    "pocketMomos": []
+  }
+}
+```
+
+## Get Pocket Balance
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/balance/pocket-id/{{PocketID}}
+```
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/balance/pocket-id/{{PocketID}}' \
+--header 'Public-Key: your_public_key_here' \
+--header 'Authorization: Bearer TOKEN' \
+```
+
+#### Response Sample
+
+The code snippet below shows a sample response
+
+```json
+{
+  "responseCode": "00",
+  "message": "Success",
+  "data": {
+    "balanceAt": "2023-03-06T09:30:27",
+    "availableBalanceCurrency": "NGN",
+    "availableBalanceAmount": "31001.00",
+    "lastTransactionAt": "2023-03-06T09:19:14"
+  }
+}
+```
+
+## Get Merchant Sum
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/balances-summation/pocket-id/{{pocketID}}
+```
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/balances-summation/pocket-id/your_pocket_id_here' \
+--header 'Public-Key: your_public_key_here' \
+--header 'Authorization: Bearer TOKEN' \
+```
+
+#### Response Sample
+
+The code snippet below shows a sample response
+
+```json
+{
+  "responseCode": "00",
+  "message": "Success",
+  "data": {
+    "merchantSubPocketsBalanceSummation": "60000.00",
+    "merchantSubPocketsBalanceSummationCurrency": "NGN",
+    "merchantAllPocketsBalanceSummation": "30058250.00",
+    "merchantAllPocketsBalanceSummationCurrency": "NGN"
+  }
+}
+```
+
+## Get Transaction Details
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/transaction/reference/{{reference}}
+```
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/transaction/reference/your_reference_here'  \
+--header 'Public-Key: your_public_key_here' \
+--header 'Authorization: Bearer TOKEN' \
+```
+
+#### Response Sample
+
+The code snippet below shows a sample response
+
+```json
+{
+  "responseCode": "00",
+  "message": "Success",
+  "data": {
+    "reference": "Charge-000015250618102028000001302219-pr6ndt",
+    "pocketId": "SBP0016348",
+    "transactionLeg": "DEBIT",
+    "transactionAmount": "0.00",
+    "transactionCurrency": "NGN",
+    "narration": "Reason:Fee:Debited:SBP0016348:Amount:NGN0.00",
+    "description": "Fee - Funding by account - Primary pockets",
+    "createdAt": "2025-06-18T09:21:07",
+    "createdBy": "pockets@seerbit.com",
+    "transactionId": "n1a0sl6q29d5",
+    "transactionType": "FEE",
+    "batchId": null,
+    "status": "00",
+    "message": "Success",
+    "receiverName": "Office",
+    "receiverAccountNumber": "0010010001",
+    "receiverBankCode": "SEERBIT",
+    "receiverBankName": null,
+    "sender": "Kings Cafe"
+  }
+}
+```
+
+## Fetch Transactions
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/transaction/search?pocketId={{PocketID}}&page=0&size=10
+```
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/transaction/search?pocketId={{PocketID}}&page=0&size=10'  \
+--header 'Content-Type: application/json' \
+--header 'Public-Key: your_public_key_here' \
+--header 'Authorization: Bearer TOKEN' \
+```
+
+#### Response Sample
+
+The code snippet below shows a sample response
+
+```json
+{
+  "responseCode": "00",
+  "message": "Success",
+  "data": {
+    "content": [
+      {
+        "createdAt": "2023-01-27T13:47:39",
+        "deleted": false,
+        "reference": "fwp53c8n-C",
+        "pocketId": "pocket ID",
+        "transactionLeg": "CREDIT",
+        "transactionCurrency": "NGN",
+        "narration": "Reason:Funding:Credited:100000238:Debited:SBP0000000:Amount:NGN0.0:AvailableBalance:NGN0.00",
+        "transactionId": "bui2e9lrzoch",
+        "description": "Balance migration",
+        "transactionAmount": "0.00"
+      },
+      {
+        "createdAt": "2023-03-05T22:17:09",
+        "deleted": false,
+        "reference": "txnP01-C",
+        "pocketId": "100000238",
+        "transactionLeg": "CREDIT",
+        "transactionCurrency": "NGN",
+        "narration": "Reason:Funding:Credited:100000238:Debited:SBP000000o:Amount:NGN30000000:AvailableBalance:NGN30000000.00",
+        "transactionId": "ovky4w0u1jrd",
+        "description": "Direct credit - GENERIC - ALL-PURPOSE",
+        "transactionAmount": "30000000.00"
+      },
+      {
+        "createdAt": "2023-03-05T22:17:09",
+        "deleted": false,
+        "reference": "Charge-ylg3i15t9qnz",
+        "pocketId": "100000238",
+        "transactionLeg": "DEBIT",
+        "transactionCurrency": "NGN",
+        "narration": "Reason:Fee:Debited:100000238:Credited:SBP0000000:Amount:NGN200.00:AvailableBalance:NGN29999800.00",
+        "transactionId": "9sn6ejvlfdqo",
+        "description": "Fee - Funding by account - Primary pockets - GENERIC - ALL-PURPOSE",
+        "transactionAmount": "200.00"
+      }
+    ],
+    "pageable": {
+      "sort": {
+        "sorted": true,
+        "unsorted": false,
+        "empty": false
+      },
+      "pageSize": 10,
+      "pageNumber": 0,
+      "offset": 0,
+      "paged": true,
+      "unpaged": false
+    },
+    "last": true,
+    "totalElements": 10,
+    "totalPages": 1,
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "first": true,
+    "numberOfElements": 10,
+    "size": 10,
+    "number": 0,
+    "empty": false
+  }
+}
+```

@@ -1,0 +1,320 @@
+---
+title: Webhook Events
+---
+
+Anytime an event happens on your account, your application can be notified by SeerBit. This is where webhooks come in, it is useful for events that are not triggered by direct API request, but when the response from that request needs to be known (for instance, in cases when there is an update to a transaction status), it is necessary only for behind-the-scenes transactions. SeerBit webhooks are HTTP calls that are triggered by specific events. SeerBit webhooks replace regular API calls with instant, real-time notifications. It can be set up on your dashboard by specifying a URL we would send POST requests to you whenever an event that might be of interest happens. Each webhook notification contains an eventType that specifies which type of event triggered the webhook notification.
+
+## Failed Transactions
+
+### Expose an endpoint on an open server
+
+We can send notifications as HTTP callbacks (webhooks) to an endpoint on a server that must be open. To receive webhooks, you must have a server that:
+
+1. Has an endpoint that can receive JSON requests
+2. Depending on your network and security requirements, you might also need to add our IP address to your firewall whitelist
+
+### Subscribe to webhook notifications
+
+To configure webhooks notifications:
+
+1. Login to your dashboard
+2. Navigate to **Account Settings > Webhook**
+3. Enter your notification URL
+4. Click on Subscribe
+
+### Accept Nofications
+
+To ensure that your server is properly accepting notifications, we require you to acknowledge every notification with an HTTP 200 response code. If we don't receive this response within 10 seconds, for example because your server is down, all notifications to your endpoint will be queued and retried. For more information, refer to queued notifications. When your server receives notification:
+
+1. Save the notification in your database
+2. Acknowledge the notification with the following HTTP response status code 200
+3. Apply your business logic
+
+Make sure that you acknowledge the notification before applying any business logic, because a breakage in your business logic could otherwise prevent important updates from reaching your system.
+
+### Webhook Integration
+
+A seerbit integration includes the following :
+
+- **Events**: This is an action that triggers notifications. Webhooks can be used to create alerts that trigger for these events.
+- **Subscriptions**: This is set-up in the portal to subscribe to notifications associated with a specific event. There is a configurable service in the application to which alerts are sent.
+- **Notification Body**: Details about the event that generated the alert, such as the time it happened.
+
+### Webhook Event Types
+
+- refund
+- dispute
+- transaction
+- transaction.recurrent
+- transaction.wallet
+- transaction.recurring.debit
+
+### Queued Notifications
+
+It is expected that you respond to an event notification with a status response code of 200 (OK). This code will be used by us to acknowledge that you received the notification. Any status response code outside of the 2xx series will be considered a failed response and we will continue to retry regularly for up to 7 days, at increasing time intervals as follows:
+
+- 2 Minutes
+- 5 Minutes
+- 10 Minutes
+- 15 Minutes
+- 30 Minutes
+- 1 hour
+- 2 hours
+- 4 hours
+
+After that, retries happen every 8 hours for the following 7 days. If we do not receive a response within the 2XX series, all notifications to this endpoint will be queued. Subsequently, we will attempt to retry sending the notification to your endpoint until it is accepted. Once accepted, you will receive all queued notifications as well.
+
+## Refund Event Sample
+
+The refund event notification body is structured thus:
+
+```json
+{
+  "notificationItems": [
+    {
+      "notificationRequestItem": {
+        "eventType": "refund",
+        "eventDate": "2020-05-01 12:55:57",
+        "eventId": "0be677f841254a3eb92fab0d0b6ba232",
+        "data": {
+          "amount": "10",
+          "createdAt": "2019-10-24 07:47:49",
+          "transactionRef": "IHrE1571828556059",
+          "description": "I need my money",
+          "type": "FULL_REFUND",
+          "mode": "TEST",
+          "updatedAt": "2019-10-24 07:47:49"
+        }
+      }
+    }
+  ]
+}
+```
+
+## Dispute Event Sample
+
+The dispute event notification body is structured thus:
+
+```json
+{
+  "notificationItems": [
+    {
+      "notificationRequestItem": {
+        "eventType": "dispute",
+        "eventDate": "2020-05-01 12:56:07",
+        "eventId": "da28df9ea5dd4807b59e5761afd7231b",
+        "data": {
+          "evidence": [
+            {
+              "images": [{ "image": "" }]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
+```
+
+## Transaction Event
+
+The transaction event notification body is structured thus
+
+```json
+{
+  "notificationItems": [
+    {
+      "notificationRequestItem": {
+        "eventType": "transaction",
+        "eventDate": "2024-07-01 08:56:16",
+        "eventId": "e1c98e0ba9364843b7fa8bd8df0e3bc1",
+        "data": {
+          "amount": 922.63,
+          "mobile": "404",
+          "reference": "SBT-T19824129237",
+          "gatewayMessage": "Successful",
+          "publicKey": "SBTESTPUBK_vtI76q2HWA7QHPbqC1M88HC89gllHKfE",
+          "businessName": "opeyemi test",
+          "fee": "13.63",
+          "productId": "",
+          "channelType": "MASTERCARD",
+          "maskedPan": "5123-45xx-xxxx-0008",
+          "sourceIP": "154.113.161.130",
+          "deviceType": "Desktop",
+          "fullname": "ope seun",
+          "email": "seunopeyemi16@gmail.com",
+          "gatewayReference": "SEERLFN8WWTSILB7ZG7",
+          "country": "NG",
+          "currency": "NGN",
+          "narration": "",
+          "createdAt": "2024-07-01T08:56:07",
+          "updatedAt": "2024-07-01T08:56:13.574",
+          "lastFourDigits": "0008",
+          "cardBin": "512345",
+          "reason": "Successful",
+          "paymentType": "CARD",
+          "gatewayCode": "00",
+          "code": "00"
+        }
+      }
+    }
+  ]
+}
+```
+
+## Wallet Transaction Event
+
+The wallet transaction event notification body is structured thus
+
+```json
+{
+  "notificationItems": [
+    {
+      "notificationRequestItem": {
+        "eventType": "transaction.wallet",
+        "eventDate": "2020-05-01 12:52:28",
+        "eventId": "c472deceabf44924901b104523af14df",
+        "data": {
+          "amount": "100.00",
+          "mobile": "08033456500",
+          "reference": "shh3332hwhwhh22hjjjwj",
+          "gatewayMessage": "APPROVED",
+          "publicKey": "hhw33y2x",
+          "bankCode": "000016",
+          "description": "wallet transaction",
+          "fee": "2.00",
+          "type": "Transfer",
+          "fullname": "John Doe",
+          "email": "peter.diei@centricgateway.com",
+          "country": "NG",
+          "currency": "NGN",
+          "origin": "string",
+          "internalRef": "string",
+          "creditAccountName": "Test Account",
+          "creditAccountNumber": "23221122321",
+          "originatorAccountnumber": "1929383828392",
+          "originatorName": "CGW",
+          "narration": "my narration here",
+          "sessionId": "00002999299388837772828883778",
+          "externalReference": "2203000002992910219",
+          "createdAt": "2019-12-12 16:20:59",
+          "updatedAt": "2019-12-12 16:20:59"
+        }
+      }
+    }
+  ]
+}
+```
+
+## Recurrent Transaction Event
+
+The recurrent transaction event notification body is structured thus
+
+```json
+{
+  "notificationItems": [
+    {
+      "notificationRequestItem": {
+        "eventType": "transaction.recurrent",
+        "eventDate": "2020-05-01 12:50:33",
+        "eventId": "30a33df05b0c465c8c38f4113621685a",
+        "data": {
+          "amount": "150",
+          "mobile": "08033456500",
+          "reference": "TESTPilotR251218123PPOIU149",
+          "publicKey": "SBTESTPUBK_dhrpzbRpR34l6VmqkCFOKA94L5E1jSTu",
+          "description": "Pilot Test Subscription",
+          "productId": "Terrain",
+          "maskedPan": "5123-45xx-xxxx-0008",
+          "email": "akintoyekolawole@gmail.com",
+          "gatewayReference": "F325090871582705056234",
+          "country": "NG",
+          "narration": "Reccurrent",
+          "createdAt": "2020-02-26T09:17:30",
+          "updatedAt": "2020-02-26T09:18:26.496",
+          "lastFourDigits": "0008",
+          "cardBin": "512345"
+        }
+      }
+    }
+  ]
+}
+```
+
+## Recurring Debit Transaction
+
+The code snippet below shows an example response for verifying a subscription
+
+```json
+{
+  "notificationItems": [
+    {
+      "notificationRequestItem": {
+        "eventType": "transaction.recurring.debit",
+        "eventDate": "2020-05-01 12:55:32",
+        "eventId": "799f8cad23bc4bc389280f996d81ea55",
+        "data": {
+          "amount": "2000",
+          "reference": "PILOT76558370651618723659",
+          "gatewayMessage": "Successful",
+          "publicKey": "SBTESTPUBK_dhrpzbRpR34l6VmqkCFOKA94L5E1jSTu",
+          "description": "Authorised charge",
+          "channelType": "Recurring Debit",
+          "maskedPan": "5123--4xx-xxxx-xx-0",
+          "type": "TOKEN",
+          "fullname": "Frank Gboyega",
+          "email": "gboyega@fcmb.com",
+          "gatewayReference": "F786046901582644089560",
+          "country": "NG",
+          "currency": "NGN",
+          "narration": "Authorised charge",
+          "createdAt": "2020-02-25T16:21:23",
+          "updatedAt": "2020-02-25T16:21:31.319",
+          "paymentType": "card"
+        }
+      }
+    }
+  ]
+}
+```
+
+## Virtual Account Transaction
+
+The virtual account transaction event notification body is structured thus
+
+```json
+{
+  "notificationItems": [
+    {
+      "notificationRequestItem": {
+        "eventType": "transaction",
+        "eventDate": "2023-10-06 12:56:47",
+        "eventId": "88bf9852405143bd99502c378b316fdd",
+        "data": {
+          "amount": 100,
+          "country": "NG",
+          "creditAccountName": "BusinessName(Customer Name)",
+          "creditAccountNumber": "4018013418",
+          "currency": "NGN",
+          "email": "xyx@email.com",
+          "externalReference": "GT-012",
+          "fullname": "Adamu Bola Ciroma",
+          "gatewayCode": "00",
+          "code": "00",
+          "internalRef": "",
+          "gatewayMessage": "Successful",
+          "mobile": "404",
+          "narration": "",
+          "origin": "",
+          "originatorAccountnumber": "<Account Number>",
+          "originatorName": "<Account Name>",
+          "publicKey": "<PublicKey>",
+          "reference": "GT-012_SBT_9ADPCIV269",
+          "reason": "Successful"
+        }
+      }
+    }
+  ]
+}
+```
+
