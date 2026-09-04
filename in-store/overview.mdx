@@ -1,0 +1,335 @@
+---
+title: Overview
+description: Accept card-present payments on a SeerBit POS terminal from your ERP, POS software, or retail management system.
+---
+
+The SeerBit ISV POS Transaction API enables third-party applications such as ERP systems, POS software, and retail management solutions to initiate payment requests on a connected SeerBit POS terminal and monitor transaction progress until completion.
+
+Initiating a transaction pushes it directly to the target POS terminal for processing. Once the terminal completes the payment, the transaction record is updated automatically. Integrating applications can either poll the status endpoint using the `orderId` returned at initiation, or rely on a webhook to be notified the moment a transaction reaches a final state — `COMPLETED` or `FAILED`.
+
+| Base URL                          | Auth               | Content-Type       | Request Hash |
+| --------------------------------- | ------------------ | ------------------ | ------------ |
+| `https://seerbitapi.com/isv-pos`  | `PublicKey` header | `application/json` | HMAC-SHA256  |
+
+## Authentication
+
+### API key
+
+All endpoints require a valid `PublicKey` header containing your SeerBit public key. Obtain your public key from your SeerBit account team.
+
+```bash
+PublicKey: YOUR_PUBLIC_KEY
+```
+
+### Request hashing
+
+Every call must include a `Hash` header — an HMAC-SHA256 signature of the request body, computed with your SeerBit secret key and Base64-encoded. Generate it before you initiate the request. This protects the request from tampering in transit and is validated on the server against the raw bytes it receives.
+
+```
+Hash = Base64( HMAC-SHA256( secretKey, requestBody ) )
+```
+
+| Header | Value                                                            |
+| ------ | ---------------------------------------------------------------- |
+| `Hash` | Base64-encoded HMAC-SHA256 signature of the exact request body   |
+
+> **Important**: The signature must be computed over the exact bytes your HTTP client transmits — not a re-serialized copy of the JSON. Differences in whitespace, key order, or encoding between the hashed bytes and the transmitted bytes will produce a hash mismatch and an `INVALID_HASH` response.
+
+> **Security Note**: Never expose your secret key in client-side code — generate the hash on your server or backend service, not in a browser.
+
+### Generating the hash
+
+Use the snippet in your language of choice to hash your exact request body with your SeerBit secret key — found on your SeerBit dashboard under **API/Integration** settings — before you initiate a request. Whichever language you use, the result is the same: a Base64-encoded HMAC-SHA256 signature, sent in the `Hash` header.
+
+<CodeGroup>
+
+```python Python
+import hmac, hashlib, base64
+
+def generate_hash(secret_key: str, request_body: str) -> str:
+    signature = hmac.new(
+        key=secret_key.encode("utf-8"),
+        msg=request_body.encode("utf-8"),
+        digestmod=hashlib.sha256,
+    ).digest()
+    return base64.b64encode(signature).decode("utf-8")
+
+# Example
+secret_key = "YOUR_SECRET_KEY"
+request_body = (
+    '{"orderId":"ORD-100234","posid":"TERMINAL01",'
+    '"transactionValue":"1000.00"}'
+)
+
+hash_value = generate_hash(secret_key, request_body)
+print(f"Hash: {hash_value}")
+```
+
+```javascript NODE
+const crypto = require('crypto');
+
+function generateHash(secretKey, requestBody) {
+  return crypto.createHmac('sha256', secretKey).update(requestBody).digest('base64');
+}
+
+// Example
+const secretKey = 'YOUR_SECRET_KEY';
+const requestBody = JSON.stringify({
+  orderId: 'ORD-100234',
+  posid: 'TERMINAL01',
+  transactionValue: '1000.00',
+});
+
+const hash = generateHash(secretKey, requestBody);
+console.log(`Hash: ${hash}`);
+```
+
+```java Java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
+
+public class SeerBitHash {
+
+    public static String generateHash(String secretKey, String requestBody)
+            throws Exception {
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(secretKey.getBytes("UTF-8"), "HmacSHA256"));
+        byte[] hmacBytes = mac.doFinal(requestBody.getBytes("UTF-8"));
+        return Base64.getEncoder().encodeToString(hmacBytes);
+    }
+
+    public static void main(String[] args) throws Exception {
+        String secretKey = "YOUR_SECRET_KEY";
+        String requestBody =
+            "{\"orderId\":\"ORD-100234\",\"posid\":\"TERMINAL01\"," +
+            "\"transactionValue\":\"1000.00\"}";
+
+        String hash = generateHash(secretKey, requestBody);
+        System.out.println("Hash: " + hash);
+    }
+}
+```
+
+```php PHP
+<?php
+
+function generateHash(string $secretKey, string $requestBody): string
+{
+    return base64_encode(hash_hmac("sha256", $requestBody, $secretKey, true));
+}
+
+// Example
+$secretKey = "YOUR_SECRET_KEY";
+$requestBody =
+    '{"orderId":"ORD-100234","posid":"TERMINAL01",' .
+    '"transactionValue":"1000.00"}';
+
+$hash = generateHash($secretKey, $requestBody);
+echo "Hash: $hash\n";
+```
+
+```csharp C#
+using System;
+using System.Security.Cryptography;
+using System.Text;
+
+public class SeerBitHash
+{
+    public static string GenerateHash(string secretKey, string requestBody)
+    {
+        using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(secretKey));
+        byte[] hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(requestBody));
+        return Convert.ToBase64String(hashBytes);
+    }
+
+    public static void Main()
+    {
+        string secretKey = "YOUR_SECRET_KEY";
+        string requestBody =
+            "{\"orderId\":\"ORD-100234\",\"posid\":\"TERMINAL01\"," +
+            "\"transactionValue\":\"1000.00\"}";
+
+        string hash = GenerateHash(secretKey, requestBody);
+        Console.WriteLine($"Hash: {hash}");
+    }
+}
+```
+
+```ruby Ruby
+require "openssl"
+require "base64"
+
+def generate_hash(secret_key, request_body)
+  digest = OpenSSL::HMAC.digest("sha256", secret_key, request_body)
+  Base64.strict_encode64(digest)
+end
+
+# Example
+secret_key = "YOUR_SECRET_KEY"
+request_body =
+  '{"orderId":"ORD-100234","posid":"TERMINAL01",' +
+  '"transactionValue":"1000.00"}'
+
+hash = generate_hash(secret_key, request_body)
+puts "Hash: #{hash}"
+```
+
+```go Go
+package main
+
+import (
+    "crypto/hmac"
+    "crypto/sha256"
+    "encoding/base64"
+    "fmt"
+)
+
+func generateHash(secretKey, requestBody string) string {
+    mac := hmac.New(sha256.New, []byte(secretKey))
+    mac.Write([]byte(requestBody))
+    return base64.StdEncoding.EncodeToString(mac.Sum(nil))
+}
+
+func main() {
+    secretKey := "YOUR_SECRET_KEY"
+    requestBody := `{"orderId":"ORD-100234","posid":"TERMINAL01",` +
+        `"transactionValue":"1000.00"}`
+
+    hash := generateHash(secretKey, requestBody)
+    fmt.Printf("Hash: %s\n", hash)
+}
+```
+
+</CodeGroup>
+
+Whichever language you use, this produces a request in the following shape:
+
+```bash
+curl -X POST "https://seerbitapi.com/isv-pos/api/v1/transactions" \
+  -H "Content-Type: application/json" \
+  -H "PublicKey: YOUR_PUBLIC_KEY" \
+  -H "Hash: <base64-encoded-signature>" \
+  --data '<your exact request body>'
+```
+
+## Before you integrate
+
+- **PublicKey authentication**: every request must include a valid `PublicKey` header. Obtain your public key from your SeerBit account team.
+- **Request hashing**: every call must include a `Hash` header, generated before you initiate the request (see [Request hashing](#request-hashing) above).
+- **Webhooks are optional**: pass a `webhookUrl` in the initiate payload if you'd rather receive a push notification than poll the status endpoint.
+- **The terminal must be linked**: the terminal referenced by `posid` must already be linked to your SeerBit account.
+
+
+## Where to go next
+
+<CardGroup cols={3}>
+  <Card title="Initiate transaction" icon="play" href="/in-store/initiate-transaction">
+    Start a payment on a connected terminal.
+  </Card>
+  <Card title="Transaction status" icon="search" href="/in-store/transaction-status">
+    Poll for the outcome and settlement detail.
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/in-store/webhooks">
+    Get notified the moment a transaction resolves.
+  </Card>
+</CardGroup>
+
+## Error handling
+
+
+All error responses share a consistent shape:
+
+```json
+{
+  "error": "ERROR_CODE",
+  "message": "Human-readable error description",
+  "details": {},
+  "timestamp": "2026-07-03T07:10:25Z",
+  "traceId": "abc123xyz"
+}
+```
+
+#### Error codes
+
+| HTTP / Code                    | Description                                                    |
+| ------------------------------ | -------------------------------------------------------------- |
+| `400` · `INVALID_REQUEST`      | Request body failed validation.                                 |
+| `401` · `MISSING_API_KEY`      | The `PublicKey` header is missing.                              |
+| `401` · `INVALID_API_KEY`      | The API key could not be validated.                             |
+| `401` · `MISSING_HASH`         | A request was sent without a `Hash` header.                     |
+| `401` · `INVALID_HASH`         | The `Hash` header did not match the request body.               |
+| `403` · `TERMINAL_NOT_ASSIGNED`| The `posid` is not linked to your business.                     |
+| `404` · `TRANSACTION_NOT_FOUND`| No transaction exists for the given reference.                  |
+| `409` · `DUPLICATE_REFERENCE`  | The `orderId` or `transactionRef` has already been used.        |
+| `500` · `WRITE_FAILED`         | The transaction record could not be saved. Retry the request.   |
+| `500` · `INTERNAL_ERROR`       | Unexpected server error.                                        |
+
+### Worked examples
+
+##### 1. Invalid API key
+
+Occurs when the `PublicKey` provided cannot be validated.
+
+```json 401 Unauthorized
+{
+  "error": "INVALID_API_KEY",
+  "message": "Failed to validate public key",
+  "timestamp": "2026-07-03T07:10:25Z"
+}
+```
+
+##### 2. Missing or invalid hash
+
+Occurs when a request omits the `Hash` header, or the header does not match the request body.
+
+```json 401 Unauthorized
+{
+  "error": "INVALID_HASH",
+  "message": "Request hash validation failed",
+  "timestamp": "2026-07-15T09:42:07Z",
+  "traceId": "b21ac4e0-551"
+}
+```
+
+##### 3. Terminal not assigned
+
+Occurs when the `posid` submitted is not linked to your business.
+
+```json 403 Forbidden
+{
+  "error": "TERMINAL_NOT_ASSIGNED",
+  "message": "Terminal is not assigned to your business",
+  "details": { "posid": "2214HX01" },
+  "timestamp": "2026-07-15T09:44:31Z",
+  "traceId": "9a13cd02-447"
+}
+```
+
+##### 4. Duplicate order ID
+
+Occurs when the `orderId` submitted has already been used on a previous transaction.
+
+```json 409 Conflict
+{
+  "error": "DUPLICATE_REFERENCE",
+  "message": "Transaction reference already exists",
+  "details": { "reference": "order_id: 112990000323" },
+  "timestamp": "2026-07-03T07:11:12Z",
+  "traceId": "f6ef7e1f-078"
+}
+```
+
+##### 5. Duplicate transaction reference
+
+Occurs when the `transactionRef` submitted has already been used on a previous transaction.
+
+```json 409 Conflict
+{
+  "error": "DUPLICATE_REFERENCE",
+  "message": "Transaction reference already exists",
+  "details": { "reference": "transactionRef: ITA87EE5e51709977888779DAA4E05" },
+  "timestamp": "2026-07-03T07:11:54Z",
+  "traceId": "d7602a39-189"
+}
+```

@@ -1,12 +1,31 @@
 ---
-title: "SeerBit Sub-Account Integration & Dynamic Split"
+title: Sub-account creation
+description: Register the parties you settle to, and get a sub-account code for each.
 ---
 
-## Overview
+**Ideal for**: Paying more than one party out of a single customer payment — a marketplace paying its sellers, a platform taking commission, a business settling across branches or departments.
 
-The SeerBit Sub-Account API allows you to create and manage sub-accounts for your business. Sub-accounts enable you to split settlements with multiple parties, manage marketplace payments, and organize funds across different business units or merchants.<br /> This documentation provides a complete guide to integrating the Sub-Account API into your application, from authentication to creating sub-accounts with optional pocket integration.
+## How it works
 
-### Prerequisites
+A **sub-account** is a settlement destination you register once. It represents whoever gets paid — a seller, a partner, a department — and has its own bank details and a `subAccountCode`.
+
+A **split** is what you send at payment time. It names which sub-accounts share a given payment and how much each receives.
+
+<Steps>
+  <Step title="Create your sub-accounts">
+    Register each party once, on this page. You get back a `subAccountCode` for each.
+  </Step>
+  <Step title="Split the payment between them">
+    At payment time, reference those codes — either through a pre-configured split rule, or inline per transaction. See [split settlement](/platforms/split-settlement).
+  </Step>
+  <Step title="SeerBit settles each party">
+    Funds reach each sub-account directly. You do not receive the whole amount and pay people out afterwards.
+  </Step>
+</Steps>
+
+> **Sub-accounts are not payouts.** A split settles automatically as part of the payment. If you need to send money to someone independently of a customer payment, use [payouts](/online-payments/payment-features/payout) instead.
+
+## Prerequisites
 
 > Before you begin, ensure you have the following:
 
@@ -16,64 +35,19 @@ The SeerBit Sub-Account API allows you to create and manage sub-accounts for you
   - Public Key (starts with SBTESTPUBK\* for test environment or SBPUBK\* for live)
   - Secret Key (starts with SBTESTSECK\* for test environment or SBSECK\* for live)
 
-#### Authentication
+## Authentication
 
-> All SeerBit API calls require authentication using a Bearer token. You must generate this token before making any requests to the Sub-Account endpoint.
-
-##### Generate Encrypted Secret Key
-
-To obtain a Bearer token, you need to encrypt your API keys.
-
-<Badge color="blue">POST</Badge>
+Sub-account calls are authenticated with a **bearer token**, generated from your public and secret keys.
 
 ```bash
-https://seerbitapi.com/api/v2/encrypt/keys
+POST https://seerbitapi.com/api/v2/encrypt/keys
 ```
 
-##### Headers:
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
 
-```json
-{
-  "Content-Type": "application/json"
-}
-```
-
-#### Request Body
-
-```json
-{
-  "key": "YOUR_SECRET_KEY.YOUR_PUBLIC_KEY"
-}
-```
-
-##### Example cURL:
-
-```bash
-curl --location 'https://seerbitapi.com/api/v2/encrypt/keys' \
---header 'Content-Type: application/json' \
---data '{
-  "key": "SBTESTSECK_9Cb8dbqR5Rc2JwZaa77P5QYHzQaeGUcrkEMD1dEi.SBTESTPUBK_9sN3TuLgW6a9redEfY48cKKkUa09Pz2u"
-}'
-```
-
-#### Response (Success - 200):
-
-```json
-{
-  "status": "SUCCESS",
-  "data": {
-    "code": "00",
-    "EncryptedSecKey": {
-      "encryptedKey": "oAX1OeAlwNt9BI5VEwBLlxtWgL2WaLT9kTc4EMaaZgXMfdhHXaqqVgapnQSOO4OZM2oLRPtqjJzwNLEEGqFSvam8MFz06U4fl/5TVwfWLMsHq4mML9ExIaXRVn3bVm8"
-    },
-    "message": "Successful"
-  }
-}
-```
-
-> **Important**: The encryptedKey returned in this response is your Bearer token. Use this token in the Authorization header for all subsequent API calls.
-
-#### Creating a Sub-Account
+## Creating a sub-account
 
 Once you have your Bearer token, you can create sub-accounts for your business operations.
 
@@ -174,15 +148,15 @@ curl --location 'https://seerbitapi.com/api/v2/sub-accounts' \
 
 </CodeGroup>
 
-### Integration Notes & Best Practices
+## Integration notes and best practices
 
-#### Authentication Token Management
+### Authentication token management
 
 - **Token Validity**: Bearer tokens have a limited lifespan. Implement token refresh logic in your application.
 - **Secure Storage**: Store your Secret Key securely. Never expose it in client-side code or version control systems.
 - **Token Format**: Always prefix your token with Bearer in the Authorization header (note the space).
 
-#### Sub-Account Configuration
+### Sub-account configuration
 
 1. Public Key
 
@@ -212,180 +186,24 @@ curl --location 'https://seerbitapi.com/api/v2/sub-accounts' \
    - Account name mismatches may cause settlement failures
    - Verify account details before creating the sub-account.
 
-#### Common Use Cases
+### Common use cases
 
 1. **Marketplace Settlement**<br /> Create sub-accounts for each vendor on your marketplace to automatically split payments.
 2. **Franchise Management**<br /> Set up sub-accounts for each franchise location to track and settle payments independently.
 3. **Multi-Business Management**<br /> Manage multiple business units with separate settlement accounts under one parent merchant account.
 
-## Dynamic Split Payment
+## Splitting settlement to sub-accounts
 
-Create split configurations on the go during payment initialization when split details aren't predetermined.
+Once your sub-accounts exist, you split a payment across them at payment time — either with a `splitCode` referencing a rule you configured in advance, or with a `splits` object defined inline per transaction.
 
-<Badge color="blue">POST</Badge>
-
-```bash
-https://seerbitapi.com/api/v2/payments
-```
-
-##### Parameter Description
-
-| Name | Type | Description | Required |
-| --- | --- | --- | --- |
-| type | `string` | Value can be FLAT (fixed amounts) or PERCENTAGE (percentage-based) | Yes |
-| transactionFee | `string` | Who pays transaction fees: all, all-proportional, account, or subaccount (ALL\_ACCOUNTS, PROPORTIONATE, SUB\_ACCOUNT, PARENT\_ACCOUNT) | Yes |
-| bearerSubAccountCode | `string` | Required if transactionFee is SUB\_ACCOUNT then pass the sub account code | No |
-| subAccountCode | `string` | Sub account Code | Yes |
-| value | `string` | Amount to be settled | Yes |
-
-#### Request Sample
-
-The code snippet below shows an example request for generating a payment link to complete a payment with dynamic split settlement
-
-<CodeGroup>
-
-```bash cURL
-curl --location 'https://seerbitapi.com/api/v2/payments' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
---data-raw '{
-    "publicKey": "YOUR_PUBLIC_KEY",
-    "amount": "500",
-    "currency": "NGN",
-    "country": "NG",
-    "paymentReference": "payment_reference",
-    "email": "ts@emaildomain.com",
-    "fullName": "Halil TS",
-    "tokenize": "false",
-    "callbackUrl": "https://seerbit.com",
-    "splits": {
-        "type": "FLAT",
-        "transactionFee": "PARENT_ACCOUNT",  //  ALL_ACCOUNTS, PROPORTIONATE, SUB_ACCOUNT, PARENT_ACCOUNT
-        "bearerSubAccountCode": "SUBACCT001",
-        "items": [
-            {
-                "subAccountCode": "SUBACCT001",
-                "value": "3.01"
-            },
-            {
-                "subAccountCode": "ops-costs-2sD4kA",
-                "value": "2.00"
-            }
-        ]
-    }
-}'
-```
-
-```javascript NODE
-var request = require("request");
-var options = {
-  method: "POST",
-  url: "https://seerbitapi.com/api/v2/payments",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: "Bearer YOUR_ENCRYPTED_KEY",
-  },
-  body: JSON.stringify({
-    publicKey: "YOUR_PUBLIC_KEY",
-    amount: "500",
-    currency: "NGN",
-    country: "NG",
-    paymentReference: "payment_reference",
-    email: "ts@emaildomain.com",
-    fullName: "Halil TS",
-    tokenize: "false",
-    callbackUrl: "https://seerbit.com",
-  }),
-};
-request(options, function (error, response) {
-  if (error) throw new Error(error);
-  console.log(response.body);
-});
-```
-
-```php PHP
-<?php
-
-$curl = curl_init();
-
-curl_setopt_array($curl, array(
-  CURLOPT_URL => 'https://seerbitapi.com/api/v2/payments',
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => '',
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 0,
-  CURLOPT_FOLLOWLOCATION => true,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => 'POST',
-  CURLOPT_POSTFIELDS =>'{
-    "publicKey": "YOUR_PUBLIC_KEY",
-    "amount": "500",
-    "currency": "NGN",
-    "country": "NG",
-    "paymentReference": "payment_reference",
-    "email": "ts@emaildomain.com",
-    "fullName": "Halil TS",
-    "tokenize": "false",
-    "callbackUrl": "https://seerbit.com",
-    "splits": {
-        "type": "FLAT",
-        "transactionFee": "SUB_ACCOUNT",  //  ALL_ACCOUNTS, PROPORTIONATE, SUB_ACCOUNT, PARENT_ACCOUNT
-        "bearerSubAccountCode": "SUBACCT001",
-        "items": [
-            {
-                "subAccountCode": "SUBACCT001",
-                "value": "3.01"
-            },
-            {
-                "subAccountCode": "ops-costs-2sD4kA",
-                "value": "2.00"
-            }
-        ]
-    }
-}',
-  CURLOPT_HTTPHEADER => array(
-    'Content-Type: application/json',
-    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
-  ),
-));
-
-$response = curl_exec($curl);
-
-curl_close($curl);
-echo $response;
-```
-
-</CodeGroup>
-
-#### Response Sample
-
-The code snippet below shows an example request for generating a bearer token
-
-<CodeGroup>
-
-```json 200:OK
-{
-"status": "SUCCESS",
-"data": {
-        "code": "00",
-        "payments": {
-                     "redirectLink": "http://checkout.seerbitapi.com/#/?mid=merchantpublickey&paymentReference=643108207792124616573324",
-                     "paymentStatus": "08"
-        },
-      "message": "Successful"
-  }
-}
-```
-
-```json 409:Conflict
-{
-  "message": "Transaction Exists",
-  "error": "PROCESSING"
-}
-```
-
-</CodeGroup>
+<Card title="Split settlement" icon="git-fork" href="/platforms/split-settlement">
+  Both split modes, with payloads, the `splits` object fields and worked examples.
+</Card>
 
 ## Notes
 
-Note that in cases where you require your customers to bear the charge for a transaction, the agreed charge should be added to the transaction amount. This charge will be deducted after the transaction is completed and the merchant settled the transaction amount.<br /> Merchant is expected to use the redirect link returned in the repsonse to navigate to the seerBit checkout modal to continue the transaction
+- **Register a sub-account before you reference it.** A split naming a `subAccountCode` that does not exist will fail.
+- **Use the `redirectLink` from the payment response** to send the customer to the SeerBit checkout and complete the transaction.
+- **Transaction fees are handled by the checkout.** Who bears the fee is a dashboard setting, and the hosted checkout calculates it — do not add the fee to `amount` yourself. See [transaction fees](/online-payments/integrations/standard-checkout#transaction-fees). Within a split, `transactionFee` decides which party absorbs it.
+- **Sub-accounts settle directly.** Each party's share reaches their own account; the full amount does not pass through yours first.
+- Sub-accounts created with test keys only work in test mode. See [test and live modes](/test-and-live).

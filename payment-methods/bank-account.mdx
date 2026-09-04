@@ -1,12 +1,12 @@
 ---
 title: Bank Account
+description: Debit a customer's bank account directly with their authorisation.
 ---
+
+**Ideal for**: Debiting a customer's bank account directly, with their authorisation — useful for larger amounts where card fees bite, and for customers without a card.
 
 This payment method allows your customers to make payments through their internet banking portal or by providing their bank account number and authenticating using an OTP sent to their mobile phone number or email registered to that account
 
-## Before you begin
-
-> Ensure you have your public key. You can find this on the SeerBit Merchant dashboard under accounts > api keys. If you don’t have an account with us yet, you can [create a test account](https://dashboard.seerbit.com/#/auth/register) now
 
 ## How it works
 
@@ -18,6 +18,54 @@ This payment method allows your customers to make payments through their interne
 6.  To validate the transaction the customer gets an OTP( one time password) via the registered number with the bank or via email.
 7.  Use the OTP entered by the customer and reference to call the payments/validate endpoint to complete the transaction.​
 8.  Verify the payment​
+
+
+## Before you use these endpoints
+
+These endpoints are for merchants who want to **build their own checkout**. You collect the payment details in your own interface and send them to SeerBit, deciding for yourself how the payment experience looks.
+
+If you would rather not build and maintain that, use [Simple Checkout](/online-payments/integrations/simple-checkout) or [Standard Checkout](/online-payments/integrations/standard-checkout) instead — SeerBit renders the payment interface, supports every method, and takes on the compliance burden.
+
+### You calculate the fee, not SeerBit
+
+The hosted checkout works out the transaction fee and shows it to the customer. **These endpoints do not.** SeerBit charges exactly the `amount` you send.
+
+So if your dashboard is set so the **customer** bears the fee, you must calculate that fee and include it yourself. If you don't, the fee comes out of your settlement instead — you will receive less than you charged.
+
+| Fee bearer | [Hosted checkout](/online-payments/integrations/standard-checkout#transaction-fees) | These endpoints |
+| --- | --- | --- |
+| **Merchant** | Send your amount; the fee is deducted at settlement | Send your amount; the fee is deducted at settlement |
+| **Customer** | Checkout adds the fee for you | **You add the fee yourself** |
+
+Set the fee bearer in your dashboard settings, and see [transaction fees](/online-payments/integrations/standard-checkout#transaction-fees) for how the two models differ.
+
+## How methods are selected
+
+Every payment method uses the **same endpoint** — what changes is the `paymentType` you send and the extra fields that method needs.
+
+```bash
+POST https://seerbitapi.com/api/v2/payments/initiates
+```
+
+| Method | `paymentType` | Extra fields |
+| --- | --- | --- |
+| [Card](/payment-methods/card-payment) | `CARD` | `cardNumber`, `cvv`, `expiryMonth`, `expiryYear`, `pin` |
+| [Transfer](/payment-methods/transfer) | `TRANSFER` | — |
+| [USSD](/payment-methods/ussd-payment) | `USSD` | `bankCode` |
+| [Mobile money](/payment-methods/mobile-money) | `MOMO` | `network`, `voucherCode` |
+| [Bank account](/payment-methods/bank-account) | `ACCOUNT` | `clientAppCode`, `redirectUrl` |
+
+## Authentication
+
+All payment method calls are authenticated with a **bearer token**, generated from your public and secret keys.
+
+```bash
+POST https://seerbitapi.com/api/v2/encrypt/keys
+```
+
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
 
 ## Initialising a Bank Account Payment
 
@@ -31,14 +79,14 @@ https://seerbitapi.com/api/v2/payments/initiates
 
 ### Request Sample
 
-The code snippet below shows an example request for generating a payment link to complete a payment
+The code snippet below shows an example request for initialising this payment
 
 <CodeGroup>
 
 ```bash cURL
 curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Bearer YOUR_ENCRYPTION_KEY' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
 --data-raw '{
 	"publicKey":"Your_public_key",
 	"amount":"2000.00",
@@ -53,6 +101,7 @@ curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
 	"productDescription":"Uba Account Transaction ",
 	"clientAppCode":"kpp64",
 	"redirectUrl":"https://checkout.seerbit.com",
+	"paymentType":"ACCOUNT"
 }'
 ```
 
@@ -63,9 +112,9 @@ var options = {
   url: 'https://seerbitapi.com/api/v2/payments/initiates',
   headers: {
     'Content-Type': 'application/json',
-    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY'
   },
-  body: '{\n	"publicKey":"Your_public_key",\n	"amount":"2000.00",\n	"fee":"10",\n	"fullName":"John Doe",\n	"mobileNumber":"08037456590",\n	"currency":"NGN",\n	"country":"NG",\n	"paymentReference":"UYTRE234566677RDFGFDDSS",\n	"email":"johndoe@gmail.com",\n	"productId":"Foods",\n	"productDescription":"Uba Account Transaction ",\n	"clientAppCode":"kpp64",\n	"redirectUrl":"https://checkout.seerbit.com",\n}',
+  body: '{\n	"publicKey":"Your_public_key",\n	"amount":"2000.00",\n	"fee":"10",\n	"fullName":"John Doe",\n	"mobileNumber":"08037456590",\n	"currency":"NGN",\n	"country":"NG",\n	"paymentReference":"UYTRE234566677RDFGFDDSS",\n	"email":"johndoe@gmail.com",\n	"productId":"Foods",\n	"productDescription":"Uba Account Transaction ",\n	"clientAppCode":"kpp64",\n	"redirectUrl":"https://checkout.seerbit.com",\n	"paymentType":"ACCOUNT"\n}'
 };
 request(options, function (error, response) {
   if (error) throw new Error(error);
@@ -101,10 +150,11 @@ curl_setopt_array($curl, array(
 	"productDescription":"Uba Account Transaction ",
 	"clientAppCode":"kpp64",
 	"redirectUrl":"https://checkout.seerbit.com",
+	"paymentType":"ACCOUNT"
 }',
   CURLOPT_HTTPHEADER => array(
     'Content-Type: application/json',
-    'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
   ),
 ));
 
@@ -118,7 +168,7 @@ echo $response;
 
 ### Response Sample
 
-The code snippet below shows an example request for generating a payment link to complete a payment
+The code snippet below shows an example request for initialising this payment
 
 ```json
 {

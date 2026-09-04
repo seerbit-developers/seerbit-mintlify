@@ -1,0 +1,76 @@
+---
+title: Introduction
+description: What you can build with SeerBit, and the fastest route to your first payment.
+---
+
+SeerBit is a payment platform for African markets. These docs cover four things you can build:
+
+<CardGroup cols={2}>
+  <Card title="Collect payments online" icon="credit-card" href="/online-payments/integrations/accept-payment">
+    Take card, bank, transfer, USSD and mobile money payments on your website or app.
+  </Card>
+  <Card title="Take payments in store" icon="square-terminal" href="/in-store/overview">
+    Push a payment to a SeerBit POS terminal from your ERP or till software.
+  </Card>
+  <Card title="Pay people out" icon="banknote" href="/payouts/overview">
+    Send funds from your SeerBit Pocket to bank accounts, singly or in bulk.
+  </Card>
+  <Card title="Build a marketplace" icon="network" href="/online-payments/integrations/sub-account">
+    Split one payment across several accounts and settle each party automatically.
+  </Card>
+</CardGroup>
+
+## Choosing an integration
+
+Most people start by collecting payments online. There are three ways to do it, and the right one depends on how much control you need over the payment experience.
+
+| | [Simple Checkout](/online-payments/integrations/simple-checkout) | [Standard Checkout](/online-payments/integrations/standard-checkout) | [E-commerce plugin](/online-payments/integrations/e-commerce-plugin) |
+| --- | --- | --- | --- |
+| **How it works** | A payment form opens over your page | You redirect to a SeerBit-hosted page | Install into your store platform |
+| **You need** | A public key and a few lines of JavaScript | A server that can make API calls | An account on the platform |
+| **Best when** | You want the customer to stay on your site | You want no card handling in your frontend at all | You run WooCommerce, Wix, Magento or similar |
+| **Effort** | Lowest for a web page | Low, and works from any language | None — configuration only |
+
+All three are PCI compliant and support every [payment method](/payment-methods/overview) on your account. You can change your mind later; they use the same keys and the same transaction records.
+
+## How an integration fits together
+
+Whichever path you pick, a payment follows the same shape:
+
+<Steps>
+  <Step title="Authenticate">
+    Exchange your keys for a token, or sign the request — see [Authentication](/authentication).
+  </Step>
+  <Step title="Create the transaction">
+    Tell SeerBit the amount, the currency and who is paying.
+  </Step>
+  <Step title="Let the customer pay">
+    They complete the payment on a SeerBit page, an inline form, or a terminal.
+  </Step>
+  <Step title="Confirm the result">
+    Read the outcome from a [webhook](/online-payments/after-payments/webhook-events) or by [verifying the payment](/online-payments/after-payments/verify-payment) — never from the browser redirect alone.
+  </Step>
+</Steps>
+
+That last step is the one people skip, and it is the one that causes unfulfilled orders and double shipments. Build it in from the start.
+
+## Start here
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Take a test payment end to end in about ten minutes.
+  </Card>
+  <Card title="Authentication" icon="key" href="/authentication">
+    Keys, tokens and request signing — and which applies to what.
+  </Card>
+  <Card title="Test and live modes" icon="flask-conical" href="/test-and-live">
+    Test cards, how the two modes differ, and how to tell them apart.
+  </Card>
+  <Card title="Go live" icon="check" href="/go-live">
+    KYC, swapping keys, and the final production check.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Questions? Reach the team at [SeerBit Support](https://seerbitteam.freshdesk.com/support/home).
+</Tip>

@@ -1,5 +1,6 @@
 ---
 title: SeerBit Status Code
+description: Look up what a SeerBit response code means.
 ---
 
 SeerBit uses conventional HTTP response codes to indicate the success or failure of an API request. In general: Codes in the **2xx** range indicate success. Codes in the **Sxx** range indicate an error that failed given the information provided (e.g., a required parameter was omitted, a charge failed, etc.). The code S12 indicates failed transactions and is extended in other failed response codes with prefix SM\_.
@@ -20,6 +21,7 @@ SeerBit uses conventional HTTP response codes to indicate the success or failure
 | Code      | Description                                                                                                                  |
 | --------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | `00`      | Successful                                                                                                                   |
+| `07`      | Transaction not found for the supplied reference (returned by the [refunds API](/online-payments/after-payments/refund#refunds-api)) |
 | `S0`      | Your transaction timed out. Please check status shortly                                                                      |
 | `S1`      | No valid API key provided.                                                                                                   |
 | `S2`      | Invalid Amount                                                                                                               |

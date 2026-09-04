@@ -1,8 +1,43 @@
 ---
 title: Virtual Account
+description: Reserve dedicated bank account numbers for your customers.
 ---
 
-The Virtual Account API allows you to create reserve accounts for your customers to make payments.
+**Ideal for**: Giving a customer their own bank account number to pay into, again and again — wallet top-ups, recurring collections, marketplace sellers, or any case where you need to know who sent money without asking.
+
+## Virtual account or bank transfer?
+
+Both have the customer send money to a SeerBit-controlled bank account. The difference is **how long the account lives and who it belongs to**.
+
+| | [Transfer](/payment-methods/transfer) | Virtual Account |
+| --- | --- | --- |
+| **Account lifetime** | Generated per transaction, then discarded | Reserved for the customer, reusable indefinitely |
+| **Belongs to** | One payment | One customer |
+| **Created** | As part of initialising a payment | Ahead of time, via this API |
+| **The amount** | Fixed — the account expects that payment | Any amount, any time |
+| **Reconciliation** | Matched to the transaction it was created for | Matched to the customer the account belongs to |
+| **Customer experience** | New account details every time they pay | The same account number they can save |
+| **Best for** | A one-off checkout paid by transfer | Wallet funding, recurring collections, per-customer ledgers |
+
+Use a plain [transfer](/payment-methods/transfer) when the customer is paying once at checkout. Use a virtual account when the same customer will pay repeatedly and you want every inbound payment attributed to them automatically.
+
+## How it works
+
+You create an account against a customer, supplying their name, email and a `reference` of your own. SeerBit returns a real bank account number at a partner bank. Give that number to the customer; anything they transfer into it is credited to you and attributed to the reference you set.
+
+Because the account persists, you do not need to generate anything at payment time — the customer can pay whenever they like, and you match the inbound payment by the account number or your reference.
+
+## Authentication
+
+Virtual Account calls are authenticated with a **bearer token**, generated from your public and secret keys.
+
+```bash
+POST https://seerbitapi.com/api/v2/encrypt/keys
+```
+
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
 
 ## Create Virtual Account
 
@@ -115,12 +150,36 @@ The code snippet below shows an example response for creating a virtual account
 }
 ```
 
+#### Parameter description
+
+| Name | Type | Description |
+| --- | --- | --- |
+| publicKey | `string` | Your SeerBit public key, from **Settings > API Keys**. |
+| fullName | `string` | Name of the customer the account is reserved for. |
+| email | `string` | Customer's email address. |
+| reference | `string` | Your own unique reference for this account. Use it to [retrieve](#get-virtual-account) or [delete](#delete-a-virtual-account) the account later. |
+| currency | `string` | Currency of the account, e.g. `NGN`. See [currency codes](/development-resources/currency-codes/overview). |
+| country | `string` | Country the account is issued in, e.g. `NG`. |
+| bankVerificationNumber | `string` | The customer's BVN. May be required depending on your account configuration and the partner bank — send an empty string when it is not. |
+
+#### Response fields
+
+| Name | Type | Description |
+| --- | --- | --- |
+| code | `string` | `00` on success. See [status codes](/development-resources/responses/seerbit-status-code). |
+| payments.accountNumber | `string` | The bank account number to give the customer. This is what they pay into. |
+| payments.bankName | `string` | Partner bank holding the account. |
+| payments.walletName | `string` | Account name the customer will see when they transfer. |
+| payments.reference | `string` | Echoes the reference you supplied. |
+| payments.linkingReference | `string` | SeerBit's own identifier for the account. |
+
+
 ## Get Virtual Account
 
 <Badge color="green">GET</Badge>
 
 ```bash
-https://seerbitapi.com/api/v2/virtual-accounts/{{paymentreference}}
+https://seerbitapi.com/api/v2/virtual-accounts/{{paymentReference}}
 ```
 
 #### Request Sample
@@ -130,7 +189,7 @@ The code snippet below shows an example request to get virtual account
 <CodeGroup>
 
 ```bash cURL
-curl --location 'https://seerbitapi.com/api/v2/virtual-accounts/{{paymentreference}}' \
+curl --location 'https://seerbitapi.com/api/v2/virtual-accounts/{{paymentReference}}' \
 --header 'Authorization: Bearer YOUR_ENCRYPTION_KEY'
 ```
 
@@ -138,7 +197,7 @@ curl --location 'https://seerbitapi.com/api/v2/virtual-accounts/{{paymentreferen
 var request = require('request');
 var options = {
   method: 'GET',
-  url: 'https://seerbitapi.com/api/v2/virtual-accounts/{{paymentreference}}',
+  url: 'https://seerbitapi.com/api/v2/virtual-accounts/{{paymentReference}}',
   headers: {
     Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
   },
@@ -155,7 +214,7 @@ request(options, function (error, response) {
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
-  CURLOPT_URL => 'https://seerbitapi.com/api/v2/virtual-accounts/{{paymentreference}}',
+  CURLOPT_URL => 'https://seerbitapi.com/api/v2/virtual-accounts/{{paymentReference}}',
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => '',
   CURLOPT_MAXREDIRS => 10,
@@ -186,7 +245,7 @@ The code snippet below shows an example response to get all created links
   "data": {
     "code": "00",
     "payments": {
-      "reference": "VA_1", // virtual account reference
+      "reference": "VA_1",
       "linkingReference": "9PSB641860391656618499020",
       "walletName": "SEERBIT(Business Name)",
       "wallet": "Account Number",
@@ -296,7 +355,7 @@ curl --location 'https://seerbitapi.com/api/v2/virtual-accounts/YOUR_PUBLIC_KEY/
 var request = require('request');
 var options = {
   method: 'GET',
-  url: 'https://seerbitapi.com/api/v2/virtual-accounts/YOUR_PUBLIC_KEY/{{accoutNumber}}',
+  url: 'https://seerbitapi.com/api/v2/virtual-accounts/YOUR_PUBLIC_KEY/{{accountNumber}}',
   headers: {
     Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
   },
@@ -452,3 +511,11 @@ The code snippet below shows an example response for getting a payment
   }
 }
 ```
+
+## Notes
+
+- **The account number is permanent until you delete it.** Give it to the customer once and let them save it — regenerating on every payment defeats the purpose.
+- **Your `reference` is how you attribute payments.** Make it unique per customer and store it against their record, or you will not be able to tell inbound payments apart.
+- **Deleting an account frees the number.** A deleted account stops accepting payments; do not delete one a customer may still pay into.
+- **Payments arrive without warning.** A customer can transfer at any time, so rely on [webhooks](/online-payments/after-payments/webhook-events) rather than polling — see the virtual account transaction event.
+- Accounts created with test keys only work in test mode. See [Test and live modes](/test-and-live).

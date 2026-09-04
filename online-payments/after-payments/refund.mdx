@@ -1,16 +1,136 @@
 ---
 title: Refunds
+description: Return a payment to a customer in full or in part, from the dashboard or the API.
 ---
 
-Refunds will allow you refund a payment for a dispute that has been raised, but not yet refunded. Funds will be refunded to the credit or debit card that was originally charged. For refunds to take place, you need to add a dispute.
+**Ideal for**: Returning money to a customer after a payment has already succeeded — a cancelled order, a returned item, a billing mistake.
 
-Refunds can be done in full or part (Partial refund). You can also partially refund a payment in multiple times until the entire payment has been refunded, as long as it does not exceed the charged amount. Once the entire amount has been refunded, a payment can’t be refunded again. This method will return an error when called on an already-refunded payment, or when trying to refund more money than is left on a payment.
+## Dashboard or API?
 
-## Refunding a customer from the dashboard
+There are two ways to issue a refund. **The API is not enabled by default.**
 
-1. Find the transaction that requires a refund.
-2. Click on the transaction to get a full overview of the transaction.
-3. Click on issue refund.
-4. Select if its a full refund or a partial refund.
-5. Select a reason for the refund
-6. Click Refund
+| | [Dashboard](#refunding-from-the-dashboard) | [Refunds API](#refunds-api) |
+| --- | --- | --- |
+| **Availability** | Every merchant | Requires SeerBit approval |
+| **Who issues it** | A person, one refund at a time | Your system, programmatically |
+| **Best for** | Occasional refunds, manual review | High volume, or refunds triggered by your own workflow |
+
+<Card title="The Refunds API requires approval" icon="shield-alert" horizontal>
+  SeerBit enables the refund endpoint per merchant. Until your account is approved for it, calls to the endpoint will not succeed and refunds must be issued from the dashboard.
+
+  To request access, contact your SeerBit account team or [SeerBit Support](https://seerbitteam.freshdesk.com/support/home).
+</Card>
+
+## Before you can refund
+
+**A refund requires a dispute on the transaction.** You cannot refund a payment that has no dispute raised against it — adding the dispute is the first step, not an optional one.
+
+Funds always return to the card that was originally charged. You cannot redirect a refund to a different card or account.
+
+## Full or partial refund?
+
+| | Full refund | Partial refund |
+| --- | --- | --- |
+| **Amount returned** | The entire charge | Any amount up to what remains |
+| **Repeatable** | No — the payment is then closed | Yes, until the full amount is returned |
+| **Webhook `type`** | `FULL_REFUND` | Sent as a refund event with the partial amount |
+| **Use when** | The whole order is cancelled or returned | Part of an order is returned, or you are correcting an overcharge |
+
+You can issue several partial refunds against one payment, as long as the running total never exceeds the amount charged. Once the full amount has been returned, the payment is closed and cannot be refunded again — a further attempt, or an attempt for more than remains, is rejected.
+
+## Refunds API
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/payments/refunds
+```
+
+### Authentication
+
+Refund calls are authenticated with a **bearer token**, generated from your public and secret keys.
+
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
+
+### Request Sample
+
+```bash cURL
+curl --location 'https://seerbitapi.com/api/v2/payments/refunds' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data '{
+    "publicKey": "YOUR_PUBLIC_KEY",
+    "amount": "1500.00",
+    "productDescription": "refund test",
+    "paymentReference": "16945971601892868483"
+}'
+```
+
+#### Parameter description
+
+| Name | Type | Description |
+| --- | --- | --- |
+| publicKey | `string` | Your SeerBit public key, from **Settings > API Keys**. |
+| paymentReference | `string` | The reference of the **original payment** being refunded, not a new one. |
+| amount | `string` | Amount to return. Send the full charge for a full refund, or less for a partial one. |
+| productDescription | `string` | Your reason or note for the refund. |
+
+### Response
+
+| `data.code` | Meaning | What to do |
+| --- | --- | --- |
+| `00` | Refund succeeded | Update your records. |
+| `07` | No transaction found for that `paymentReference` | Check you sent the original payment's reference. |
+
+A refund against a reference SeerBit cannot find returns:
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "07",
+    "message": "Transaction with transaction reference 16945971601892868483 not found"
+  }
+}
+```
+
+> **Note**: `status: "SUCCESS"` describes the API call, not the refund. Read `data.code` — a refund only succeeded when it reads `00`.
+
+## Refunding from the dashboard
+
+<Steps>
+  <Step title="Find the transaction">
+    Locate the payment that needs refunding in your transaction list.
+  </Step>
+  <Step title="Open it">
+    Click the transaction to see its full detail.
+  </Step>
+  <Step title="Issue the refund">
+    Click **Issue refund**.
+  </Step>
+  <Step title="Choose full or partial">
+    Select a full or partial refund, and enter the amount if partial.
+  </Step>
+  <Step title="Give a reason">
+    Select a reason for the refund. This is carried on the refund record.
+  </Step>
+  <Step title="Confirm">
+    Click **Refund**.
+  </Step>
+</Steps>
+
+## Getting notified
+
+SeerBit sends a **refund** [webhook event](/online-payments/after-payments/webhook-events#7-1-refund-event) when a refund is processed — whether it came from the dashboard or the API — so your system can update the order either way. The payload carries the original `transactionRef`, the `amount` returned, the refund `type`, and the reason as `description`.
+
+A separate **dispute** event fires when a dispute is raised — see [dispute event](/online-payments/after-payments/webhook-events#7-2-dispute-event).
+
+## Notes
+
+- **Send the original payment's `paymentReference`.** A refund is not a new transaction with its own reference — it acts on the payment being reversed.
+- **`status: "SUCCESS"` is not confirmation of a refund.** Always read `data.code`.
+- **Refunds fire webhooks in test mode too**, so you can exercise your handler before going live. See [test and live modes](/test-and-live).
+- **A refund is not a reversal of your settlement.** Refunded amounts are recovered from your SeerBit balance — see [receiving settlements](/online-payments/after-payments/receive-settlement).
+- The transaction fee on the original payment is a separate matter from the refunded amount. Confirm how your account treats fees on refunds with your SeerBit account team.

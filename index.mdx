@@ -31,11 +31,11 @@ mode: custom
     <Tab title="Online Payments">
       <CardGroup cols={2}>
         {[
-                                                      { title: "Get Started", body: "Detailed descriptions of all API endpoints", icon: "rocket", href: "/online-payments/integrations/accept-payment" },
-                                                      { title: "Accept Payments", body: "Detailed descriptions of all API endpoints", icon: "credit-card" },
-                                                      { title: "Add Payment Methods", body: "Detailed descriptions of all API endpoints", icon: "wallet" },
-                                                      { title: "Webhooks", body: "Detailed descriptions of all API endpoints", icon: "webhook" },
-                                                      { title: "Release Notes", body: "Detailed descriptions of all API endpoints", icon: "megaphone" },
+                                                      { title: "Get Started", body: "Take your first test payment in about ten minutes.", icon: "rocket", href: "/quickstart" },
+                                                      { title: "Accept Payments", body: "Compare Simple Checkout, Standard Checkout, SDKs and plugins.", icon: "credit-card", href: "/online-payments/integrations/accept-payment" },
+                                                      { title: "Add Payment Methods", body: "Card, bank account, transfer, USSD and mobile money.", icon: "wallet", href: "/payment-methods/overview" },
+                                                      { title: "Webhooks", body: "Get notified server-side the moment a transaction resolves.", icon: "webhook", href: "/online-payments/after-payments/webhook-events" },
+                                                      { title: "Verify a Payment", body: "Confirm the result server-side before you fulfil an order.", icon: "shield-check", href: "/online-payments/after-payments/verify-payment" },
                                                     ].map((item) => (
                                                       <Card
                                                         key={item.title}
@@ -55,15 +55,16 @@ mode: custom
     <Tab title="In-Person Payments">
       <CardGroup cols={2}>
         {[
-                                                      { title: "Get Started", body: "Detailed descriptions of all API endpoints", icon: "rocket" },
-                                                      { title: "Terminal API", body: "Detailed descriptions of all API endpoints", icon: "square-terminal" },
-                                                      { title: "Payment Terminals", body: "Detailed descriptions of all API endpoints", icon: "credit-card" },
-                                                      { title: "Release Notes", body: "Detailed descriptions of all API endpoints", icon: "megaphone" },
+                                                      { title: "Get Started", body: "Authentication, request hashing and the POS payment flow.", icon: "rocket", href: "/in-store/overview" },
+                                                      { title: "Terminal API", body: "Start a payment on a connected SeerBit POS terminal.", icon: "square-terminal", href: "/in-store/initiate-transaction" },
+                                                      { title: "Transaction Status", body: "Poll for the outcome and full settlement detail.", icon: "credit-card", href: "/in-store/transaction-status" },
+                                                      { title: "Webhooks", body: "Receive a push notification when a terminal payment resolves.", icon: "webhook", href: "/in-store/webhooks" },
                                                     ].map((item) => (
                                                       <Card
                                                         key={item.title}
                                                         title={item.title}
                                                         icon={item.icon}
+                                                        href={item.href}
                                                         horizontal
                                                         className="seerbit-nav-card"
                                                         arrow
@@ -77,16 +78,16 @@ mode: custom
     <Tab title="SeerBit for Platforms & Marketplaces">
       <CardGroup cols={2}>
         {[
-                                                      { title: "Get Started", body: "Detailed descriptions of all API endpoints", icon: "rocket" },
-                                                      { title: "Accept Payments", body: "Detailed descriptions of all API endpoints", icon: "credit-card" },
-                                                      { title: "Add Payment Methods", body: "Detailed descriptions of all API endpoints", icon: "wallet" },
-                                                      { title: "Webhooks", body: "Detailed descriptions of all API endpoints", icon: "webhook" },
-                                                      { title: "Release Notes", body: "Detailed descriptions of all API endpoints", icon: "megaphone" },
+                                                      { title: "Get Started", body: "Register sub-accounts for the parties you settle to.", icon: "rocket", href: "/online-payments/integrations/sub-account" },
+                                                      { title: "Split Settlement", body: "Settle one payment across several accounts.", icon: "credit-card", href: "/platforms/split-settlement" },
+                                                      { title: "Payouts", body: "Send single or bulk bank transfers from your Pocket.", icon: "wallet", href: "/online-payments/payment-features/payout" },
+                                                      { title: "Webhooks", body: "Get notified server-side the moment a transaction resolves.", icon: "webhook", href: "/online-payments/after-payments/webhook-events" },
                                                     ].map((item) => (
                                                       <Card
                                                         key={item.title}
                                                         title={item.title}
                                                         icon={item.icon}
+                                                        href={item.href}
                                                         horizontal
                                                         className="seerbit-nav-card"
                                                         arrow
@@ -105,14 +106,15 @@ mode: custom
 
     <CardGroup cols={3}>
       {[
-                                            { title: "Retail", body: "Detailed descriptions of all API endpoints", icon: "shelving-unit" },
-                                            { title: "Hospitality", body: "Detailed descriptions of all API endpoints", icon: "hotel" },
-                                            { title: "Education", body: "Detailed descriptions of all API endpoints", icon: "graduation-cap" },
+                                            { title: "Retail", body: "Take card payments in-store on a SeerBit POS terminal.", icon: "shelving-unit", href: "/in-store/overview" },
+                                            { title: "Hospitality", body: "Send a customer a payment link by email or message.", icon: "hotel", href: "/online-payments/payment-features/payment-link" },
+                                            { title: "Education", body: "Invoice fees individually or in bulk, and track payment.", icon: "graduation-cap", href: "/online-payments/payment-features/invoicing" },
                                           ].map((item) => (
                                             <Card
                                               key={item.title}
                                               title={item.title}
                                               icon={item.icon}
+                                              href={item.href}
                                               vertical
                                               className="seerbit-nav-card"
                                               arrow
@@ -162,11 +164,11 @@ mode: custom
 
       <div className="seerbit-footer-column">
         <h3>Resources</h3>
-        <a href="https://support.seerbit.com/" target="_blank">Support</a>
-        <a href="/api/authentication" target="_blank">Developers</a>
+        <a href="https://seerbitteam.freshdesk.com/support/home" target="_blank" rel="noopener noreferrer">Support</a>
+        <a href="/api-reference">API Reference</a>
         <a href="/">Documentation</a>
-        <a href="/release-notes" target="_blank">Release Notes</a>
-        <a href="https://www.seerbit.com/#" target="_blank">Support Ticket</a>
+        <a href="https://seerbitteam.freshdesk.com/support/tickets/new" target="_blank" rel="noopener noreferrer">Submit a Ticket</a>
+        <a href="https://discord.com/invite/zAsDcF26vx" target="_blank" rel="noopener noreferrer">Developer Community</a>
       </div>
 
       <div className="seerbit-footer-column">
@@ -183,25 +185,24 @@ mode: custom
   <div className="seerbit-footer-bottom">
     <div className="copyright-links">
       <span>© {new Date().getFullYear()} SeerBit. All rights reserved.</span>
-      <a href="/privacy">Privacy Policy</a>
-      <a href="/privacy">Terms of Service</a>
-      <a href="/privacy">Cookies Settings</a>
+      <a href="https://www.seerbit.com/acceptable-use-policy" target="_blank" rel="noopener noreferrer">Privacy Policy</a>
+      <a href="https://www.seerbit.com/terms-and-conditions" target="_blank" rel="noopener noreferrer">Terms of Service</a>
     </div>
 
     <div className="copyright-socials">
-      <a href="https://facebook.com/seerbit" target="_blank" rel="noopener noreferrer">
+      <a href="https://www.facebook.com/SeerBit/" target="_blank" rel="noopener noreferrer">
         <Icon src="/assets/facebook.svg" />
       </a>
 
-      <a href="https://instagram.com/seerbit" target="_blank" rel="noopener noreferrer">
+      <a href="https://www.instagram.com/getseerbit/" target="_blank" rel="noopener noreferrer">
         <Icon src="/assets/instagram.svg" />
       </a>
 
-      <a href="https://x.com/seerbit" target="_blank" rel="noopener noreferrer">
+      <a href="https://x.com/getSeerBit" target="_blank" rel="noopener noreferrer">
         <Icon src="/assets/twitter.svg" />
       </a>
 
-      <a href="https://linkedin.com/company/seerbit" target="_blank" rel="noopener noreferrer">
+      <a href="https://www.linkedin.com/company/seerbit/" target="_blank" rel="noopener noreferrer">
         <Icon src="/assets/linkedin.svg" />
       </a>
     </div>

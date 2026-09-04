@@ -1,25 +1,38 @@
 ---
-title:
+title: Verify a payment
+description: Confirm a payment result server-side before you fulfil an order.
 ---
+**Ideal for**: Confirming what actually happened to a payment before you act on it — release goods, credit an account, mark an order paid.
 
-## Verify Payments (Client-side callback)
+## Verify or webhooks?
 
-SeerBit’s inline script `(SeerbitPay({...}, callback))` includes a **callback function** you can define when initiating the payment. SeerBit will call that function with a response object after the user completes (or closes) the checkout modal. You can inspect that response to see the payment result in real-time.After a payment has been completed, verify the payment with the payment status check endpoint. To verify a payment make a GET request to the status check endpoint using the transaction reference.<br/>
-To call this endpoint, get your `Bearer Token`
+Both tell you a payment's outcome. The difference is **who starts the conversation**.
 
-```javascript
-function callback(response, closeModal) {
-    console.log(response) //response of transaction
-},
+| | Verify a payment | [Webhooks](/online-payments/after-payments/webhook-events) |
+| --- | --- | --- |
+| **Who initiates** | You ask, when you want to know | SeerBit tells you, as it happens |
+| **Timing** | Whenever you call it | Within seconds of the payment resolving |
+| **You need** | Nothing beyond an API call | A public endpoint that acknowledges correctly |
+| **If your server is down** | Ask again later; nothing is lost | SeerBit retries, then gives up |
+| **Best for** | Checking a specific payment on demand | Reacting automatically to every payment |
 
-function close(close) {
-    console.log(close) //transaction close
-}
+**Use both.** Webhooks are how you learn about a payment promptly without polling; verification is how you confirm the detail before you commit to it — and your fallback when a webhook never arrives, or a customer returns to your site before it does.
+
+
+
+## Authentication
+
+Verification calls are authenticated with a **bearer token**, generated from your public and secret keys.
+
+```bash
+POST https://seerbitapi.com/api/v2/encrypt/keys
 ```
 
-This is useful for showing immediate UI feedback, but you should **not rely on it alone** to finalize the order on your backend.
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
 
-## Verify Payments (Server-side status verification)
+## Verify a payment
 
 After a transaction, you can **verify the payment server-side** using SeerBit’s **status check API**. This gives the definitive payment result.
 
@@ -90,24 +103,83 @@ The code snippet below shows an example response for verifying a payment
 }
 ```
 
-## Webhooks (real-time server notifications)
+#### Response fields
 
-For fully automated backend processing, set up **webhooks** in your SeerBit merchant dashboard. SeerBit will send **POST notifications** to your webhook endpoint whenever events, including payment completion, occur.
+| Name | Type | Description |
+| --- | --- | --- |
+| data.code | `string` | The authoritative outcome. `00` succeeded — see [check the status code](#1-check-the-status-code). |
+| payments.amount | `number` | Amount actually charged. Compare it against your order. |
+| payments.currency | `string` | Currency charged. Compare it against your order. |
+| payments.paymentReference | `string` | The reference you generated for this transaction. |
+| payments.gatewayCode / gatewayMessage | `string` | What the acquirer returned. Useful for diagnosing a decline, not for deciding success. |
+| payments.paymentType | `string` | Method used — `CARD`, `TRANSFER`, `USSD`, `MOMO`, `ACCOUNT`. |
+| payments.maskedPan / cardBin / lastFourDigits | `string` | Masked card details, on card payments. |
+| payments.mode | `string` | `test` or `live`. See [test and live modes](/test-and-live). |
+| payments.fee | `string` | SeerBit's fee on the transaction. |
+| payments.paymentBreakdown | `object` | `amount`, `fee` and `total` for the transaction. |
+| payments.transactionProcessedTime | `string` | When the transaction reached this state. |
+| customers | `object` | Customer id, name, email and mobile as captured at payment. |
 
-##### Webhook benefits:
 
-- You don’t need to poll the status API.
-- Your system gets notified automatically when a transaction is confirmed.
-- Looser coupling between frontend and backend.
+## Before you fulfil an order
 
-##### Typical setup:
+A `200 OK` from the status endpoint means the query succeeded — not that the payment did. Run all four checks below before you release goods or credit an account.
 
-1. Create a secure HTTP endpoint on your server.
-2. Register its URL in **Account Settings → Webhooks** in the SeerBit merchant dashboard.
-3. Handle incoming POSTs (look at eventType to check for transaction success).
-4. Reply with HTTP **200 OK** to acknowledge receipt.
+### 1. Check the status code
 
-## Verify Recurrent Subscriptions
+`data.code` is the authoritative field. `gatewayCode` reflects what the acquirer returned and `reason` is human-readable; neither should drive your fulfilment logic on its own.
+
+| `data.code` | Meaning | What to do |
+| ----------- | ------- | ---------- |
+| `00` | Successful | Continue to the checks below. |
+| `S20` | Transaction is pending | Do not fulfil. Wait for a [webhook](/online-payments/after-payments/webhook-events) or query again. |
+| `S0` | Transaction timed out | Do not fulfil and do not re-charge. Query the status again shortly. |
+| `S12` | Transaction failed | Do not fulfil. See [status codes](/development-resources/responses/seerbit-status-code) for the `SM_` detail codes. |
+
+Treat any code you do not explicitly recognise as **unpaid**.
+
+### 2. Check the amount
+
+Compare `payments.amount` against the amount your own order expects. Never take the amount from the browser or from a callback parameter — a value that reaches you through the customer's device can be altered before it gets to you.
+
+This is not a theoretical concern: a card issuer can return `SM_10` — *approved for partial amount* — in which case the transaction succeeded for **less** than you charged.
+
+### 3. Check the currency
+
+Compare `payments.currency` against your order. An amount that matches numerically in the wrong currency is not a matching payment.
+
+### 4. Check the reference belongs to this order
+
+Confirm `payments.paymentReference` is the reference you generated for this specific order, and that you have not already fulfilled it. Storing the reference and marking it fulfilled makes this check idempotent, so a repeated webhook or a customer refreshing the page cannot ship the same order twice.
+
+> **Note**: Apply these checks in your webhook handler as well as after a status query. Both paths lead to fulfilment, so both need the same guard.
+
+
+## The client-side callback is not proof
+
+SeerBit's inline script `SeerbitPay({...}, callback)` calls a function of yours with a response object once the customer completes or closes the checkout modal.
+
+```javascript
+function callback(response, closeModal) {
+    console.log(response) // response of transaction
+},
+
+function close(close) {
+    console.log(close) // transaction close
+}
+```
+
+Use it for immediate UI feedback — a spinner, a thank-you state. **Never finalise an order on it.** It runs in the customer's browser, so it can be missed if they close the tab, and it can be altered. Confirm with the status endpoint above before you act.
+
+## Webhooks
+
+For automated processing, register a webhook URL in your dashboard and SeerBit will POST each event to you as it happens — no polling required. Apply the same [fulfilment checks](#before-you-fulfil-an-order) in your handler that you would after a status query.
+
+<Card title="Webhooks" icon="webhook" href="/online-payments/after-payments/webhook-events">
+  Setup, the acknowledgment contract your endpoint must satisfy, retries and event types.
+</Card>
+
+## Verify a subscription
 
 This operation allows you to check the status of a subscription via the subscription status check api. This is done by making a GET request to the endpoint below with the transaction's billingId.
 
@@ -136,8 +208,16 @@ The code snippet below shows an example response for verifying a subscription
             "status": "ACTIVE",
             "billingId": "WQ6676yPOpr12348o",
             "authorizationCode": "2beb0ccdd347e604552a",
-            "startDate": "2019-01-11 00:00:00",
+            "startDate": "2019-01-11 00:00:00"
         }
-      }
-    };
+    }
+}
 ```
+
+## Notes
+
+- **Verify with the reference you generated**, not one returned to the browser. That is the only value you can trust to identify your own order.
+- **A `200 OK` means the query worked, not that the payment did.** The outcome is in `data.code`.
+- **Verification is idempotent** — call it as often as you need. Guard your *fulfilment* against repeats, not the query.
+- **A pending payment is not a failed one.** `S20` and `S0` mean the outcome is still open; query again rather than treating the order as dead.
+- Local payment methods resolve asynchronously, so pair verification with [webhooks](/online-payments/after-payments/webhook-events) rather than polling in a loop.

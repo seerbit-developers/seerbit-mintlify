@@ -1,0 +1,112 @@
+---
+title: Authentication
+description: Which credential each SeerBit API expects, and how to produce it.
+---
+
+Every SeerBit API is authenticated with the **public key** and **secret key** from your dashboard, under **Settings > API Keys**. What differs is the form those keys take on the request.
+
+> **Security Note**: Only the public key belongs in client-side code. The secret key authenticates requests as you — keep it on your server, never in a browser or mobile app, and never in source control.
+
+## Which credential do I need?
+
+Find the API you are integrating, and use the mechanism on that row.
+
+| If you are building | Send | How to produce it |
+| ------------------- | ---- | ----------------- |
+| [Standard Checkout](/online-payments/integrations/standard-checkout), invoicing, subscriptions, payment links, virtual accounts, tokenisation | `Authorization: Bearer <token>` | [Exchange your keys for a token](#bearer-token) |
+| [Simple Checkout](/online-payments/integrations/simple-checkout) | `public_key` in the inline config | Copy it from the dashboard — no exchange needed |
+| [In-store POS](/in-store/overview) | `PublicKey` header **and** a `Hash` header | [Sign the request body yourself](#signing-a-request-body) |
+| [Payout](/online-payments/payment-features/payout) | `Public-Key` header, a bearer token, **and** `X-Seerbit-Signature` | [Sign the request body yourself](#signing-a-request-body) |
+| [Pocket](/online-payments/payment-features/pocket) | `Public-Key` header and a bearer token | Authenticate against the Pocket login endpoint |
+
+If you are only collecting payments online, the [bearer token](#bearer-token) is the only one you need.
+
+## Bearer token
+
+Most collection APIs authenticate with a bearer token generated from your two keys, joined by a full stop, **secret key first**.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/encrypt/keys
+```
+
+#### Request
+
+```json
+{
+  "key": "YOUR_SECRET_KEY.YOUR_PUBLIC_KEY"
+}
+```
+
+#### Response
+
+```json
+{
+  "status": "SUCCESS",
+  "data": {
+    "code": "00",
+    "EncryptedSecKey": {
+      "encryptedKey": "SNt8kjeVjsdTG4lPlwg6sTvpVAay2RA7hoCEzHPkIQa+MNfDepx4VBr5JMgLb5Q5anq9XoN2pXU850bumqBWFVw1T1ZW5w8N+Sq/"
+    },
+    "message": "Successful"
+  }
+}
+```
+
+Take the token from `data.EncryptedSecKey.encryptedKey` and send it on subsequent calls:
+
+```bash
+curl --location 'https://seerbitapi.com/api/v2/payments' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+--data '{ ... }'
+```
+
+Generate the token on your server. Because it is derived from your secret key, a token in client-side code is as exposed as the key itself.
+
+## Signing a request body
+
+The in-store and payout APIs do not use a bearer token alone. They require a signature over the **exact bytes of the request body**, computed with your secret key and sent in a header — `Hash` for in-store, `X-Seerbit-Signature` for payout.
+
+```
+signature = HMAC-SHA256( secretKey, requestBody )
+```
+
+Compute it in your own code rather than calling an endpoint, so the signed bytes are the bytes you actually transmit. Whitespace or key-order differences between what you hash and what you send produce a mismatch.
+
+Worked examples in seven languages are on the pages that need them:
+
+<CardGroup cols={2}>
+  <Card title="In-store request hashing" icon="square-terminal" href="/in-store/overview#request-hashing">
+    Python, Node, Java, PHP, C#, Ruby and Go, with the `Hash` header.
+  </Card>
+  <Card title="Payout signatures" icon="banknote" href="/online-payments/payment-features/payout">
+    Generating `X-Seerbit-Signature` for single and bulk payouts.
+  </Card>
+</CardGroup>
+
+## Hash endpoint
+
+SeerBit also exposes an endpoint that returns a hash for a payload, for cases where computing one locally is impractical.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/api/v2/encrypt/hashs
+```
+
+Post the payload you intend to send, and the response carries the transaction result for it.
+
+> **Note**: Prefer computing signatures locally where you can. A round trip to hash a body means the signed bytes and the transmitted bytes are produced separately, which is the usual cause of signature mismatches.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Use a bearer token to take a test payment end to end.
+  </Card>
+  <Card title="Test and live modes" icon="flask-conical" href="/test-and-live">
+    Which key pair you are using, and how to tell.
+  </Card>
+</CardGroup>
