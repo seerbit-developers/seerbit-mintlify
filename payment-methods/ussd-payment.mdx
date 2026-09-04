@@ -1,12 +1,12 @@
 ---
 title: USSD
+description: Let customers pay from a feature phone using a short dial code.
 ---
+
+**Ideal for**: Reaching customers on feature phones, or anyone without a card or reliable data. The customer dials a short code from the phone their bank knows.
 
 This payment method allows you to collect payments offline from your customers. Payment is completed by the customer dialling a USSD code on their mobile device.
 
-## Before you begin
-
-> Ensure you have your public key. You can find this on the SeerBit Merchant dashboard under accounts > api keys. If you don’t have an account with us yet, you can [create a test account](https://dashboard.seerbit.com/#/auth/register) now
 
 ## How it works
 
@@ -14,6 +14,54 @@ This payment method allows you to collect payments offline from your customers. 
 2.  When the request is made you are expected to get a dial code.
 3.  Customer completes transactions using the USSDdial code generated
 4.  Verify the payment
+
+
+## Before you use these endpoints
+
+These endpoints are for merchants who want to **build their own checkout**. You collect the payment details in your own interface and send them to SeerBit, deciding for yourself how the payment experience looks.
+
+If you would rather not build and maintain that, use [Simple Checkout](/online-payments/integrations/simple-checkout) or [Standard Checkout](/online-payments/integrations/standard-checkout) instead — SeerBit renders the payment interface, supports every method, and takes on the compliance burden.
+
+### You calculate the fee, not SeerBit
+
+The hosted checkout works out the transaction fee and shows it to the customer. **These endpoints do not.** SeerBit charges exactly the `amount` you send.
+
+So if your dashboard is set so the **customer** bears the fee, you must calculate that fee and include it yourself. If you don't, the fee comes out of your settlement instead — you will receive less than you charged.
+
+| Fee bearer | [Hosted checkout](/online-payments/integrations/standard-checkout#transaction-fees) | These endpoints |
+| --- | --- | --- |
+| **Merchant** | Send your amount; the fee is deducted at settlement | Send your amount; the fee is deducted at settlement |
+| **Customer** | Checkout adds the fee for you | **You add the fee yourself** |
+
+Set the fee bearer in your dashboard settings, and see [transaction fees](/online-payments/integrations/standard-checkout#transaction-fees) for how the two models differ.
+
+## How methods are selected
+
+Every payment method uses the **same endpoint** — what changes is the `paymentType` you send and the extra fields that method needs.
+
+```bash
+POST https://seerbitapi.com/api/v2/payments/initiates
+```
+
+| Method | `paymentType` | Extra fields |
+| --- | --- | --- |
+| [Card](/payment-methods/card-payment) | `CARD` | `cardNumber`, `cvv`, `expiryMonth`, `expiryYear`, `pin` |
+| [Transfer](/payment-methods/transfer) | `TRANSFER` | — |
+| [USSD](/payment-methods/ussd-payment) | `USSD` | `bankCode` |
+| [Mobile money](/payment-methods/mobile-money) | `MOMO` | `network`, `voucherCode` |
+| [Bank account](/payment-methods/bank-account) | `ACCOUNT` | `clientAppCode`, `redirectUrl` |
+
+## Authentication
+
+All payment method calls are authenticated with a **bearer token**, generated from your public and secret keys.
+
+```bash
+POST https://seerbitapi.com/api/v2/encrypt/keys
+```
+
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
 
 ## Initialising a USSD Payment
 
@@ -27,14 +75,14 @@ https://seerbitapi.com/api/v2/payments/initiates
 
 ### Request Sample
 
-The code snippet below shows an example request for generating a payment link to complete a payment
+The code snippet below shows an example request for initialising this payment
 
 <CodeGroup>
 
 ```bash cURL
 curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Bearer YOUR_ENCRYPTION_KEY' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
 --data-raw '{
     "publicKey":"YOUR_PUBLIC_KEY",
     "amount":"100",
@@ -58,7 +106,7 @@ var options = {
   url: 'https://seerbitapi.com/api/v2/payments/initiates',
   headers: {
     'Content-Type': 'application/json',
-    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY'
   },
   body: JSON.stringify({
     publicKey: 'YOUR_PUBLIC_KEY',
@@ -72,8 +120,8 @@ var options = {
     callbackUrl: 'http://yourdomain.com',
     redirectUrl: 'http://yourdomain.com',
     paymentType: 'USSD',
-    bankCode: '044',
-  }),
+    bankCode: '044'
+  })
 };
 request(options, function (error, response) {
   if (error) throw new Error(error);
@@ -111,7 +159,7 @@ curl_setopt_array($curl, array(
   }',
   CURLOPT_HTTPHEADER => array(
     'Content-Type: application/json',
-    'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
   ),
 ));
 
@@ -125,7 +173,7 @@ echo $response;
 
 ### Response Sample
 
-The code snippet below shows an example request for generating a payment link to complete a payment
+The code snippet below shows an example request for initialising this payment
 
 ```json
 {

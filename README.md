@@ -1,55 +1,66 @@
-# Mintlify Starter Kit
+# SeerBit Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+The source for the SeerBit developer documentation, built with [Mintlify](https://mintlify.com).
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Structure
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+| Path | Contents |
+| --- | --- |
+| `docs.json` | Site configuration: navigation, theme, redirects |
+| `index.mdx` | Landing page |
+| `quickstart.mdx` | First test payment, end to end |
+| `online-payments/` | Integrations, payment features, and after-payment guides |
+| `payment-methods/` | Card, bank account, transfer, USSD and mobile money |
+| `in-store/` | ISV POS Transaction API for card-present payments |
+| `development-resources/` | Hashing, response codes, currencies, test and live modes |
+| `testing/` | Test credentials |
+| `assets/` | Images, fonts and logos |
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+## Local development
 
-## AI-assisted writing
-
-Set up your AI coding tool to work with Mintlify:
+Install the [Mintlify CLI](https://www.npmjs.com/package/mint):
 
 ```bash
-npx skills add https://mintlify.com/docs
-```
-
-This command installs Mintlify's documentation skill for your configured AI tools like Claude Code, Cursor, Windsurf, and others. The skill includes component reference, writing standards, and workflow guidance.
-
-See the [AI tools guides](/ai-tools) for tool-specific setup.
-
-## Development
-
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
-
-```
 npm i -g mint
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
+Run the dev server from the repository root, where `docs.json` lives:
 
-```
+```bash
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+The site is served at `http://localhost:3000`. Pass `--port` to use a different one.
 
-## Publishing changes
+## Writing pages
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+Pages are MDX with YAML frontmatter. Every page needs a `title`:
 
-## Need help?
+```mdx
+---
+title: Page title
+description: One line describing the page
+---
+```
 
-### Troubleshooting
+Add each new page to the `navigation` block in `docs.json` — a page that is not listed there will not appear in the sidebar.
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+When you move or rename a page, add an entry to `redirects` in `docs.json` so existing links keep working.
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+## Conventions
+
+- Sentence case for headings.
+- Active voice and second person ("you").
+- Code formatting for field names, file names, paths and endpoints.
+- Bold for UI elements: click **Settings**.
+- Test credentials live only in `testing/overview.mdx`. Link to that page rather than repeating cards or keys elsewhere.
+
+## Deployment
+
+Changes merged to the default branch deploy automatically.
+
+## Troubleshooting
+
+- **`mint dev` fails to start** — make sure you are in the directory containing `docs.json`.
+- **A page 404s locally** — confirm it is listed in the `navigation` block in `docs.json`.
+- **An icon does not render** — this site uses the [Lucide](https://lucide.dev/icons/) icon set. Font Awesome names will not resolve.

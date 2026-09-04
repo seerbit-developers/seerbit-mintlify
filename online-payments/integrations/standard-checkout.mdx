@@ -1,8 +1,11 @@
 ---
 title: Standard checkout
+description: Create a transaction server-side and redirect the customer to a hosted checkout page.
 ---
 
 **Ideal for**: Developers who require full backend control. This method enables you to generate secure, unique payment links for customers, perfect for invoicing, email payments, or complex order workflows
+
+> **Standard Checkout or a payment link?** Both send the customer to a SeerBit-hosted page. Standard Checkout creates a link for one customer and one purchase, at the moment of purchase. A [payment link](/online-payments/payment-features/payment-link) is created once and can be paid by anyone, any number of times. See the [full comparison](/online-payments/payment-features/payment-link#payment-link-or-standard-checkout).
 
 ## How it Works
 
@@ -10,116 +13,15 @@ When a customer clicks a payment button in your application, your server sends a
 
 ## Authentication
 
-> Before making API calls, you must obtain a **Bearer Token** by encrypting your API keys.
-
-<Badge color="blue">POST</Badge>
+Standard Checkout calls are authenticated with a **bearer token**, generated from your public and secret keys.
 
 ```bash
-https://seerbitapi.com/api/v2/encrypt/keys
+POST https://seerbitapi.com/api/v2/encrypt/keys
 ```
 
-#### Request Sample
-
-The code snippet below shows an example request for generating a bearer token
-
-<CodeGroup>
-
-```bash cURL
-curl --location 'https://seerbitapi.com/api/v2/encrypt/keys' \
---header 'Content-Type: application/json' \
---data '{
-  "key": "YOUR_SECRET_KEY.YOUR_PUBLIC_KEY"
-}'
-```
-
-```js NODE
-var request = require("request");
-var options = {
-  method: "POST",
-  url: "https://seerbitapi.com/api/v2/encrypt/keys",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    key: "YOUR_SECRET_KEY.YOUR_PUBLIC_KEY",
-  }),
-};
-request(options, function (error, response) {
-  if (error) throw new Error(error);
-  console.log(response.body);
-});
-```
-
-```php PHP
-<?php
-
-$curl = curl_init();
-
-curl_setopt_array($curl, array(
-  CURLOPT_URL => 'https://seerbitapi.com/api/v2/encrypt/keys',
-  CURLOPT_RETURNTRANSFER => true,
-  CURLOPT_ENCODING => '',
-  CURLOPT_MAXREDIRS => 10,
-  CURLOPT_TIMEOUT => 0,
-  CURLOPT_FOLLOWLOCATION => true,
-  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-  CURLOPT_CUSTOMREQUEST => 'POST',
-  CURLOPT_POSTFIELDS =>'{
-  "key": "YOUR_SECRET_KEY.YOUR_PUBLIC_KEY"
-}',
-  CURLOPT_HTTPHEADER => array(
-    'Content-Type: application/json'
-  ),
-));
-
-$response = curl_exec($curl);
-
-curl_close($curl);
-echo $response;
-```
-
-</CodeGroup>
-
-#### Response Sample
-
-The code snippet below shows an example request for generating a bearer token
-
-<CodeGroup>
-
-```json 200:OK
-{
-  "status": "SUCCESS",
-  "data": {
-    "code": "00",
-    "EncryptedSecKey": {
-      "encryptedKey": "WquhSwMepYp6k+AIAlU1Jp18QwRWMm2SK0WVIOACIArw6ao3Ql4qKOMGwFVMvI9nOiM1xarW6qAIxE+GTOyINRVQnnFuy2EJk+DwmCgiFUuRVkOIdMBgwpJTCSzcFFfD"
-    },
-    "message": "Successful"
-  }
-}
-```
-
-```json 400:Bad Request
-{
-  "message": "Bad Request",
-  "error": "There has been a problem with reading or understanding the request."
-}
-```
-
-```json 404:Not Found
-{
-  "error": "Not Found"
-}
-```
-
-```json 500:Internal Server Error
-{
-  "message": "Internal Server Error",
-  "error": "PROCESSING"
-}
-```
-
-</CodeGroup>
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
 
 ## Requesting a Payment/ Initialize a Transaction
 
@@ -135,27 +37,11 @@ https://seerbitapi.com/api/v2/payments
 
 Authorization: Bearer YOUR\_ENCRYPTED\_KEY
 
-##### Required Fields:
-
-- publicKey – Your SeerBit public key
-- amount – Amount to charge
-- currency – Transaction currency (e.g., NGN, USD)
-- country – Country of transaction
-- paymentReference – Unique identifier for the transaction
-- email – Customer’s email
-- fullName – Customer’s full name
-- callbackUrl – URL for post-payment redirection
-
-##### Optional Fields:
-
-- tokenize – Boolean for tokenization
-- splitCode – Split rule code
-
-For the full specification, see our [API Reference](/api-reference)
+See the [parameter description](#parameter-description) below for every field, its type and whether it is required.
 
 #### Request Sample
 
-The code snippet below shows an example request for generating a payment link to complete a payment
+The code snippet below shows an example request for initialising a transaction
 
 <CodeGroup>
 
@@ -168,15 +54,11 @@ curl --location 'https://seerbitapi.com/api/v2/payments' \
     "amount": "5000.00", 
     "currency": "NGN", 
     "country": "NG", 
-    "paymentReference": " payment_reference ", 
-    "email": "customer@example.com", 
-
-    "fullName": "Jane Doe", 
-
-    “tokenize”:false, 
-    "callbackUrl": "https://yourwebsite.com/thank-you", 
-
-     “splitCode”:”” // Split rule Code 
+    "paymentReference": "payment_reference",
+    "email": "customer@example.com",
+    "fullName": "Jane Doe",
+    "tokenize": false,
+    "callbackUrl": "https://yourwebsite.com/thank-you"
 }'
 ```
 
@@ -198,8 +80,7 @@ var options = {
     "email": "ts@emaildomain.com",
     "fullName": "Halil TS",
     "tokenize": "false",
-    "callbackUrl": "https://seerbit.com",
-    "splitCode": "" // Split rule code
+    "callbackUrl": "https://seerbit.com"
   })
 
 };
@@ -249,16 +130,9 @@ echo $response;
 
 </CodeGroup>
 
-#### Response Handling
-
-A successful response (code: "00") includes:
-
-- redirectLink: URL for customer payment
-- paymentStatus: e.g., "08" for initialized
-
 #### Response Sample
 
-The code snippet below shows an example request for generating a bearer token
+A successful response carries `code: "00"`, with `redirectLink` — the URL to send the customer to — and `paymentStatus` (`"08"` means initialised).
 
 <CodeGroup>
 
@@ -285,7 +159,7 @@ The code snippet below shows an example request for generating a bearer token
 
 </CodeGroup>
 
-##### Parameter Description
+#### Parameter description
 
 | Name | Type | Description | Required |
 | --- | --- | --- | --- |
@@ -296,16 +170,73 @@ The code snippet below shows an example request for generating a bearer token
 | paymentReference | `string` | This is the unique identifier for a transaction, to be generated by merchant. | Yes |
 | email | `string` | This is the email of the customer. | Yes |
 | fullName | `string` | Customer’s full name (first and last name separated by a space). | Yes |
-| tokenize | `boolean` |  | No |
-| callbackUrl | `string` |  | Yes |
-| splitCode | `string` |  | Yes |
+| tokenize | `boolean` | If `true`, checkout restricts payment to card only and the `authorizationCode` is returned by [Check Payment Status](/online-payments/after-payments/verify-payment), not this endpoint. | No |
+| callbackUrl | `string` | URL the customer is redirected to after payment. | Yes |
+| splitCode | `string` | Reference to a split rule configured in advance on the dashboard. See [Split settlement](#split-settlement). | No |
+| splits | `object` | Inline split definition, applied to this transaction only. See [Split settlement](#split-settlement). | No |
+
+## Payment references and retries
+
+`paymentReference` is the identifier you generate for a transaction, and SeerBit enforces that it is unique. Submitting one that has already been used returns `409 Conflict`:
+
+```json 409:Conflict
+{
+    "message": "Transaction Exists",
+    "error": "PROCESSING"
+}
+```
+
+The equivalent SeerBit status codes are `S14` and `S18` — *transaction reference must be unique*.
+
+### Generating a reference
+
+Use a value that is unique per transaction and traceable back to your own records — a UUID, or your order ID with a prefix:
+
+```
+order-8f3c1a2e-4b90        ✅  unique and traceable
+1740394829174              ❌  a timestamp can collide under concurrent checkouts
+```
+
+Store the reference before you send the request, not after. If the request fails midway you still need the reference to find out what happened.
+
+### If a request times out
+
+Do not resubmit the same charge with a new reference — that risks charging the customer twice. Instead, query the original reference with the [status endpoint](/online-payments/after-payments/verify-payment):
+
+- Status code `S0` means the transaction timed out and the outcome is not yet settled. Query again shortly rather than re-charging.
+- A `409 Conflict` on retry means the reference already reached SeerBit, so the original attempt exists — query its status to find out how it resolved.
+
+
+## Split settlement
+
+Standard Checkout can split a single payment across multiple accounts — with a `splitCode` referencing a rule configured in advance, or a `splits` object defined inline per transaction.
+
+<Card title="Split settlement" icon="git-fork" href="/platforms/split-settlement">
+  Payloads and field reference for both split modes.
+</Card>
+
+## Transaction fees
+
+Who pays the SeerBit transaction fee is a **setting on your merchant dashboard**, not something you control per request.
+
+| Fee bearer | What the customer is charged | What you receive |
+| ---------- | ---------------------------- | ---------------- |
+| **Merchant** (default) | The `amount` you sent | The `amount`, less the fee, at settlement |
+| **Customer** | The `amount` you sent, **plus the fee** | The full `amount` you sent |
+
+When the customer bears the fee, **SeerBit Checkout calculates it and presents it to the customer** on the checkout page, on top of the amount you sent. The customer sees the fee before they pay.
+
+> **Important**: Send the amount you want to receive. Do not add the fee to `amount` yourself — if the customer is set as the fee bearer, checkout adds it, and adding it again charges the customer twice over.
+
+Change the fee bearer in your dashboard settings; it applies to subsequent transactions on that account.
+
+> **This applies to the hosted checkout only.** If you build your own checkout with the [direct payment method endpoints](/payment-methods/overview), SeerBit charges exactly the amount you send — you must calculate and add the fee yourself when the customer bears it.
 
 ## Notes
 
 - Always use the redirectLink to send customers to the SeerBit checkout page.
 - Set up [webhooks](/online-payments/after-payments/webhook-events) for secure, server-side payment confirmation. Do not rely solely on browser redirects.
-- If your business model requires the customer to pay the transaction fee, you must add this charge to the total amount you request. The fee will be deducted during settlement.
-- For testing, use SeerBit [test cards](/testing/overview).
+- For testing, use SeerBit [test cards](/test-and-live).
 
 ## Troubleshooting
 

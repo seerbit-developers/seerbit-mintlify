@@ -1,0 +1,189 @@
+---
+title: Webhooks
+description: Receive push notifications when a POS transaction reaches a final state.
+---
+
+
+If a `webhookUrl` was supplied at initiation, SeerBit sends a webhook event for the transaction — a `transaction.completed` event when the transaction is successful, and a `transaction.failed` event when it fails on the POS.
+
+> **Before you integrate**: Your webhook endpoint must be publicly accessible and able to receive `POST` requests from the SeerBit API.
+
+## Notifications
+
+### Delivery headers
+
+| Header                | Description                                                                                   |
+| --------------------- | --------------------------------------------------------------------------------------------- |
+| `X-Webhook-Event`     | Event type, e.g. `transaction.completed`.                                                      |
+| `X-Webhook-Event-Id`  | Unique identifier for this webhook delivery.                                                   |
+| `X-Webhook-Signature` | HMAC-SHA256 signature of the payload — present only if your webhook was configured with a signing secret. |
+| `X-Webhook-Encrypted` | `true` if the payload body is AES-256-GCM encrypted for your business.                          |
+
+### Payload samples
+
+<CodeGroup>
+
+```json Transaction completed
+{
+  "id": "evt_94c252f8-075",
+  "type": "transaction.completed",
+  "timestamp": "2026-07-03T13:34:28.456360900Z",
+  "data": {
+    "orderId": "112990000323",
+    "transactionRef": "ITA87EE5e51709977888779DAA4E05",
+    "status": "COMPLETED",
+    "transactionValue": "50.00",
+    "posId": "2214HX01",
+    "amountPaid": "50.00",
+    "cardNumber": "411111******1234",
+    "paymentType": "CARD",
+    "response": "Transaction successful",
+    "responseCode": "200",
+    "merchantId": "SBT-MERCH-004521",
+    "sessionId": "000435317658",
+    "transactionTime": "03-07-2026 02:34 PM",
+    "completedAt": "2026-07-03T13:34:28.456414484Z"
+  }
+}
+```
+
+```json Transaction failed
+{
+  "id": "evt_d906afd6-d6e",
+  "type": "transaction.failed",
+  "timestamp": "2026-07-02T22:54:23.496206016Z",
+  "data": {
+    "orderId": "1122223",
+    "transactionRef": "ITA87EE5510999DAA4E05",
+    "status": "FAILED",
+    "transactionValue": "5.00",
+    "posId": "2214HX01",
+    "responseCode": "400",
+    "response": "Incorrect PIN entered",
+    "sessionId": "000435317652",
+    "transactionTime": "02-07-2026 11:54 PM",
+    "completedAt": "2026-07-02T22:54:23.496266234Z"
+  }
+}
+```
+
+</CodeGroup>
+
+> **Note**: Fields such as `responseCode` and `response` reflect the decline reason where the terminal or card scheme provides one. `amountPaid`, `cardNumber`, and `paymentType` are generally absent on a failed attempt.
+
+### Payload fields
+
+| Field              | Description                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| `id`               | Unique identifier for this webhook event.                                             |
+| `type`             | Event type: `transaction.completed` or `transaction.failed`.                          |
+| `timestamp`        | UTC timestamp the event was generated.                                                |
+| `orderId`          | Echoes the `orderId` submitted at initiation.                                         |
+| `transactionRef`   | The transaction reference for this attempt.                                           |
+| `status`           | Final transaction status: `COMPLETED` or `FAILED`.                                    |
+| `transactionValue` | Transaction amount that was requested, as a decimal string.                           |
+| `posId`            | Identifier of the POS terminal the transaction was processed on.                      |
+| `amountPaid`       | Amount captured on the terminal. Present on completed transactions.                   |
+| `cardNumber`       | Masked card number used for payment. Present on completed transactions.               |
+| `paymentType`      | Payment instrument used, e.g. `CARD`.                                                 |
+| `response`         | Human-readable detail on the transaction outcome, e.g. an incorrect PIN entry.        |
+| `responseCode`     | One of three possible values: `200` (SUCCESS), `400` (FAILED), or `401` (CANCELED).   |
+| `merchantId`       | Identifier of the merchant the terminal is registered under.                          |
+| `sessionId`        | The SeerBit reference for this transaction — use this value when reconciling with SeerBit. |
+| `transactionTime`  | Local timestamp the transaction was processed on the terminal.                        |
+| `completedAt`      | UTC timestamp the transaction reached its terminal status.                            |
+
+## Decrypting encrypted webhooks
+
+If your SeerBit account team has enabled payload encryption for your business, webhook payloads are encrypted with AES-256-GCM before delivery and `X-Webhook-Encrypted` is set to `true`. Follow the steps below to decrypt them on your end.
+
+| Property       | Value                                             |
+| -------------- | ------------------------------------------------- |
+| Algorithm      | AES-256-GCM                                       |
+| Key derivation | SHA-256 hash of your SeerBit secret key           |
+| IV length      | 12 bytes, random, prepended to the ciphertext     |
+| Tag length     | 128 bits (16 bytes), appended to the ciphertext   |
+| Encoding       | Base64 of IV + ciphertext + GCM tag               |
+
+##### Steps to decrypt
+
+1. Base64-decode the webhook payload body.
+2. Take the first 12 bytes as the IV (initialization vector).
+3. Take the last 16 bytes as the GCM authentication tag.
+4. Derive the AES key as `SHA-256(secretKey)`.
+5. Decrypt the remaining bytes (the ciphertext) using AES-256-GCM with the derived key, IV, and tag.
+
+## Webhook management
+
+In addition to the per-transaction `webhookUrl`, you can register business-level webhooks that receive notifications for **all** transactions on your account.
+
+### Register a webhook
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://seerbitapi.com/isv-pos/api/v1/webhooks
+```
+
+#### Required headers
+
+| Header         | Value                                                    |
+| -------------- | -------------------------------------------------------- |
+| `Content-Type` | `application/json`                                       |
+| `PublicKey`    | Your SeerBit public key                                  |
+| `Hash`         | HMAC-SHA256(secretKey, requestBody) — see Authentication |
+
+#### Request sample
+
+```bash cURL
+curl --location 'https://seerbitapi.com/isv-pos/api/v1/webhooks' \
+--header 'Content-Type: application/json' \
+--header 'PublicKey: YOUR_PUBLIC_KEY' \
+--header 'Hash: YOUR_GENERATED_HASH' \
+--data '{
+    "url": "https://your-erp-system.com/webhooks/pos-notifications",
+    "events": ["TRANSACTION_COMPLETED", "TRANSACTION_FAILED"],
+    "secret": "your-webhook-secret-min-16-chars"
+}'
+```
+
+#### Request fields
+
+| Field    | Required? | Description                                                                            |
+| -------- | --------- | -------------------------------------------------------------------------------------- |
+| `url`    | Required  | The webhook endpoint URL that will receive notifications.                               |
+| `events` | Required  | Events to subscribe to: `TRANSACTION_COMPLETED`, `TRANSACTION_FAILED`.                  |
+| `secret` | Optional  | Signing secret used to produce the `X-Webhook-Signature` header. Minimum 16 characters. |
+
+Returns `201 Created` with the registered webhook, including its `id`.
+
+### List webhooks
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://seerbitapi.com/isv-pos/api/v1/webhooks
+```
+
+Returns all webhooks registered for the authenticated business.
+
+```bash cURL
+curl --location 'https://seerbitapi.com/isv-pos/api/v1/webhooks' \
+--header 'PublicKey: YOUR_PUBLIC_KEY'
+```
+
+### Delete a webhook
+
+<Badge color="red">DELETE</Badge>
+
+```bash
+https://seerbitapi.com/isv-pos/api/v1/webhooks/{webhookId}
+```
+
+Removes a webhook registration. The webhook will no longer receive notifications. Returns `204 No Content` on success.
+
+```bash cURL
+curl --location --request DELETE 'https://seerbitapi.com/isv-pos/api/v1/webhooks/{webhookId}' \
+--header 'PublicKey: YOUR_PUBLIC_KEY'
+```
+

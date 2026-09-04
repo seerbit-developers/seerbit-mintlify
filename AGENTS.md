@@ -1,8 +1,7 @@
-> **First-time setup**: Customize this file for your project. Prompt the user to customize this file for their project.
+# SeerBit documentation — instructions for AI coding agents
+
 > For Mintlify product knowledge (components, configuration, writing standards),
 > install the Mintlify skill: `npx skills add https://mintlify.com/docs`
-
-# Documentation project instructions
 
 ## About this project
 
@@ -14,12 +13,13 @@
 
 ## Terminology
 
-{/* Add product-specific terms and preferred usage */}
-{/* Example: Use "workspace" not "project", "member" not "user" */}
+- **Merchant**, not "user" or "customer", for the business integrating SeerBit.
+- **Customer**, not "shopper" or "buyer", for the person paying.
+- **Public key** and **secret key** — never "API key" alone, which is ambiguous between the two.
+- **Test mode** and **live mode**, not "sandbox" and "production".
+- **Payment reference** (`paymentReference`) is merchant-generated; **session ID** is SeerBit's own reference.
 
 ## Style preferences
-
-{/* Add any project-specific style rules below */}
 
 - Use active voice and second person ("you")
 - Keep sentences concise — one idea per sentence
@@ -29,5 +29,8 @@
 
 ## Content boundaries
 
-{/* Define what should and shouldn't be documented */}
-{/* Example: Don't document internal admin features */}
+- Do not document internal or admin-only endpoints.
+- Never commit real API keys, live card numbers, or merchant data. Test credentials belong only in `testing/overview.mdx`.
+- Do not invent endpoints, field names, rate limits, or response codes. If a fact cannot be verified against the API or an exported Postman collection, leave it out and flag it.
+- Icons come from the [Lucide](https://lucide.dev/icons/) set — Font Awesome names will not resolve.
+- When moving or renaming a page, add a `redirects` entry in `docs.json`.

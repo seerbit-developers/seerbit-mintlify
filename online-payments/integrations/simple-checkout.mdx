@@ -1,8 +1,11 @@
 ---
 title: Simple checkout
+description: Drop an inline, PCI-compliant payment form into your page.
 ---
 
-SeerBit Simple Checkout is an inline, responsive payment form that works seamlessly across all devices. It supports the full range of payment methods available through our standard checkout integration and is fully PCI-compliant. For details on supported payment methods, visit our [Payment Methods Overview](/payment-methods/overview).
+**Ideal for**: Adding a payment step to a page you already have — a cart, a booking form, a sign-up flow. The customer pays without leaving your site.
+
+SeerBit Simple Checkout is an inline, responsive payment form that works across all devices. It is fully PCI-compliant and supports every [payment method](/payment-methods/overview) enabled on your account.
 
 ## How it Works
 
@@ -14,7 +17,7 @@ Simple Checkout allows you to embed a payment form directly on your webpage usin
 | currency | `string` | The transaction currency (e.g., NGN, USD). | Yes |
 | tranref | `string` | Unique transaction reference. | Yes |
 | amount | `string` | Amount to be charged. | Yes |
-| description | `string` | Decription of the transaction | Yes |
+| description | `string` | Description of the transaction | Yes |
 | full name | `string` | Customer’s full name (first and last name separated by a space). | Yes |
 
 ## Before you begin
@@ -58,7 +61,7 @@ Add a payment button and configure the SeerbitPay() function with your transacti
       function paywithSeerbit() {
         SeerbitPay ({
         "public_key": "sbpub_yywuuuywyyttwttwy", //replace with your public key
-        "tranref": new Date().getTime(), // payment reference
+        "tranref": "order-8f3c1a2e-4b90", // unique per transaction - use a UUID or your own order ID
         "currency": "NGN",
         "country": "NG",
         "amount": "150.00",
@@ -69,7 +72,7 @@ Add a payment button and configure the SeerbitPay() function with your transacti
         "setAmountByCustomer": false, //optional field. Set to true to allow customer set the amount
         "full_name": "John Doe", // Mandatory. (system expects two strings, demarcated by a space)
         "tokenize" : false, // set to true to allow token capture
-        "planId" : "", // subcription plan id.
+        "planId" : "", // subscription plan id.
         "pocketReference" : "", // pocket reference number.
         "splitCode" : "", // Split Rule Code.
         "callbackurl": "http://yourdomain.com",
@@ -89,10 +92,10 @@ Add a payment button and configure the SeerbitPay() function with your transacti
 
 #### Optional Configuration
 
-Adding this will automatically inlcude all the features and payment methods the seerbit checkout has. Including our advanced fraud detection tools whenever your customers attempts to make a payment
+Adding this will automatically include all the features and payment methods the seerbit checkout has. Including our advanced fraud detection tools whenever your customers attempts to make a payment
 
 ```json
-"decription": "test payment description",
+"description": "test payment description",
 "splitCode": "100001", // enter your split code if you will using the split settlement feature
 ```
 
@@ -137,9 +140,21 @@ customization: {
 }
 ```
 
+## Payment references
+
+Generate `tranref` yourself, one per transaction. It must be unique — SeerBit rejects a reused reference — and it should trace back to your own order records. A UUID or your order ID with a prefix works well; a timestamp does not, because concurrent checkouts can produce the same value.
+
+See [payment references and retries](/online-payments/integrations/standard-checkout#payment-references-and-retries) for what to do when a request times out.
+
+## Transaction fees
+
+Who pays the SeerBit transaction fee — you or the customer — is a setting on your merchant dashboard. If the customer is the fee bearer, checkout calculates the fee and shows it to them on top of the `amount` you sent, so send the amount you want to receive rather than adding the fee yourself.
+
+See [Transaction fees](/online-payments/integrations/standard-checkout#transaction-fees) for the full breakdown.
+
 ## Testing & Payment Verification
 
-Click your **Pay Now** button and use our [test cards](/testing/overview) to simulate transactions. No real funds will be debited.<br /> To learn how to verify payments, visit our [Payment Verification Guide](/online-payments/after-payments/verify-payment).
+Click your **Pay Now** button and use our [test cards](/test-and-live) to simulate transactions. No real funds will be debited.<br /> To learn how to verify payments, visit our [Payment Verification Guide](/online-payments/after-payments/verify-payment).
 
 ## Troubleshooting
 

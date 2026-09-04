@@ -1,12 +1,15 @@
 ---
 title: Raw Acquirer Responses
+description: Common raw card-scheme responses behind a declined transaction.
 ---
 
-A successful payment request (HTTP status code 200/OK) doesn't automatically mean the payment was successful. The transaction can be refused or cancelled for some reason. When this happens, the response includes a resultCode of refused or Cancelled with a refusalReason field explaining why the transaction didn't succeed. The refusal reason is primarily based on the authorisation response code we receive from the issuer or card scheme, known as 'raw acquirer response'.
+A successful API call (HTTP 200) does not mean the payment succeeded — the transaction can still be refused or cancelled by the card issuer. When that happens, `data.code` carries a failure code and `reason` explains why. Codes prefixed `SM_` map to the authorisation response returned by the issuer or card scheme, known as the **raw acquirer response**.
+
+See [SeerBit status codes](/development-resources/responses/seerbit-status-code) for the full list, and [verify a payment](/online-payments/after-payments/verify-payment) for how to read a result before fulfilling an order.
 
 ## Mastercard and Visa Raw responses
 
-These are the most common raw reponses from Visa and Mastercard for refused or cancelled transactions. The response code returns with or without a leading zero
+These are the most common raw responses from Visa and Mastercard for refused or cancelled transactions. The response code is returned with or without a leading zero.
 
 | Type      | Raw Responses                          | Description                                                                                                                                                                                                            |
 | --------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

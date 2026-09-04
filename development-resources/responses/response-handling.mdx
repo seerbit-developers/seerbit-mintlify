@@ -1,8 +1,9 @@
 ---
 title: Response Handling
+description: The shape of an error response and how to read it.
 ---
 
-> In case of an error, the response object contains the follow fields:
+When a request fails, the response object contains the following fields:
 
 | Field   | Type     | Required? |
 | ------- | -------- | --------- |
@@ -15,3 +16,5 @@ title: Response Handling
   "error": "PROCESSING"
 }
 ```
+
+The `error` value is a short machine-readable label and `message` explains the failure. For transaction outcomes — as opposed to request errors — read `data.code` instead, and see [SeerBit status codes](/development-resources/responses/seerbit-status-code).

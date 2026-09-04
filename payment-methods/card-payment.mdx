@@ -1,12 +1,30 @@
 ---
 title: Card Payments
+description: Charge Mastercard, Visa and Verve cards, including PIN, OTP and 3-D Secure flows.
 ---
+
+**Ideal for**: The widest reach online — Mastercard, Visa and Verve, with PIN, OTP or 3-D Secure depending on the card and issuer.
+
+<Card title="PCI DSS certification is required for this endpoint" icon="shield-alert" horizontal>
+  This endpoint receives raw card details — `cardNumber`, `cvv`, `expiryMonth`, `expiryYear` and `pin` — on **your** server. You must hold a valid PCI DSS certification to use it, and **SeerBit will not enable it for your account without one**.
+
+  Not certified? Use [Simple Checkout](/online-payments/integrations/simple-checkout), [Standard Checkout](/online-payments/integrations/standard-checkout) or an [SDK](/sdks/overview) instead. Card details go straight to SeerBit, never touch your servers, and no certification is needed.
+</Card>
+
 
 Cards are one of the most popular ways to make payments online with a large global reach. SeerBit supports the most popular card types with a simple implentation.
 
-## Before you begin
+## Which flow will I get?
 
-Ensure you have your public key. You can find this on the SeerBit Merchant dashboard under accounts > api keys. If you don’t have an account with us yet, you can [create a test account](https://dashboard.seerbit.com/#/auth/register) now
+A card charge does not always complete in one call. Which of the three flows below you get depends on the card and the issuer, so your integration must handle all three:
+
+| Flow | Triggered by | What your server does |
+| ---- | ------------ | --------------------- |
+| [PIN and OTP](#scenario-1-pin-and-otp-verve) | Verve cards | Collect the PIN, then the OTP, and validate each. |
+| [3-D Secure](#scenario-2-3-d-secure-mastercard-and-visa) | Mastercard and Visa | Receive code `S20` with a `redirectUrl`, send the customer there, and read the result when they return. |
+| [PIN only](#scenario-3-pin-only) | Cards that need no further step-up | Collect the PIN; the charge resolves with code `00`. |
+
+Because a 3-D Secure charge redirects the customer away, always pass a `redirectUrl` in your request so SeerBit knows where to return them. Confirm the outcome with [payment verification](/online-payments/after-payments/verify-payment) once they are back — the redirect alone is not proof of payment.
 
 ## Card Payment Process
 
@@ -24,6 +42,54 @@ Ensure you have your public key. You can find this on the SeerBit Merchant dashb
 2. Make a request to the payment service with the payment/initiates endpoint.
 3. Based on the cardholders card type the seerBit selects an auth method.
 
+
+## Before you use these endpoints
+
+These endpoints are for merchants who want to **build their own checkout**. You collect the payment details in your own interface and send them to SeerBit, deciding for yourself how the payment experience looks.
+
+If you would rather not build and maintain that, use [Simple Checkout](/online-payments/integrations/simple-checkout) or [Standard Checkout](/online-payments/integrations/standard-checkout) instead — SeerBit renders the payment interface, supports every method, and takes on the compliance burden.
+
+### You calculate the fee, not SeerBit
+
+The hosted checkout works out the transaction fee and shows it to the customer. **These endpoints do not.** SeerBit charges exactly the `amount` you send.
+
+So if your dashboard is set so the **customer** bears the fee, you must calculate that fee and include it yourself. If you don't, the fee comes out of your settlement instead — you will receive less than you charged.
+
+| Fee bearer | [Hosted checkout](/online-payments/integrations/standard-checkout#transaction-fees) | These endpoints |
+| --- | --- | --- |
+| **Merchant** | Send your amount; the fee is deducted at settlement | Send your amount; the fee is deducted at settlement |
+| **Customer** | Checkout adds the fee for you | **You add the fee yourself** |
+
+Set the fee bearer in your dashboard settings, and see [transaction fees](/online-payments/integrations/standard-checkout#transaction-fees) for how the two models differ.
+
+## How methods are selected
+
+Every payment method uses the **same endpoint** — what changes is the `paymentType` you send and the extra fields that method needs.
+
+```bash
+POST https://seerbitapi.com/api/v2/payments/initiates
+```
+
+| Method | `paymentType` | Extra fields |
+| --- | --- | --- |
+| [Card](/payment-methods/card-payment) | `CARD` | `cardNumber`, `cvv`, `expiryMonth`, `expiryYear`, `pin` |
+| [Transfer](/payment-methods/transfer) | `TRANSFER` | — |
+| [USSD](/payment-methods/ussd-payment) | `USSD` | `bankCode` |
+| [Mobile money](/payment-methods/mobile-money) | `MOMO` | `network`, `voucherCode` |
+| [Bank account](/payment-methods/bank-account) | `ACCOUNT` | `clientAppCode`, `redirectUrl` |
+
+## Authentication
+
+All payment method calls are authenticated with a **bearer token**, generated from your public and secret keys.
+
+```bash
+POST https://seerbitapi.com/api/v2/encrypt/keys
+```
+
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
+
 ## Initializing a Card Payment
 
 For the full specification, see our [API Reference](/api-reference)
@@ -36,14 +102,14 @@ https://seerbitapi.com/api/v2/payments/initiates
 
 #### Request Sample
 
-The code snippet below shows an example response for creating a subscription
+The code snippet below shows an example response
 
 <CodeGroup>
     
 ```bash cURL
 curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Bearer YOUR_ENCRYPTION_KEY' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
 --data-raw '{
 	
 		"publicKey":"YOUR_PUBLIC_KEY",
@@ -63,10 +129,10 @@ curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
 		"channelType":"Mastercard",
 		"deviceType":"Apple Laptop",
 	  	"sourceIP":"127.0.0.1:3456",
-		"cardNumber":"12345678900929",
-		"cvv":"123",
-		"expiryMonth":"12",
-		"expiryYear":"26",
+		"cardNumber":"5000550000000029",
+		"cvv":"072",
+		"expiryMonth":"08",
+		"expiryYear":"28",
 		"pin":"0000",
 		"retry":"false"
 }'
@@ -79,7 +145,7 @@ var options = {
   url: 'https://seerbitapi.com/api/v2/payments/initiates',
   headers: {
     'Content-Type': 'application/json',
-    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY'
   },
   body: JSON.stringify({
     publicKey: 'YOUR_PUBLIC_KEY',
@@ -99,13 +165,13 @@ var options = {
     channelType: 'Mastercard',
     deviceType: 'Apple Laptop',
     sourceIP: '127.0.0.1:3456',
-    cardNumber: '12345678900929',
-    cvv: '123',
-    expiryMonth: '12',
-    expiryYear: '26',
+    cardNumber: '5000550000000029',
+    cvv: '072',
+    expiryMonth: '08',
+    expiryYear: '28',
     pin: '0000',
-    retry: 'false',
-  }),
+    retry: 'false'
+  })
 };
 request(options, function (error, response) {
   if (error) throw new Error(error);
@@ -146,17 +212,17 @@ curl_setopt_array($curl, array(
 		"channelType":"Mastercard",
 		"deviceType":"Apple Laptop",
 	  	"sourceIP":"127.0.0.1:3456",
-		"cardNumber":"12345678900929",
-		"cvv":"123",
-		"expiryMonth":"12",
-		"expiryYear":"26",
+		"cardNumber":"5000550000000029",
+		"cvv":"072",
+		"expiryMonth":"08",
+		"expiryYear":"28",
 		"pin":"0000",
 		"retry":"false"
 
 }',
   CURLOPT_HTTPHEADER => array(
     'Content-Type: application/json',
-    'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
   ),
 ));
 
@@ -170,7 +236,7 @@ echo $response;
 
 #### Response Sample
 
-The code snippet below shows an example request for generating a payment link to complete a payment
+The code snippet below shows an example request for initialising this payment
 
 ```json
 {
@@ -186,7 +252,7 @@ The code snippet below shows an example request for generating a payment link to
 }
 ```
 
-## Scenario 1 (Verve Card Type)
+## Scenario 1: PIN and OTP (Verve)
 
 1. The customers gets prompted to enter card pin.
 2. After the customer enters the card pin, call the payment service again using payment/initiates endpoint.
@@ -202,7 +268,7 @@ The code snippet below shows the sample request after passing the PIN
 ```bash cURL
 curl --location 'https://seerbitapi.com/api/v2/payments/initiates' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Bearer YOUR_ENCRYPTION_KEY' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
 --data '{
 	"transaction":
 		{
@@ -219,14 +285,14 @@ var options = {
   url: 'https://seerbitapi.com/api/v2/payments/initiates',
   headers: {
     'Content-Type': 'application/json',
-    Authorization: 'Bearer YOUR_ENCRYPTION_KEY',
+    Authorization: 'Bearer YOUR_ENCRYPTED_KEY'
   },
   body: JSON.stringify({
     transaction: {
       linkingreference: 'F468778061587905955047',
-      otp: '496865',
-    },
-  }),
+      otp: '496865'
+    }
+  })
 };
 request(options, function (error, response) {
   if (error) throw new Error(error);
@@ -257,7 +323,7 @@ curl_setopt_array($curl, array(
   }',
   CURLOPT_HTTPHEADER => array(
     'Content-Type: application/json',
-    'Authorization: Bearer YOUR_ENCRYPTION_KEY'
+    'Authorization: Bearer YOUR_ENCRYPTED_KEY'
   ),
 ));
 
@@ -287,7 +353,7 @@ The code snippet below shows an example response after entering the OTP
 }
 ```
 
-## Scenario 2 (Master Card and Visa Card Type)
+## Scenario 2: 3-D Secure (Mastercard and Visa)
 
 1. The occurs for 3D secure card transactions.
 2. After the payment has been initiated, the card holder gets prompted to complete the payment on the card's bank page.
@@ -295,7 +361,7 @@ The code snippet below shows an example response after entering the OTP
 
 #### Response Sample
 
-The code snippet below shows an example request for generating a payment link to complete a payment
+The code snippet below shows an example request for initialising this payment
 
 ```json
 {
@@ -312,13 +378,13 @@ The code snippet below shows an example request for generating a payment link to
 }
 ```
 
-## Scenario 3
+## Scenario 3: PIN only
 
 1. The customers gets prompted to enter card pin.
 
 #### Response Sample
 
-The code snippet below shows an example request for generating a payment link to complete a payment
+The code snippet below shows an example request for initialising this payment
 
 ```json
 {
@@ -336,9 +402,6 @@ The code snippet below shows an example request for generating a payment link to
 
 ## Testing your integration
 
-Click on the button below to be redirected to the SeerBit Checkout page and use any of the test cards or test bank account provided below
+Use any of the SeerBit test cards to complete a payment on the checkout page and confirm your integration end to end.
 
-| Card Number      | Card Type  | Expiry Date | CVC | PIN  |
-| ---------------- | ---------- | ----------- | --- | ---- |
-| 12345678900929   | Mastercard | 12/2026     | 123 | 0000 |
-| 6280511000000095 | Verve Card | 12/2026     | 123 | 0000 |
+[See the full list of test credentials](/test-and-live)

@@ -13,106 +13,97 @@
     "dark": "#FF3C38"
   },
   "favicon": "/favicon.ico",
-
   "navigation": {
     "tabs": [
       {
         "tab": "Home",
         "icon": "house",
-        "pages": ["index"]
+        "pages": [
+          "index"
+        ]
       },
       {
         "tab": "Documentation",
         "icon": "book-open",
         "groups": [
           {
-            "group": "Online Payments",
+            "group": "Get Started",
             "pages": [
-              {
-                "group": "Integrations",
-                "pages": [
-                  "/online-payments/integrations/accept-payment",
-                  "/online-payments/integrations/integration-checklist",
-                  "/online-payments/integrations/simple-checkout",
-                  "/online-payments/integrations/standard-checkout",
-                  "/online-payments/integrations/sub-account",
-                  "/online-payments/integrations/e-commerce-plugin"
-                ]
-              },
-              {
-                "group": "Payment Features",
-                "pages": [
-                  "/online-payments/payment-features/payment",
-                  "/online-payments/payment-features/invoicing",
-                  "/online-payments/payment-features/bulk-invoicing",
-                  "/online-payments/payment-features/subscription",
-                  "/online-payments/payment-features/payment-link",
-                  "/online-payments/payment-features/virtual-account",
-                  "/online-payments/payment-features/card-tokenisation",
-                  "/online-payments/payment-features/pocket",
-                  "/online-payments/payment-features/payout",
-                  "/online-payments/payment-features/payout-v2"
-                ]
-              },
-              {
-                "group": "After Payment",
-                "pages": [
-                  "/online-payments/after-payments/verify-payment",
-                  "/online-payments/after-payments/receive-settlement",
-                  "/online-payments/after-payments/failed-transaction",
-                  "/online-payments/after-payments/refund",
-                  "/online-payments/after-payments/webhook-events",
-                  "/online-payments/after-payments/webhook-events-v2"
-                ]
-              }
+              "/introduction",
+              "/quickstart",
+              "/authentication",
+              "/test-and-live",
+              "/go-live"
+            ]
+          },
+          {
+            "group": "Accept Payments",
+            "pages": [
+              "/online-payments/integrations/accept-payment",
+              "/online-payments/integrations/simple-checkout",
+              "/online-payments/integrations/standard-checkout",
+              "/sdks/overview",
+              "/online-payments/integrations/e-commerce-plugin",
+              "/online-payments/payment-features/payment-link",
+              "/online-payments/payment-features/invoicing",
+              "/online-payments/payment-features/bulk-invoicing",
+              "/online-payments/payment-features/subscription",
+              "/online-payments/payment-features/virtual-account",
+              "/online-payments/payment-features/card-tokenisation"
             ]
           },
           {
             "group": "Payment Methods",
             "pages": [
               "/payment-methods/overview",
-              {
-                "group": "Payment Methods",
-                "pages": [
-                  "/payment-methods/bank-account",
-                  "/payment-methods/card-payment",
-                  "/payment-methods/mobile-money",
-                  "/payment-methods/transfer",
-                  "/payment-methods/ussd-payment"
-                ]
-              }
+              "/payment-methods/card-payment",
+              "/payment-methods/bank-account",
+              "/payment-methods/transfer",
+              "/payment-methods/ussd-payment",
+              "/payment-methods/mobile-money"
             ]
           },
           {
-            "group": "Libraries & Plugins",
-            "pages": ["/libraries-and-plugins/overview", "/libraries-and-plugins/isv-pos"]
-          },
-          {
-            "group": "Testing",
-            "pages": ["/testing/overview"]
-          },
-          {
-            "group": "Development Resources",
+            "group": "After a Payment",
             "pages": [
-              {
-                "group": "Hash",
-                "pages": [
-                  "/development-resources/hash/hash-endpoint",
-                  "/development-resources/hash/key-encryption"
-                ]
-              },
-              {
-                "group": "Responses",
-                "pages": [
-                  "/development-resources/responses/raw-acquirer-responses",
-                  "/development-resources/responses/response-handling",
-                  "/development-resources/responses/seerbit-status-code"
-                ]
-              },
-              {
-                "group": "Currency Codes",
-                "pages": ["/development-resources/currency-codes/overview"]
-              }
+              "/online-payments/after-payments/verify-payment",
+              "/online-payments/after-payments/webhook-events",
+              "/online-payments/after-payments/refund",
+              "/online-payments/after-payments/failed-transaction",
+              "/online-payments/after-payments/receive-settlement"
+            ]
+          },
+          {
+            "group": "Payouts & Wallets",
+            "pages": [
+              "/payouts/overview",
+              "/online-payments/payment-features/pocket",
+              "/online-payments/payment-features/payout"
+            ]
+          },
+          {
+            "group": "Platforms & Marketplaces",
+            "pages": [
+              "/online-payments/integrations/sub-account",
+              "/platforms/split-settlement"
+            ]
+          },
+          {
+            "group": "In-Store Payments",
+            "pages": [
+              "/in-store/overview",
+              "/in-store/initiate-transaction",
+              "/in-store/transaction-status",
+              "/in-store/webhooks"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "/development-resources/responses/seerbit-status-code",
+              "/development-resources/responses/response-handling",
+              "/development-resources/responses/raw-acquirer-responses",
+              "/development-resources/currency-codes/overview"
             ]
           }
         ]
@@ -141,13 +132,70 @@
     }
   },
   "contextual": {
-    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/getSeerBit",
+      "linkedin": "https://www.linkedin.com/company/seerbit/",
+      "facebook": "https://www.facebook.com/SeerBit/",
+      "instagram": "https://www.instagram.com/getseerbit/",
+      "github": "https://github.com/seerbit"
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/libraries-and-plugins/isv-pos",
+      "destination": "/in-store/overview"
+    },
+    {
+      "source": "/online-payments/payment-features/payout-v2",
+      "destination": "/online-payments/payment-features/payout"
+    },
+    {
+      "source": "/online-payments/after-payments/webhook-events-v2",
+      "destination": "/online-payments/after-payments/webhook-events"
+    },
+    {
+      "source": "/online-payments/payment-features/payment",
+      "destination": "/online-payments/integrations/accept-payment"
+    },
+    {
+      "source": "/development-resources/hash/key-encryption",
+      "destination": "/authentication"
+    },
+    {
+      "source": "/development-resources/hash/hash-endpoint",
+      "destination": "/authentication"
+    },
+    {
+      "source": "/development-resources/test-and-live",
+      "destination": "/test-and-live"
+    },
+    {
+      "source": "/testing/overview",
+      "destination": "/test-and-live"
+    },
+    {
+      "source": "/online-payments/integrations/integration-checklist",
+      "destination": "/go-live"
+    },
+    {
+      "source": "/platforms/split-payments",
+      "destination": "/platforms/split-settlement"
+    },
+    {
+      "source": "/libraries-and-plugins/overview",
+      "destination": "/sdks/overview"
+    }
+  ]
 }

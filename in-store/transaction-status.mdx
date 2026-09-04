@@ -1,0 +1,84 @@
+---
+title: Transaction status
+description: Retrieve the current status and settlement detail for a POS transaction.
+---
+
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://seerbitapi.com/isv-pos/api/v1/transactions/{orderId}/status
+```
+
+Retrieves the current status of a transaction. Once a transaction reaches a final state, this endpoint also returns the full settlement detail for the attempt.
+
+> **Important**: Use the `orderId` from the initiation response as the path parameter — not the `transactionRef`.
+
+## Required headers
+
+| Header         | Value                   |
+| -------------- | ----------------------- |
+| `Content-Type` | `application/json`      |
+| `PublicKey`    | Your SeerBit public key |
+
+## Request sample
+
+```bash cURL
+curl --location 'https://seerbitapi.com/isv-pos/api/v1/transactions/112990000323/status' \
+--header 'Content-Type: application/json' \
+--header 'PublicKey: YOUR_PUBLIC_KEY'
+```
+
+## Response sample
+
+```json 200 OK
+{
+  "orderId": "112990000323",
+  "transactionRef": "A87EE5e51709977888779DAA4E05",
+  "status": "COMPLETED",
+  "transactionValue": "50.00",
+  "posId": "2214HX01",
+  "amountPaid": "50.00",
+  "cardNumber": "411111******1234",
+  "paymentType": "CARD",
+  "response": "Transaction successful",
+  "responseCode": "200",
+  "merchantId": "SBT-MERCH-004521",
+  "sessionId": "000435317658",
+  "transactionTime": "2026-07-02T23:26:34Z"
+}
+```
+
+> **Note**: While a transaction is still `OPEN` or `PENDING`, settlement fields such as `amountPaid`, `cardNumber`, `paymentType`, `response`, and `responseCode` will not yet be populated.
+
+## Response fields
+
+| Field              | Description                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| `orderId`          | Echoes the `orderId` submitted at initiation.                                         |
+| `transactionRef`   | The reference for the transaction being queried.                                      |
+| `status`           | Current transaction status (see [Status values](#status-values) below).               |
+| `transactionValue` | Transaction amount that was requested, as a decimal string.                           |
+| `posId`            | Identifier of the POS terminal the transaction was routed to.                         |
+| `amountPaid`       | Amount actually captured on the terminal. Present once the transaction resolves.      |
+| `cardNumber`       | Masked card number used for payment (first six / last four digits shown).             |
+| `paymentType`      | Payment instrument used, e.g. `CARD`, `TRANSFER`, `USSD`.                             |
+| `response`         | Human-readable detail on the transaction outcome, e.g. an incorrect PIN entry.        |
+| `responseCode`     | One of three possible values: `200` (SUCCESS), `400` (FAILED), or `401` (CANCELED).   |
+| `merchantId`       | Identifier of the merchant the terminal is registered under.                          |
+| `sessionId`        | The SeerBit reference for this transaction — use this value when reconciling with SeerBit. |
+| `transactionTime`  | UTC timestamp the transaction reached its current status.                             |
+
+## Status values
+
+| Status      | Meaning                                                                        |
+| ----------- | ------------------------------------------------------------------------------ |
+| `OPEN`      | Transaction has been initiated and is waiting for the POS terminal to process it. |
+| `PENDING`   | Transaction exists but the POS terminal has not reconciled it yet.              |
+| `COMPLETED` | Transaction completed successfully; settlement fields are populated.            |
+| `FAILED`    | Transaction failed on the terminal or was declined by the card scheme.          |
+
+
+<Card title="Prefer not to poll?" icon="webhook" href="/in-store/webhooks">
+  Supply a `webhookUrl` at initiation and SeerBit will push the result to you instead.
+</Card>

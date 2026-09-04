@@ -1,0 +1,71 @@
+---
+title: Test and Live Modes
+description: Test cards and credentials, how the two modes differ, and how to tell which one a transaction ran in.
+---
+
+SeerBit accounts operate in one of two modes. Which mode a request runs in is determined entirely by **which API keys you send** — the base URL is the same for both.
+
+| | Test mode | Live mode |
+| --- | --- | --- |
+| Keys | Test public and secret key | Live public and secret key |
+| Base URL | `https://seerbitapi.com` | `https://seerbitapi.com` |
+| Money movement | None. Transactions are simulated. | Real funds move. |
+| Availability | Immediately on sign-up | After your business is approved |
+| Card details | [Test cards](#test-cards) only | Real cards only |
+
+Because the base URL does not change, **swapping keys is what takes you live**. There is no separate sandbox host to point at.
+
+Both key pairs live in the dashboard under **Settings > API Keys**. New accounts start in test mode, so you can build a full integration before submitting business documents; live keys appear once your business is approved.
+
+## Test cards
+
+| Card Number         | Card Type  | Expiry Date | CVC | PIN  |
+| ------------------- | ---------- | ----------- | --- | ---- |
+| 5000 5500 0000 0029 | Mastercard | 08/2028     | 072 | 0000 |
+| 4035 5010 0000 0008 | Visa       | 08/2028     | 072 | 0000 |
+| 4871 0499 9999 9910 | Visa       | 08/2028     | 072 | 0000 |
+| 6280 5110 0000 0095 | Verve      | 08/2028     | 072 | 0000 |
+| 5060 6666 6666 6666 666 | Verve  | 08/2028     | 072 | 0000 |
+
+Use the expiry, CVC and PIN exactly as shown — these cards are only valid with the values above.
+
+## Test bank accounts
+
+Test credentials for [bank account](/payment-methods/bank-account) and [transfer](/payment-methods/transfer) payments are issued per merchant account. Request yours from your SeerBit account team or via [support](https://seerbitteam.freshdesk.com/support/home).
+
+## Test mobile money
+
+Test MSISDNs for [mobile money](/payment-methods/mobile-money) differ by operator and country. Request the set for your markets from your SeerBit account team or via [support](https://seerbitteam.freshdesk.com/support/home).
+
+## Confirming which mode a transaction ran in
+
+The [payment status response](/online-payments/after-payments/verify-payment) includes a `mode` field:
+
+```json
+{
+  "data": {
+    "payments": {
+      "mode": "live"
+    }
+  }
+}
+```
+
+It reads `test` for simulated transactions and `live` for real ones. Check it if you are ever unsure which key pair a call used — most commonly when a payment appears to succeed but never shows up in your live dashboard.
+
+## What carries over, and what doesn't
+
+- **Transactions do not carry over.** A payment made with test keys never appears in your live transaction history.
+- **Webhook subscriptions do not carry over.** Configure your notification URL separately in each mode — a test-mode subscription will not fire for live traffic.
+- **Webhooks do fire in test mode**, so you can verify your handler end to end before going live.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Quickstart" icon="rocket" href="/quickstart">
+    Take a test payment end to end with one of the cards above.
+  </Card>
+  <Card title="Go live" icon="check" href="/go-live">
+    KYC, swapping keys, and the final production check.
+  </Card>
+</CardGroup>

@@ -1,20 +1,55 @@
 ---
 title: Card Tokenise and Charge
+description: Save a card once and charge it again without collecting details each time.
 ---
 
-The Card Tokenize and Charge API allows you to charge a tokenized payment method.
+**Ideal for**: Charging a card the customer has already authorised — repeat purchases, usage-based billing, top-ups — without asking for card details again.
 
-After the initial successful payment with a customer's card, it is possible to store their card authorisation for future transactions. Merchants that are not PCI compliant can leverage our [Simple Checkout](/online-payments/integrations/simple-checkout) or our [Sdk Libraries](/libraries-and-plugins/overview) to store the card token securely, which can be used for future charges.
+> **Tokenisation or a subscription?** With tokenisation *you* decide when to charge and for how much. A [subscription](/online-payments/payment-features/subscription) charges automatically on a fixed cycle you define in a plan. See the [comparison](/online-payments/payment-features/subscription#subscriptions-or-card-tokenisation).
+
+The Card Tokenise and Charge API lets you charge a card the customer has already authorised, without handling their card details again.
+
+After the initial successful payment with a customer's card, it is possible to store their card authorisation for future transactions. Merchants that are not PCI compliant can leverage our [Simple Checkout](/online-payments/integrations/simple-checkout) or our [Sdk Libraries](/sdks/overview) to store the card token securely, which can be used for future charges.
 
 To commence the first charge, it is required to follow local regulations that necessitate users to authenticate their card through a two-factor authentication process in the initial charge transaction. This is done to verify that the card is valid and it belongs to the user initializing the transaction and that it can be charged for subsequent transactions. Additionally a minimum amount of NGN 50.00, GHS 1, KES 1, or USD 0.50 is required to be passed in the request body for the first charge.
+
+## How it works
+
+<Steps>
+  <Step title="Charge the card once, with authentication">
+    The first charge must pass two-factor authentication — this proves the card belongs to the customer and may be charged again. Local rules require a minimum first charge: **NGN 50.00, GHS 1, KES 1 or USD 0.50**.
+  </Step>
+  <Step title="Retrieve the authorization code">
+    Once that payment succeeds, [query it](#get-card-authorization-code) to get the `authorizationCode`. This stands in for the card.
+  </Step>
+  <Step title="Charge again whenever you need to">
+    Send the `authorizationCode` and an amount — [singly](#charge-authorisation-token), or [many at once](#bulk-charge-token).
+  </Step>
+</Steps>
+
+> **You do not need to be PCI compliant to do this.** Use [Simple Checkout](/online-payments/integrations/simple-checkout) or an [SDK](/sdks/overview) for the first charge, and the card details never touch your servers.
+
+## Authentication
+
+Tokenisation calls are authenticated with a **bearer token**, generated from your public and secret keys.
+
+```bash
+POST https://seerbitapi.com/api/v2/encrypt/keys
+```
+
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
+
+## Create Card Token
+
+> **This endpoint requires PCI DSS certification.** It receives raw card details on your server, so SeerBit will not enable it for your account without a valid certificate. To tokenise a card without certification, take the first payment through [Simple Checkout](/online-payments/integrations/simple-checkout) or an [SDK](/sdks/overview) and [retrieve the authorization code](#get-card-authorization-code) afterwards — every other endpoint on this page works either way.
 
 <Badge color="blue">POST</Badge>
 
 ```bash
 https://seerbitapi.com/api/v2/payments/create-token
 ```
-
-## Create Card Token
 
 #### Request Sample
 
@@ -142,7 +177,7 @@ The code snippet below shows an example response for creating a card token
 }
 ```
 
-##### Parameter Description
+#### Parameter description
 
 | Name          | Type     | Description                                                | Required? |
 | ------------- | -------- | ---------------------------------------------------------- | --------- |
@@ -210,7 +245,7 @@ https://seerbitapi.com/api/v3/payments/query/{{paymentReference}}
 }
 ```
 
-##### Parameter Description
+#### Parameter description
 
 | Name              | Description                             |
 | ----------------- | --------------------------------------- |
@@ -320,6 +355,16 @@ The code snippet below shows an example response for charging a token
 }
 ```
 
+#### Parameter description
+
+| Name | Type | Description |
+| --- | --- | --- |
+| publicKey | `string` | Your SeerBit public key, from **Settings > API Keys**. |
+| authorizationCode | `string` | The code returned by [Get Card Authorization Code](#get-card-authorization-code). It stands in for the stored card. |
+| amount | `string` | Amount to charge on this call. It does not have to match the first charge. |
+| paymentReference | `string` | Unique reference you generate for this charge. See [payment references](/online-payments/integrations/standard-checkout#payment-references-and-retries). |
+
+
 ## Bulk Charge Token
 
 <Badge color="blue">POST</Badge>
@@ -341,25 +386,25 @@ curl --location 'https://seerbitapi.com/api/v2/payments/bulk-tokenize-charge' \
 --data '
 [
     {
-        "publicKey": "publickKey",
+        "publicKey": "publicKey",
         "amount": "11",
         "paymentReference": "reference",
         "authorizationCode": "authorizationCode"
     },
     {
-        "publicKey": "publickKey",
+        "publicKey": "publicKey",
         "amount": "11",
         "paymentReference": "reference",
         "authorizationCode": "authorizationCode"
     },
     {
-        "publicKey": "publickKey",
+        "publicKey": "publicKey",
         "amount": "11",
         "paymentReference": "reference",
         "authorizationCode": "authorizationCode"
     },
     {
-        "publicKey": "publickKey",
+        "publicKey": "publicKey",
         "amount": "11",
         "paymentReference": "reference",
         "authorizationCode": "authorizationCode"
@@ -378,25 +423,25 @@ var options = {
   },
   body: JSON.stringify([
     {
-      publicKey: 'publickKey',
+      publicKey: 'publicKey',
       amount: '11',
       paymentReference: 'reference',
       authorizationCode: 'authorizationCode',
     },
     {
-      publicKey: 'publickKey',
+      publicKey: 'publicKey',
       amount: '11',
       paymentReference: 'reference',
       authorizationCode: 'authorizationCode',
     },
     {
-      publicKey: 'publickKey',
+      publicKey: 'publicKey',
       amount: '11',
       paymentReference: 'reference',
       authorizationCode: 'authorizationCode',
     },
     {
-      publicKey: 'publickKey',
+      publicKey: 'publicKey',
       amount: '11',
       paymentReference: 'reference',
       authorizationCode: 'authorizationCode',
@@ -426,25 +471,25 @@ curl_setopt_array($curl, array(
   CURLOPT_POSTFIELDS =>'
 [
     {
-        "publicKey": "publickKey",
+        "publicKey": "publicKey",
         "amount": "11",
         "paymentReference": "reference",
         "authorizationCode": "authorizationCode"
     },
     {
-        "publicKey": "publickKey",
+        "publicKey": "publicKey",
         "amount": "11",
         "paymentReference": "reference",
         "authorizationCode": "authorizationCode"
     },
     {
-        "publicKey": "publickKey",
+        "publicKey": "publicKey",
         "amount": "11",
         "paymentReference": "reference",
         "authorizationCode": "authorizationCode"
     },
     {
-        "publicKey": "publickKey",
+        "publicKey": "publicKey",
         "amount": "11",
         "paymentReference": "reference",
         "authorizationCode": "authorizationCode"
@@ -477,6 +522,20 @@ The code snippet below shows an example response for bulk charging a token
   }
 }
 ```
+
+#### Parameter description
+
+The request body is a **JSON array**, not an object. Each entry takes the same fields as a [single charge](#charge-authorisation-token):
+
+| Name | Type | Description |
+| --- | --- | --- |
+| publicKey | `string` | Your SeerBit public key. |
+| authorizationCode | `string` | The stored card to charge for this entry. |
+| amount | `string` | Amount for this entry. Each entry can differ. |
+| paymentReference | `string` | Unique reference for this entry. Every entry needs its own. |
+
+The response returns a `batchId` — use it to [query the batch](#query-bulk-charge-with-batchid), since individual results settle asynchronously.
+
 
 ## Query Bulk Charge with BatchId
 
@@ -553,3 +612,12 @@ The code snippet below shows an example response for querying a bulkchargeToken 
   }
 }
 ```
+
+## Notes
+
+- **The first charge is different from every one after it.** It needs two-factor authentication and a minimum amount; subsequent charges need neither.
+- **Store the `authorizationCode`, not the card.** It is the only thing you need to charge again, and it is safe to keep in your own database.
+- **A token is tied to one card.** If the customer's card expires or is replaced, the code stops working — handle that decline by asking them to authorise a new card.
+- **Bulk charges are asynchronous.** The initial response confirms the batch was accepted, not that the charges succeeded. Poll the `batchId` or rely on [webhooks](/online-payments/after-payments/webhook-events).
+- **Give every charge a unique `paymentReference`**, including each entry in a bulk array — a reused reference is rejected.
+- Confirm each charge server-side before you fulfil — see [Verify a payment](/online-payments/after-payments/verify-payment).
