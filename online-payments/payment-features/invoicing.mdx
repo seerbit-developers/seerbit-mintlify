@@ -1,8 +1,46 @@
 ---
 title: Invoicing
+description: Create, send and track invoices for your customers.
 ---
 
-Create and send invoices without code on the [merchant dashboard](https://dashboard.seerbit.com/#/auth/register) or use the invoicing API below to advance and automate how you collect payments from your customers.
+**Ideal for**: Billing a named customer for itemised work or goods — professional services, B2B orders, anything that needs a document with line items, tax and a due date.
+
+Create and send invoices without code on the [merchant dashboard](https://dashboard.seerbit.com/#/auth/register), or use the API below to automate it.
+
+## Invoice or payment link?
+
+Both send a customer a request to pay, but an invoice is a document and a [payment link](/online-payments/payment-features/payment-link) is a door.
+
+| | [Payment Link](/online-payments/payment-features/payment-link) | Invoice |
+| --- | --- | --- |
+| **What the customer receives** | A URL you share however you like | An invoice, emailed to them by SeerBit |
+| **Addressed to** | Anyone who opens it | One named customer |
+| **Line items** | None — a single amount | Itemised, with quantity, rate and tax per line |
+| **The amount** | Fixed, or entered by the customer | Calculated from the line items |
+| **Timing** | Optional expiry date | An explicit `dueDate` |
+| **Reuse** | Many payments from one link | One invoice, one payment |
+| **The record** | Appears in your transaction list | Gets an invoice number (`SBT-INV-000092`) you can look up by number, order or customer email |
+| **Best for** | Donations, social selling, event tickets | Professional services, B2B billing, anything needing a paper trail |
+
+Use an invoice when the customer needs a document — something with your line items on it that they can file, forward to their finance team, or reconcile against a purchase order. Use a payment link when they just need to pay.
+
+Sending many invoices at once? See [Bulk invoicing](/online-payments/payment-features/bulk-invoicing).
+
+## How it works
+
+You post the customer, a due date and the line items. SeerBit calculates the total, assigns an invoice number, and emails the invoice to `customerEmail` with a payment link inside it. The customer pays through SeerBit's hosted page, and you can look the invoice up at any time by its number, your order number, or the customer's email — or [re-send it](#re-send-an-invoice) if they lost it.
+
+## Authentication
+
+Invoicing calls are authenticated with a **bearer token**, generated from your public and secret keys.
+
+```bash
+POST https://seerbitapi.com/api/v2/encrypt/keys
+```
+
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
 
 ## Creating and sending an invoice
 
@@ -152,6 +190,41 @@ The code snippet below shows an example response for creating and sending an inv
   "code": "00"
 }
 ```
+
+#### Parameter description
+
+All body parameters are required.
+
+| Name | Type | Description |
+| --- | --- | --- |
+| publicKey | `string` | Your SeerBit public key, from **Settings > API Keys**. |
+| orderNo | `string` | Your own order reference. Use it to [look the invoice up](#get-invoice-by-orderno) later. |
+| dueDate | `string` | Date the invoice falls due, `YYYY-MM-DD`. |
+| currency | `string` | Currency for the invoice, e.g. `NGN`. See [currency codes](/development-resources/currency-codes/overview). |
+| receiversName | `string` | Name of the customer the invoice is addressed to. |
+| customerEmail | `string` | Where SeerBit sends the invoice. |
+| invoiceItems | `array` | The line items. At least one. See below. |
+
+##### `invoiceItems` object
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `itemName` | `string` | What the line is for, as it appears on the invoice. |
+| `quantity` | `number` | How many units. |
+| `rate` | `number` | Price per unit, before tax. |
+| `tax` | `number` | Tax rate applied to the line, as a percentage — `7.5` means 7.5%. |
+
+The invoice total is calculated from the line items; you do not send an amount.
+
+#### Response fields
+
+| Name | Type | Description |
+| --- | --- | --- |
+| code | `string` | `00` on success. See [status codes](/development-resources/responses/seerbit-status-code). |
+| message | `string` | Human-readable result. |
+| payload.InvoiceID | `number` | Internal numeric identifier. |
+| payload.InvoiceNo | `string` | The invoice number, e.g. `SBT-INV-000092`. Use it to [look up](#get-invoice-by-invoiceno) or [re-send](#re-send-an-invoice) the invoice. |
+
 
 ## Re-send an Invoice
 
@@ -357,8 +430,9 @@ The code snippet below shows an example response to get invoice by customer emai
                     "amount": 400.00,
                     "quantity": 4
                 }
-            ],
-
+            ]
+        }
+    ],
     "code": "00"
 }
 ```
@@ -563,3 +637,11 @@ The code snippet below shows an example response to get an invoice by invoice or
   "code": "00"
 }
 ```
+
+## Notes
+
+- **Store the `InvoiceNo` you get back.** It is how you re-send, look up or reconcile the invoice afterwards — `InvoiceID` is internal.
+- **Tax is per line, not per invoice.** Each item carries its own `tax` percentage, so mixed-rate invoices work without extra fields.
+- **Re-sending does not create a new invoice.** It emails the existing one again, so the invoice number and amount stay the same.
+- Confirm payment server-side before you treat an invoice as settled — see [Verify a payment](/online-payments/after-payments/verify-payment).
+- Invoices created with test keys only work in test mode. See [Test and live modes](/test-and-live).

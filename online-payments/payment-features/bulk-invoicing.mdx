@@ -1,10 +1,25 @@
 ---
 title: Bulk Invoicing
+description: Create and send many invoices in a single request.
 ---
 
-Create and send bulk invoices .
+**Ideal for**: Billing many customers at once — a month's subscriptions, a term's school fees, a batch of client invoices.
 
-## Creating and sending bulk an invoice
+Post an array of invoices in a single request. Each entry takes the same shape as a single [invoice](/online-payments/payment-features/invoicing), and each customer receives their own invoice by email with its own invoice number.
+
+## Authentication
+
+Bulk invoicing calls are authenticated with a **bearer token**, generated from your public and secret keys.
+
+```bash
+POST https://seerbitapi.com/api/v2/encrypt/keys
+```
+
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
+
+## Creating and sending bulk invoices
 
 <Badge color="blue">POST</Badge>
 

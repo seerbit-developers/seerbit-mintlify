@@ -1,28 +1,44 @@
 ---
-title: 
+title: Overview
+description: Compare the ways your customers can pay and choose the right ones.
 ---
 
-A complete guide to integrate SeerBit to receive payments in a fast secure way.
+SeerBit supports several ways for your customers to pay. Every method is available through both [Simple Checkout](/online-payments/integrations/simple-checkout) and [Standard Checkout](/online-payments/integrations/standard-checkout), and all of them initialise through the same endpoint — `POST /api/v2/payments/initiates` — with a different `paymentType`.
 
-> Not ready for a full integration ? [See options for getting started quickly without codes](/online-payments/integrations/e-commerce-plugin)
+Offering more than one method generally raises conversion, because customers differ in what they have available.
 
-## Payment Features
-
-<CardGroup cols={2}>
-    <Card img="/assets/invoicing-image.png" title="Invoicing" href="/invoicing" className="seerbit-nav-card">Build a payment checkout or use SeerBits prebuilt checkout page to accept online payments.</Card>
-        <Card img="/assets/subscription-image.png" title="Subscriptions" href="/subscription" className="seerbit-nav-card">Setup recurrent billings for your online businesses.</Card>
-    <Card img="/assets/link-image.png" title="Pay by Links" href="/payment-link" className="seerbit-nav-card">Let your customers pay using a secure payment link hosted by us and designed by you.</Card>
-</CardGroup>
-
-## After Payments
-
-After the payment, several things can happen, if the payment succeeds normally, you can focus on payout options from SeerBit and triggering workflows to fulfill the customer’s order. When it’s more complicated, SeerBit provides guidance for things like declined cards, refunds, disputes and fraud.
+## Available methods
 
 <CardGroup cols={2}>
-    <Card title="Verify Payment" href="/verify-payment" className="seerbit-nav-card">Build a payment checkout or use SeerBits prebuilt checkout page to accept online payments.</Card>
-        <Card title="Receive Settlements" href="/receive-settlement" className="seerbit-nav-card">Setup recurrent billings for your online businesses.</Card>
-    <Card title="Unsuccessful Payment Scenairoments" href="/failed-transaction" className="seerbit-nav-card">Let your customers pay using a secure payment link hosted by us and designed by you.</Card>
-        <Card title="Refunds" href="/refund" className="seerbit-nav-card">Build a payment checkout or use SeerBits prebuilt checkout page to accept online payments.</Card>
-        <Card title="Disputes & Chargebacks Subscriptions" href="/payment" className="seerbit-nav-card">Setup recurrent billings for your online businesses.</Card>
-    <Card title="Webhook Events" href="/webhook-events" className="seerbit-nav-card">Let your customers pay using a secure payment link hosted by us and designed by you.</Card>
+  <Card title="Card payments" icon="credit-card" href="/payment-methods/card-payment" className="seerbit-nav-card">Mastercard, Visa and Verve, with PIN, OTP and 3-D Secure flows.</Card>
+  <Card title="Bank account" icon="landmark" href="/payment-methods/bank-account" className="seerbit-nav-card">Debit a customer's bank account directly with their authorisation.</Card>
+  <Card title="Transfer" icon="arrow-left-right" href="/payment-methods/transfer" className="seerbit-nav-card">Give the customer account details to transfer into, and confirm on receipt.</Card>
+  <Card title="USSD" icon="hash" href="/payment-methods/ussd-payment" className="seerbit-nav-card">Let customers pay from a feature phone with a short dial code.</Card>
+  <Card title="Mobile money" icon="smartphone" href="/payment-methods/mobile-money" className="seerbit-nav-card">Collect through MOMO operators across supported markets.</Card>
+  <Card title="In-store POS" icon="square-terminal" href="/in-store/overview" className="seerbit-nav-card">Take card-present payments on a SeerBit terminal.</Card>
 </CardGroup>
+
+## Choosing a method
+
+| If you want to | Use |
+| -------------- | --- |
+| Accept the widest range of customers online | [Card payments](/payment-methods/card-payment) |
+| Avoid card scheme fees on larger amounts | [Transfer](/payment-methods/transfer) or [bank account](/payment-methods/bank-account) |
+| Reach customers without smartphones or cards | [USSD](/payment-methods/ussd-payment) |
+| Collect in markets where wallets dominate | [Mobile money](/payment-methods/mobile-money) |
+| Charge a customer standing in front of you | [In-store POS](/in-store/overview) |
+
+## Building your own checkout
+
+The pages above document the direct API — `POST /api/v2/payments/initiates` — for merchants who want to control how the payment interface looks. Two things follow from that:
+
+- **Card payments require PCI DSS certification.** Your server would be receiving raw card details, so SeerBit will not enable [card payments](/payment-methods/card-payment) on your account without a valid certificate. Every other method is unaffected.
+- **You calculate the transaction fee.** Unlike the hosted checkout, these endpoints charge exactly the amount you send — so if the customer bears the fee, you must add it. See [transaction fees](/online-payments/integrations/standard-checkout#transaction-fees).
+
+Neither applies if you use [Simple Checkout](/online-payments/integrations/simple-checkout), [Standard Checkout](/online-payments/integrations/standard-checkout) or a [plugin](/online-payments/integrations/e-commerce-plugin).
+
+## Before you go live
+
+Some methods settle asynchronously — a customer can leave the page before the payment resolves. Always confirm the outcome with [payment verification](/online-payments/after-payments/verify-payment) or [webhooks](/online-payments/after-payments/webhook-events) rather than the browser redirect, and handle the `PENDING` state described in the [status codes](/development-resources/responses/seerbit-status-code) reference.
+
+Test credentials for every method are on the [testing page](/test-and-live).

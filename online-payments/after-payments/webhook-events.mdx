@@ -1,70 +1,160 @@
 ---
-title: Webhook Events
+title: Webhooks
+description: Receive real-time server notifications when events occur on your account.
 ---
 
-Anytime an event happens on your account, your application can be notified by SeerBit. This is where webhooks come in, it is useful for events that are not triggered by direct API request, but when the response from that request needs to be known (for instance, in cases when there is an update to a transaction status), it is necessary only for behind-the-scenes transactions. SeerBit webhooks are HTTP calls that are triggered by specific events. SeerBit webhooks replace regular API calls with instant, real-time notifications. It can be set up on your dashboard by specifying a URL we would send POST requests to you whenever an event that might be of interest happens. Each webhook notification contains an eventType that specifies which type of event triggered the webhook notification.
+**Ideal for**: Reacting to payments automatically — marking orders paid, crediting wallets, releasing goods — without polling for a result.
 
-## Failed Transactions
+> **Webhooks or verification?** Webhooks push each outcome to you as it happens; [verifying a payment](/online-payments/after-payments/verify-payment) lets you ask on demand. Most integrations use both — see the [comparison](/online-payments/after-payments/verify-payment#verify-or-webhooks).
 
-### Expose an endpoint on an open server
+> **Taking payments on a POS terminal?** In-store transactions use a separate webhook system with its own headers, event names and optional payload encryption — see [in-store webhooks](/in-store/webhooks). This page covers online payments.
 
-We can send notifications as HTTP callbacks (webhooks) to an endpoint on a server that must be open. To receive webhooks, you must have a server that:
+Webhook Events enable real-time communication between SeerBit and your application. When specific activities occur within the payment ecosystem such as transactions, refunds, wallet movements, disputes, or virtual account events, SeerBit sends a structured notification to your configured webhook endpoint.<br/>
 
-1. Has an endpoint that can receive JSON requests
-2. Depending on your network and security requirements, you might also need to add our IP address to your firewall whitelist
+Webhooks use a standardized acknowledgment protocol designed to ensure reliable delivery, traceability, and idempotent handling.
 
-### Subscribe to webhook notifications
+## 1. Overview
 
-To configure webhooks notifications:
+A webhook is an HTTP callback: a POST request sent to your server when an event happens. When your webhook URL is configured in SeerBit, the platform automatically notifies your system whenever a subscribed event occurs.
 
-1. Login to your dashboard
-2. Navigate to **Account Settings > Webhook**
-3. Enter your notification URL
-4. Click on Subscribe
+##### When your endpoint receives a webhook request:
 
-### Accept Nofications
+1. Your server must respond with a 200 OK
+2. Your server must return a JSON acknowledgment object
+3. SeerBit considers the event delivered upon receiving a valid acknowledgment
+4. Your server processes the event
 
-To ensure that your server is properly accepting notifications, we require you to acknowledge every notification with an HTTP 200 response code. If we don't receive this response within 10 seconds, for example because your server is down, all notifications to your endpoint will be queued and retried. For more information, refer to queued notifications. When your server receives notification:
+If the acknowledgment is missing, invalid, or delayed, SeerBit retries delivery.
 
-1. Save the notification in your database
-2. Acknowledge the notification with the following HTTP response status code 200
-3. Apply your business logic
+## 2. Setting up your webhook
 
-Make sure that you acknowledge the notification before applying any business logic, because a breakage in your business logic could otherwise prevent important updates from reaching your system.
+### Expose an endpoint
 
-### Webhook Integration
+SeerBit delivers events as HTTP POST callbacks, so you need a server that:
 
-A seerbit integration includes the following :
+1. Exposes an endpoint able to receive JSON requests over HTTPS.
+2. Is reachable from the public internet. Depending on your network and security requirements, you may also need to add SeerBit's IP addresses to your firewall allowlist — ask your account team for the current list.
 
-- **Events**: This is an action that triggers notifications. Webhooks can be used to create alerts that trigger for these events.
-- **Subscriptions**: This is set-up in the portal to subscribe to notifications associated with a specific event. There is a configurable service in the application to which alerts are sent.
-- **Notification Body**: Details about the event that generated the alert, such as the time it happened.
+### Subscribe to notifications
 
-### Webhook Event Types
+1. Log in to your [SeerBit dashboard](https://dashboard.seerbit.com/#/auth/login).
+2. Navigate to **Account Settings > Webhook**.
+3. Enter your notification URL.
+4. Click **Subscribe**.
 
-- refund
-- dispute
-- transaction
-- transaction.recurrent
-- transaction.wallet
-- transaction.recurring.debit
+Configure the URL separately in test and live mode — a test-mode subscription does not carry over when you go live.
 
-### Queued Notifications
+## 3. Delivery Architecture
 
-It is expected that you respond to an event notification with a status response code of 200 (OK). This code will be used by us to acknowledge that you received the notification. Any status response code outside of the 2xx series will be considered a failed response and we will continue to retry regularly for up to 7 days, at increasing time intervals as follows:
+- **Event Triggered**<br/>
+  A payment, refund, settlement, dispute, or wallet event occurs.
 
-- 2 Minutes
-- 5 Minutes
-- 10 Minutes
-- 15 Minutes
-- 30 Minutes
-- 1 hour
-- 2 hours
-- 4 hours
+- **Webhook Preparaion**<br/>
+  SeerBit constructs the event payload and generates an acknowledgment reference, sent as the `X-Expected-Ack-Reference` header.
 
-After that, retries happen every 8 hours for the following 7 days. If we do not receive a response within the 2XX series, all notifications to this endpoint will be queued. Subsequently, we will attempt to retry sending the notification to your endpoint until it is accepted. Once accepted, you will receive all queued notifications as well.
+- **Delivery Attempt**<br/>
+  A POST request is sent to your Webhook URL over HTTPS.
 
-## Refund Event Sample
+- **Merchant Processing**<br/>
+  Your server receives the request and process the event.
+
+- **Acknowledgment Response**<br/>
+  Your server returns:
+
+```json
+{
+  "ackReference": "...",
+  "status": "received"
+}
+```
+
+- **Confirmation**<br/>
+  SeerBit mark the Webhook as delivered.
+
+- **Retry (if acknowledgment fails)**<br/>
+  Multiple retries occur at increasing intervals.
+
+This handshake ensures that events are not lost and can be processed reliably and idempotently.
+
+## 4. Webhook Request Format
+
+HTTP Method - <Badge color="blue">POST</Badge><br/>
+Content-Type - `application/json`
+
+| Header                   | Type     | Description                                                             | Requred  |
+| ------------------------ | -------- | ----------------------------------------------------------------------- | -------- |
+| Content-Type             | `string` | Always application/json                                                 | Yes      |
+| X-Expected-Ack-Reference | `string` | A unique reference for this delivery. You must return it in the acknowledgment response. | Yes |
+
+Body - A JSON object containing event metadata and associated data specific to the event type.
+
+## 5. Acknowledgment Response (Required)
+
+To confirm receipt of a webhook event, your server must return:
+
+- HTTP 200 OK
+- A JSON Object
+- Within 5 seconds
+
+```json Acknowledgement JSON Structure
+{
+  "ackReference": "<value from X-Expected-Ack-Reference>",
+  "status": "received"
+}
+```
+
+##### Field Definitions
+
+| Field        | Type     | Description                                                                                                                                         |
+| ------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ackReference | `string` | Must match the value SeerBit sent in the `X-Expected-Ack-Reference` header of that delivery. Echo it back exactly — do not generate your own. |
+| status       | `string` | Must always be "received".                                                                                                                          |
+
+SeerBit requires this acknowledgment to validate that your system has successfully accepted the event.
+
+## 6. Retry Logic
+
+If your server:
+
+- Returns non-200 status
+- Responds with an invalid acknowledgment
+- Times out (exceeds 5 seconds)
+- Is unreachable
+
+**…SeerBit will retry delivery**.
+
+#### Retry Intervals
+
+Typical retry sequence:
+
+1. 30 seconds
+2. 2 minutes
+3. 10 minutes
+4. 30 minutes
+5. 1 hour (final retry)
+
+**If all attempts fail, the webhook is marked as undelivered**.
+
+## 7. Event Types
+
+Every payload carries an `eventType`, an `eventDate` and a unique `eventId`. Switch on `eventType` to route the event:
+
+| `eventType` | Event | Fired when |
+| --- | --- | --- |
+| `transaction` | [Transaction](#7-3-transaction-event) | A payment resolves |
+| `transaction` | [Virtual account](#7-7-virtual-account-transaction-event) | Money lands in a [virtual account](/online-payments/payment-features/virtual-account) |
+| `transaction.wallet` | [Wallet](#7-4-wallet-transaction-event) | A wallet balance moves |
+| `transaction.recurrent` | [Recurrent](#7-5-recurrent-transaction-event) | A [subscription](/online-payments/payment-features/subscription) charge is attempted |
+| `transaction.recurring.debit` | [Recurring debit](#7-6-recurring-debit-transaction-event) | A recurring debit is taken |
+| `refund` | [Refund](#7-1-refund-event) | A [refund](/online-payments/after-payments/refund) is processed |
+| `dispute` | [Dispute](#7-2-dispute-event) | A dispute is raised |
+
+> **Two events share `eventType: "transaction"`.** A standard payment and a virtual account credit both use it, so `eventType` alone will not tell them apart — a virtual account event carries `creditAccountNumber` and `creditAccountName`, which a standard transaction does not. Branch on the payload shape, not the type alone.
+
+
+Below are the supported webhook events, including the exact sample payloads as used in production today.
+
+### 7.1 Refund Event
 
 The refund event notification body is structured thus:
 
@@ -91,7 +181,7 @@ The refund event notification body is structured thus:
 }
 ```
 
-## Dispute Event Sample
+### 7.2 Dispute Event
 
 The dispute event notification body is structured thus:
 
@@ -116,7 +206,7 @@ The dispute event notification body is structured thus:
 }
 ```
 
-## Transaction Event
+### 7.3 Transaction Event
 
 The transaction event notification body is structured thus
 
@@ -162,7 +252,7 @@ The transaction event notification body is structured thus
 }
 ```
 
-## Wallet Transaction Event
+### 7.4 Wallet Transaction Event
 
 The wallet transaction event notification body is structured thus
 
@@ -206,7 +296,7 @@ The wallet transaction event notification body is structured thus
 }
 ```
 
-## Recurrent Transaction Event
+### 7.5 Recurrent Transaction Event
 
 The recurrent transaction event notification body is structured thus
 
@@ -241,9 +331,9 @@ The recurrent transaction event notification body is structured thus
 }
 ```
 
-## Recurring Debit Transaction
+### 7.6 Recurring Debit Transaction Event
 
-The code snippet below shows an example response for verifying a subscription
+The recurrent debit transaction event notification body is structured thus
 
 ```json
 {
@@ -278,7 +368,7 @@ The code snippet below shows an example response for verifying a subscription
 }
 ```
 
-## Virtual Account Transaction
+### 7.7 Virtual Account Transaction Event
 
 The virtual account transaction event notification body is structured thus
 
@@ -318,3 +408,136 @@ The virtual account transaction event notification body is structured thus
 }
 ```
 
+## 8. Sample Implementations
+
+Below are full sample implementations demonstrating how to handle webhook acknowledgments.
+
+<CodeGroup>
+
+```python Python(FastAPI)
+from fastapi import FastAPI, Request, Header
+from fastapi.responses import JSONResponse
+
+app = FastAPI()
+
+@app.post("/webhook")
+async def receive_webhook(request: Request, x_expected_ack_reference: str = Header(...)):
+    body = await request.body()
+    print("Received webhook:", body.decode())
+
+    # Echo the reference SeerBit sent — it is required on every delivery
+    return JSONResponse({
+        "ackReference": x_expected_ack_reference,
+        "status": "received"
+    })
+```
+
+```javascript Node.JS(Express)
+const express = require('express');
+const app = express();
+
+app.use(express.json());
+
+app.post('/webhook', (req, res) => {
+  const body = req.body;
+  const ackRef = req.headers['x-expected-ack-reference'];
+
+  console.log('Received webhook:', JSON.stringify(body));
+
+  // Echo the reference SeerBit sent — it is required on every delivery
+  res.json({
+    ackReference: ackRef,
+    status: 'received',
+  });
+});
+```
+
+```java Java(Spring Boot)
+@RestController
+public class WebhookController {
+
+    @PostMapping("/webhook")
+    public ResponseEntity<?> receiveWebhook(
+        @RequestBody String body,
+        @RequestHeader("X-Expected-Ack-Reference") String ackRef) {
+
+        System.out.println("Received webhook: " + body);
+
+        // Echo the reference SeerBit sent — it is required on every delivery
+        Map<String, String> response = new HashMap<>();
+        response.put("ackReference", ackRef);
+        response.put("status", "received");
+
+        return ResponseEntity.ok(response);
+    }
+}
+```
+
+</CodeGroup>
+
+## 9. Security Considerations
+
+Webhook deliveries are not signed by default, so your endpoint is responsible for satisfying itself that a request is genuine. The following practices are strongly recommended:
+
+### Inbound Request Validation
+
+- Enforce HTTPS
+- Reject requests not coming from approved IP ranges (if applicable)
+- Validate Content-Type = application/json
+- Validate the structure of the payload
+
+### Idempotency
+
+Your webhook consumer must ensure duplicate events are not processed twice.
+
+##### Recommended approaches
+
+- Use eventId field as a unique identifier
+- Store processed event IDs in a database
+- Check before applying business logic
+
+### Logging
+
+Log:
+
+- Full payload
+- Ack reference
+- Processing time
+- Errors and decisions
+
+## 10. Testing Webhooks
+
+##### To test locally
+
+Use tools like:
+
+- ngrok
+- cloudflared tunnel
+- localtunnel
+
+This exposes your local server to receive webhook events.
+
+##### Replay event
+
+Your internal systems should allow replay during testing, especially for integration and QA teams.
+
+## 11. Troubleshooting
+
+##### Webhook not arriving
+
+- Check that your URL is reachable publicly
+- Check SSL certificates
+- Verify URL configuration in SeerBit dashboard
+- Confirm firewall/NAT rules
+
+##### Webhook arrives but no retries
+
+Your server may be returning `200 OK` with an incorrect acknowledgment body. The response must contain `ackReference` — echoing the exact value from the `X-Expected-Ack-Reference` header of that delivery — and `status: "received"`. A reference you generated yourself will not match, and the delivery is treated as unacknowledged.
+
+##### Event processed twice
+
+Implement idempotency based on the eventId field.
+
+##### 400 or parsing errors
+
+Ensure your endpoint expects JSON and does not require authentication unless pre-agreed.

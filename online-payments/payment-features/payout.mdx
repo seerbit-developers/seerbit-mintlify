@@ -1,37 +1,380 @@
 ---
 title: Payout
+description: Send single or bulk bank transfers from your SeerBit Pocket.
 ---
 
-With the endpoints here, you can make payments to other banks.
+The SeerBit Pocket Payout API enables merchants to initiate single or bulk bank transfers directly from their SeerBit Pocket. This page covers all the steps required to authenticate, sign, initiate, and confirm a payout — along with error handling references and a supported bank list endpoint.
 
-> Please note that to use the signature endpoint and the transfer to other banks via API, you need to be approved by the compliance team.
+<Card title="Prerequisites — Please read before integrating" type="warning">
+  <li>
+    **Request Signature Verification:** All requests must include a valid `X-Seerbit-Signature`
+    header. This signature is generated using an HMAC-SHA256 hash of the raw HTTP request body,
+    signed with your API Secret Key. Your Private Key is available under **Settings** on your
+    SeerBit Dashboard — store it securely and never expose it publicly.
+    <br />
+  </li>
+  <li>
+    {' '}
+    **OTP Authorization**: All payout requests require One-Time Password (OTP) verification before
+    processing is completed.
+  </li>
+</Card>
 
-## Account Enquiry
+##### Process Flow
+
+<CardGroup cols={2}>
+  <Card href="#step-1-%E2%80%94-authenticate" icon="tally-1" title="Authenticate">
+    Get Bearer Token
+  </Card>
+  <Card
+    href="#step-2-%E2%80%94-generate-x-seerbit-signature"
+    icon="tally-2"
+    title="Generate Signature"
+  >
+    HMAC-SHA256
+  </Card>
+  <Card href="#step-3-%E2%80%94-initiate-payout" icon="tally-3" title="Initiate Payout">
+    Single or Bulk
+  </Card>
+  <Card href="#step-4-%E2%80%94-confirm-payout" icon="tally-4" title="Confirm Payout">
+    OTP Verification
+  </Card>
+</CardGroup>
+
+## Step 1 — Authenticate
 
 <Badge color="blue">POST</Badge>
 
 ```bash
-https://pocket.seerbitapi.com/pocket/payout/account-enquiry
+https://pocket.seerbitapi.com/pocket/authenticate
 ```
 
-Use this to reconfirm bank account name for transfers
+Generates a Bearer Token required to authenticate all subsequent API calls. Submit your merchant email and password to receive a time-limited token.
 
 #### Request Sample
 
 ```bash cURL
-curl --location 'https://pocket.seerbitapi.com/pocket/payout/account-enquiry' \
+curl --location 'https://pocket.seerbitapi.com/pocket/authenticate' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Bearer YOUR_BEARER_TOKEN_HERE' \
---data-raw '
-	{
-    "accountnumber": {{account number}},
-    "bankcode": {{ bank code }}
+--data-raw '{
+  "email": "johndoe@email.com",
+  "password": "Password1"
 }'
 ```
 
-## Bank List
+#### Response Sample
 
-This API shows a list of supported Nigerian banks
+```json
+{
+  "responseCode": "00",
+  "message": "Success",
+  "data": {
+    "bearerToken": "{{bearerToken}}",
+    "expiryTime": "2025-02-26T01:38:37",
+    "requirePasswordChange": false
+  }
+}
+```
+
+## Step 2 — Generate X-Seerbit-Signature
+
+Before initiating a payout, generate an `X-Seerbit-Signature` using the **exact raw request body** and your SeerBit Private Key. Pass the resulting hash as a header on every payout request.
+
+> **Note**: The signature is unique to each request. Always regenerate it using the exact body of each new request before sending.
+
+#### Signature Formula
+
+```bash
+signature = HMAC_SHA256(raw_request_body, private_key)
+```
+
+<CodeGroup>
+
+```javascript Javascript
+const CryptoJS = require('crypto-js');
+
+const rawBody = JSON.stringify(requestPayload);
+const privateKey = 'your_private_key_here';
+
+const signature = CryptoJS.HmacSHA256(rawBody, privateKey).toString(CryptoJS.enc.Hex);
+```
+
+```javascript NodeJS
+const crypto = require('crypto');
+
+const rawBody = JSON.stringify(requestPayload);
+const privateKey = 'your_private_key_here';
+
+const signature = crypto.createHmac('sha256', privateKey).update(rawBody).digest('hex');
+```
+
+```php PHP
+$rawBody = json_encode($requestPayload);
+$privateKey = "your_private_key_here";
+
+$signature = hash_hmac("sha256", $rawBody, $privateKey);
+```
+
+```python Python
+import hmac
+import hashlib
+import json
+
+raw_body = json.dumps(request_payload, separators=(',', ':'))
+private_key = "your_private_key_here"
+
+signature = hmac.new(
+    private_key.encode("utf-8"),
+    raw_body.encode("utf-8"),
+    hashlib.sha256
+).hexdigest()
+```
+
+```java Java
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+String rawBody = objectMapper.writeValueAsString(requestPayload);
+String privateKey = "your_private_key_here";
+
+Mac mac = Mac.getInstance("HmacSHA256");
+SecretKeySpec secretKey = new SecretKeySpec(privateKey.getBytes("UTF-8"), "HmacSHA256");
+mac.init(secretKey);
+
+byte[] rawHmac = mac.doFinal(rawBody.getBytes("UTF-8"));
+
+StringBuilder signature = new StringBuilder();
+for (byte b : rawHmac) {
+    signature.append(String.format("%02x", b));
+}
+```
+
+```c# C#
+using System.Security.Cryptography;
+using System.Text;
+
+string rawBody = JsonSerializer.Serialize(requestPayload);
+string privateKey = "your_private_key_here";
+
+using var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(privateKey));
+byte[] hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(rawBody));
+
+string signature = Convert.ToHexString(hash).ToLower();
+```
+
+</CodeGroup>
+
+#### Variables Reference
+
+| Variable     | Description                                                                                                       |
+| ------------ | ----------------------------------------------------------------------------------------------------------------- |
+| `rawBody`    | The exact request payload serialized as a raw JSON string. Must match the body sent in the request byte-for-byte. |
+| `privateKey` | Your SeerBit Private Key from the dashboard under Settings.                                                       |
+| `signature`  | The generated lowercase hex string. Pass this as the value of the `X-Seerbit-Signature` header.                   |
+
+## Step 3 — Initiate Payout
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/v2/payouts
+```
+
+Initiates a payout from your SeerBit Pocket. Supports both **single** and **bulk** transfer modes. All requests must include the Bearer Token, Public Key, and `X-Seerbit-Signature` headers.
+
+##### Required Headers
+
+| Header              | Value                    |
+| ------------------- | ------------------------ |
+| Authorization       | Bearer `{{bearerToken}}` |
+| Public-Key          | `{{publicKey}}`          |
+| X-Seerbit-Signature | `{{signature}}`          |
+
+### Single Payout
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts' \
+--header 'Content-Type: application/json' \
+--header 'Public-Key: {{publicKey}}' \
+--header 'X-Seerbit-Signature: {{signature}}' \
+--header 'Authorization: Bearer {{bearerToken}}' \
+--data '{
+  "pocketId": "SBP0000123",
+  "reference": "uniqueTransferReference",
+  "currency": "NGN",
+  "amount": 50.00,
+  "description": "Payout Sample",
+  "accountNumber": "0123456789",
+  "bankCode": "000014",
+  "accountName": "John Doe"
+}'
+```
+
+#### Response Sample
+
+```json
+{
+  "payoutId": "PV2-y3j1m0kohbueTy",
+  "status": "PENDING_OTP",
+  "message": "OTP sent to registered email. Please confirm to proceed."
+}
+```
+
+##### Request Fields
+
+| Field           | Description                                                         |
+| --------------- | ------------------------------------------------------------------- |
+| `pocketId`      | Identifier of the merchant pocket initiating the payout             |
+| `reference`     | Unique transaction reference for idempotency                        |
+| `currency`      | Currency code (e.g., NGN)                                           |
+| `amount`        | Payout amount                                                       |
+| `description`   | Narration for the transaction                                       |
+| `accountNumber` | Beneficiary bank account number                                     |
+| `bankCode`      | Bank identifier code                                                |
+| `accountName`   | Name of the account holder (_must be accurate — will be validated_) |
+
+### Bulk Payout
+
+Bulk payouts allow multiple transfer instructions to be processed in a single request. Each transfer is validated and executed under a single `batchReference`.
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts' \
+--header 'Content-Type: application/json' \
+--header 'Public-Key: {{publicKey}}' \
+--header 'X-Seerbit-Signature: {{signature}}' \
+--header 'Authorization: Bearer {{bearerToken}}' \
+--data '{
+  "pocketId": "SBP0018786",
+  "batchReference": "bulkreferencesalaryjuly202y",
+  "transfers": [
+    {
+      "reference": "111111111",
+      "currency": "NGN",
+      "amount": 50.00,
+      "description": "Payment to vendor A",
+      "accountNumber": "0123456789",
+      "bankCode": "000014",
+      "accountName": "John Doe"
+    },
+    {
+      "reference": "22222222",
+      "currency": "NGN",
+      "amount": 50.00,
+      "description": "Payment to vendor B",
+      "accountNumber": "0123456798",
+      "bankCode": "000014",
+      "accountName": "Thomas Doe"
+    },
+    {
+      "reference": "22222223",
+      "currency": "NGN",
+      "amount": 50.00,
+      "description": "Payment to vendor C",
+      "accountNumber": "0123456987",
+      "bankCode": "100004",
+      "accountName": "Linda Doe"
+    }
+  ]
+}'
+```
+
+#### Response Sample
+
+```json
+{
+  "payoutId": "PV2-y3j1m0kohbue",
+  "status": "PENDING_OTP",
+  "message": "OTP sent to registered email. Please confirm to proceed."
+}
+```
+
+##### Request Fields
+
+| Field            | Description                                                        |
+| ---------------- | ------------------------------------------------------------------ |
+| `pocketId`       | Identifier of the merchant pocket initiating the payout            |
+| `batchReference` | Unique identifier for the entire bulk batch (used for idempotency) |
+| `transfers`      | Array of individual payout instructions                            |
+
+##### Each transfers object contains:
+
+| Field           | Description                                                         |
+| --------------- | ------------------------------------------------------------------- |
+| `reference`     | Unique transaction reference per transfer                           |
+| `currency`      | Currency code (e.g., NGN)                                           |
+| `amount`        | Transfer amount                                                     |
+| `description`   | Transaction narration                                               |
+| `accountNumber` | Beneficiary bank account number                                     |
+| `bankCode`      | Bank identifier code                                                |
+| `accountName`   | Name of the account holder (_must be accurate — will be validated_) |
+
+## Step 4 — Confirm Payout
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/v2/payouts/{{payoutId}}/confirm
+```
+
+After a payout is initiated, an OTP is sent to the email address linked to the pocketId. Submit the OTP and payoutId to authorize and finalize the payout.
+
+##### Required Headers
+
+| Header              | Value                    |
+| ------------------- | ------------------------ |
+| Authorization       | Bearer `{{bearerToken}}` |
+| Public-Key          | `{{publicKey}}`          |
+| X-Seerbit-Signature | `{{signature}}`          |
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts/{{payoutId}}/confirm' \
+--header 'Content-Type: application/json' \
+--header 'Public-Key: {{publicKey}}' \
+--header 'X-Seerbit-Signature: {{signature}}' \
+--header 'Authorization: Bearer {{bearerToken}}' \
+--data '{
+  "otp": "740714"
+}'
+```
+
+#### Response Sample
+
+<CodeGroup>
+
+```json Single Payout
+{
+  "payoutId": "PV2-y3j1m0kohbue",
+  "status": "PROCESSING",
+  "message": "Payout confirmed and dispatched for processing",
+  "batchId": null
+}
+```
+
+```json Bulk Payout
+{
+  "payoutId": "PV2-y3j1m0kohbue",
+  "status": "PROCESSING",
+  "message": "Payout confirmed and dispatched for processing",
+  "batchId": "iytgfr7"
+}
+```
+
+</CodeGroup>
+
+##### Request Fields
+
+| Field      | Description                                                           |
+| ---------- | --------------------------------------------------------------------- |
+| `payoutId` | The unique identifier returned from the payout initiation response    |
+| `otp`      | One-Time Password sent to the registered email linked to the pocketId |
+
+## Bank List
 
 <Badge color="green">GET</Badge>
 
@@ -39,145 +382,68 @@ This API shows a list of supported Nigerian banks
 https://pocket.seerbitapi.com/pocket/banks/category/NIP
 ```
 
+Returns a list of supported Nigerian banks and their corresponding bank codes. Use this to look up the correct bankCode before initiating a payout.
+
 #### Request Sample
 
 ```bash cURL
-curl --location 'https://pocket.seerbitapi.com/pocket/banks' \
+curl --location 'https://pocket.seerbitapi.com/pocket/banks/category/NIP' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer YOUR_BEARER_TOKEN_HERE' \
---header 'Public-Key: your_public_key_here' \
+--header 'Public-Key: your_public_key_here'
 ```
 
-## Generate OTP
+## Error Scenarios
 
-An OTP is required to authorize a payout transaction. Use the `Get OTP` endpoint.
+The following error responses may occur during payout initiation or confirmation flows.
 
-> Note: The OTP provided in the `otp` field should be passed as the `passKey` in the generate
-> signature and payout request.
+##### 1. Missing Signature Header
 
-<Badge color="blue">POST</Badge>
-
-```bash
-https://pocket.seerbitapi.com/pocket/getOtp
-```
-
-#### Request Sample
-
-```bash cUL
-curl --location 'https://pocket.seerbitapi.com/pocket/getOtp' \
---header 'Public-Key: your_public_key_here' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer your_bearer_token_here' \
---data-raw '
-	{
-  	"actionItem": "APPROVE_DISBURSEMENT",
-  	"pocketId": "your_pocket_id_here"
-}'
-```
-
-#### Response Sample
-
-This a sample response code
+Occurs when the `X-Seerbit-Signature` header is absent from the request.
 
 ```json
 {
-  "responseCode": "00",
-  "message": "Success",
-  "data": {
-    "otp": "028087",
-    "category": "APPROVE_DISBURSEMENT",
-    "expires": "2025-02-25T19:20:12.649104071"
-  }
+  "payoutId": null,
+  "status": "FAILED",
+  "message": "Incorrect Signature, cannot process payout"
 }
 ```
 
-## Generate Signature
+##### 2. Invalid Signature
 
-Instead of manually creating a signature, use the `Get Signature` endpoint.
-
-<Badge color="blue">POST</Badge>
-
-```bash
-https://pocket.seerbitapi.com/pocket/payout/get-signature
-```
-
-#### Request Sample
-
-```bash cURL
-curl --location 'https://pocket.seerbitapi.com/pocket/payout/get-signature' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer {{bearerToken}}' \
---data '
-{
-	"reference": "JIN-12345678901101",
-	"amount": "10",
-	"currency": "NGN",
-	"description": "test",
-	"accountNumber": "{{accountNumber}}",
-	"bankCode": "000013",
-	"actionType": "APPROVE_DISBURSEMENT",
-	"passKey": "028087"
-}'
-```
-
-#### Response Sample
-
-This a sample response code
+Occurs when the provided signature fails HMAC validation.
 
 ```json
 {
-	"responseCode" : "00",
-	"message" : "Success",
-	"data" : "
-    	{
-        {signature}
-      }"
+  "payoutId": null,
+  "status": "FAILED",
+  "message": "Incorrect Signature, cannot process payout"
 }
 ```
 
-> **Note**: The value in the `data` field is the generated signature. This signature changes for every transaction.
+##### 3. Missing Public Key Header
 
-## Inititate Payout
-
-Use the `Initiate Payout` endpoint, passing the generated signature in the request body.
-
-<Badge color="blue">POST</Badge>
-
-```bash
-https://pocket.seerbitapi.com/pocket/payout/encrypted/pocket-id/{{pocketID}}
-```
-
-#### Request Sample
-
-```bash cURL
-curl --location 'https://pocket.seerbitapi.com/pocket/payout/encrypted/pocket-id/{{pocketID}}' \
---header 'Content-Type: application/json' \
---header 'Public-Key: {{publicKey}}' \
---header 'Authorization: Bearer {{bearerToken}}' \
---data '
-	{
-		"reference": "JIN-12345678901101",
-		"amount": "10",
-		"currency": "NGN","description": "test",
-		"accountNumber": "{{accountNumber}}",
-		"bankCode": "000013",
-		"passKey": "028087",
-		"actionType": "APPROVE_DISBURSEMENT",
-		"signature": "{{signature}}"
-	}'
-```
-
-#### Response Sample
-
-This a sample response code
+Occurs when the `Public-Key` header is not included in the request.
 
 ```json
 {
-  "responseCode": "00",
-  "message": "Successful",
-  "data": {
-    "reference": "JIN-12345678901101",
-    "linkingreference": "F00230472990"
-  }
+  "responseCode": "SM_06",
+  "message": "Public key is required",
+  "debugMessage": "Public key is required",
+  "error": "PROCESSING",
+  "timestamp": "2026-05-30T00:34:38"
+}
+```
+
+##### 4. Expired or Invalid OTP
+
+Occurs when the OTP submitted for confirmation is expired or incorrect.
+
+```json
+{
+  "payoutId": "PV2-y3j1m0kohbue",
+  "status": "failed",
+  "message": "Invalid token",
+  "batchId": null
 }
 ```

@@ -1,5 +1,6 @@
 ---
 title: Recurring Payments (Subscriptions)
+description: Set up plans and charge customers on a recurring schedule.
 ---
 
 Recurring payments or subscriptions are scheduled payments to pay for products or services that occurs frequently. For example, a cardholder paying for an on-demand internet service provider's monthly subscription fee without having to manually pay every month.
@@ -8,131 +9,54 @@ After first successful payment from the customers card, the card is stored as a 
 
 > Note that recurrent transaction works only for cards
 
-# Create Subscription
+**Ideal for**: Charging a customer on a schedule — monthly software, membership dues, instalment plans. The customer authorises once, and SeerBit charges the stored card thereafter.
 
-You can create a plan by calling the 'Create Plan' endpoint or you can do this directly from the SeerBit Merchant Dashboard
+> **Note**: Recurring transactions work with cards only. After the first successful payment the card is stored as a token, and subsequent charges use that token.
 
-## Authenticating your API calls
+## Subscriptions or card tokenisation?
 
-### Key Encryption
+Both charge a card the customer has already authorised, but they differ in **who decides when the charge happens**.
 
-This service allows you to generate a bearer token that will be used in authenticating your API calls to SeerBit. It expects a string of your 'email' & 'password' in a JSON request. SeerBit in turn returns the token in the encryptedKey field.
+| | Subscriptions | [Card tokenisation](/online-payments/payment-features/card-tokenisation) |
+| --- | --- | --- |
+| **What triggers a charge** | A schedule you define in a plan | You do, by calling the charge endpoint |
+| **Timing** | Fixed cycle — daily, weekly, monthly, annually | Whenever you decide |
+| **The amount** | Set by the plan | Different every time, if you want |
+| **You manage** | Plans and subscribers | Tokens |
+| **Best for** | Software subscriptions, memberships, instalments | Usage-based billing, one-click repeat purchases, top-ups |
 
-See sample request and response below.
+Use a subscription when the billing is regular and predictable. Use tokenisation when you need to charge a saved card at unpredictable times or for varying amounts.
 
-<Badge color="blue">POST</Badge>
+## How it works
+
+<Steps>
+  <Step title="Create a plan">
+    Define the amount, currency and billing cycle once. A plan is the template every subscriber is billed against.
+  </Step>
+  <Step title="Subscribe a customer">
+    The customer makes a first payment against the plan. That payment authorises the card and returns an `authorizationCode`.
+  </Step>
+  <Step title="SeerBit charges on schedule">
+    Subsequent charges happen automatically on the plan's cycle, using the stored token.
+  </Step>
+  <Step title="Manage the subscription">
+    Look subscriptions up by customer, update them, or charge the stored card yourself with the `authorizationCode`.
+  </Step>
+</Steps>
+
+You can also create plans without code on the SeerBit merchant dashboard.
+
+## Authentication
+
+Subscription calls are authenticated with a **bearer token**, generated from your public and secret keys — the same as every other collection API.
 
 ```bash
-https://merchant.seerbitapi.com/authservice/api/v1/auth/login
+POST https://seerbitapi.com/api/v2/encrypt/keys
 ```
 
-#### Request Sample
-
-The code snippet below shows an example request for generating a bearer token
-
-<CodeGroup>
-
-```bash cURL
-curl --location 'https://merchant.seerbitapi.com/authservice/api/v1/auth/login' \
---header 'sb-partner-id: 1' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "email": "testaccount@email.com",
-    "password": "password!"
-}'
-```
-
-```javascript NODE
-var request = require('request');
-var options = {
-  method: 'POST',
-  url: 'https://merchant.seerbitapi.com/authservice/api/v1/auth/login',
-  headers: {
-    'sb-partner-id': '1',
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    email: 'opeyemi.daniyan@seerbit.com',
-    password: 'Untamed1010@',
-  }),
-};
-request(options, function (error, response) {
-  if (error) throw new Error(error);
-  console.log(response.body);
-});
-```
-
-```php PHP
-<?php
-require_once 'HTTP/Request2.php';
-$request = new HTTP_Request2();
-$request->setUrl('https://merchant.seerbitapi.com/authservice/api/v1/auth/login');
-$request->setMethod(HTTP_Request2::METHOD_POST);
-$request->setConfig(array(
-  'follow_redirects' => TRUE
-));
-$request->setHeader(array(
-  'sb-partner-id' => '1',
-  'Content-Type' => 'application/json'
-));
-$request->setBody('{\n    "email": "opeyemi.daniyan@seerbit.com",\n    "password": "Untamed1010@"\n}');
-try {
-  $response = $request->send();
-  if ($response->getStatus() == 200) {
-    echo $response->getBody();
-  }
-  else {
-    echo 'Unexpected HTTP status: ' . $response->getStatus() . ' ' .
-    $response->getReasonPhrase();
-  }
-}
-catch(HTTP_Request2_Exception $e) {
-  echo 'Error: ' . $e->getMessage();
-}
-```
-
-</CodeGroup>
-
-#### Response Sample
-
-The code snippet below shows an example request for generating a bearer token
-
-<CodeGroup>
-
-```json 200:OK
-{
-  "status": "SUCCESS",
-  "data": {
-    "code": "00",
-    "EncryptedSecKey": {
-      "encryptedKey": "WquhSwMepYp6k+AIAlU1Jp18QwRWMm2SK0WVIOACIArw6ao3Ql4qKOMGwFVMvI9nOiM1xarW6qAIxE+GTOyINRVQnnFuy2EJk+DwmCgiFUuRVkOIdMBgwpJTCSzcFFfD"
-    },
-    "message": "Successful"
-  }
-}
-```
-
-```json 400:Bad Request
-{
-  "message": "Bad Request",
-  "error": "There has been a problem with reading or understanding the request."
-}
-```
-
-```json 404:Not Found
-{
-  "error": "Not Found"
-}
-```
-
-```json 500:Internal Server Error
-{
-  "message": "Internal Server Error",
-  "error": "PROCESSING"
-}
-```
-
-</CodeGroup>
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
 
 ## Create Plan
 
@@ -155,12 +79,12 @@ The code snippet below shows an example request for creating a subscription
 ```bash cURL
 curl --location 'https://merchants.seerbitapi.com/api/v1/recurrent/plan/create' \
 --header 'Content-Type: application/json' \
---header 'Authorization: Bearer Token' \
+--header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
 --data '{
     "productId": "<Plan name>",
     "productDescription": "<Description of Plan>",
     "amount": "100",
-    "billingCycle": "HOURLY",
+    "billingCycle": "MONTHLY",
     "limit": 5,
     "publicKey": "<public key>",
     "country": "NG",
@@ -182,7 +106,7 @@ var options = {
     productId: '<Plan Name>',
     productDescription: '<Description of Plan>',
     amount: '100',
-    billingCycle: 'HOURLY',
+    billingCycle: 'MONTHLY',
     limit: 5,
     publicKey: '<Public key>',
     country: 'NG',
@@ -212,7 +136,7 @@ curl_setopt_array($curl, array(
     "productId": "<Plan Name>",
     "productDescription": "<Description of Plan>",
     "amount": "100",
-    "billingCycle": "HOURLY",
+    "billingCycle": "MONTHLY",
     "limit": 5,
     "publicKey": "<Public Key>",
     "country": "NG",
@@ -231,7 +155,7 @@ echo $response;
 
 </CodeGroup>
 
-#### Response Sample
+##### Response Sample
 
 The code snippet below shows an example response for creating a subscription
 
@@ -244,7 +168,7 @@ The code snippet below shows an example response for creating a subscription
     "createdAt": 1715607343498,
     "amount": 100,
     "productId": "<Plan name>",
-    "billingCycle": "HOURLY",
+    "billingCycle": "MONTHLY",
     "currency": "NGN",
     "payUrl": "https://pay.seerbitapi.com/db1ea861993689a57dac",
     "details": {
@@ -257,7 +181,7 @@ The code snippet below shows an example response for creating a subscription
       "createdAt": 1715607343498,
       "trialDuration": 0,
       "trialPeriod": false,
-      "billingCycle": "HOURLY",
+      "billingCycle": "MONTHLY",
       "limit": 5,
       "planId": "db1ea861993689a57dac",
       "currency": "NGN",
@@ -291,6 +215,21 @@ The code snippet below shows an example response for creating a subscription
 ```
 
 </CodeGroup>
+
+#### Parameter description
+
+| Name | Type | Description |
+| --- | --- | --- |
+| publicKey | `string` | Your SeerBit public key, from **Settings > API Keys**. |
+| productId | `string` | The plan name, as the customer will see it. |
+| productDescription | `string` | Longer description of what the plan covers. |
+| amount | `string` | Amount charged each cycle. |
+| currency | `string` | Currency of the plan, e.g. `NGN`. See [currency codes](/development-resources/currency-codes/overview). |
+| country | `string` | Country the plan bills from. |
+| billingCycle | `string` | How often the customer is charged: `DAILY`, `WEEKLY`, `MONTHLY` or `ANNUALLY`. |
+| limit | `number` | How many times to charge before the subscription ends. |
+| allowPartialDebit | `boolean` | If `true`, a charge may take less than `amount` when the card has insufficient funds. |
+
 
 ## Get Merchant Subscription
 
@@ -355,7 +294,7 @@ echo $response;
 
 </CodeGroup>
 
-### Response Sample
+#### Response Sample
 
 The code snippet below shows an example response to get merchant subscription
 
@@ -399,7 +338,7 @@ The code snippet below shows an example response to get merchant subscription
 }
 ```
 
-# Charge Subscription
+## Charge Subscription
 
 For the full specification, see our [API Reference](/api-reference)
 
@@ -494,7 +433,7 @@ echo $response;
 
 </CodeGroup>
 
-#### Response Sample
+##### Response Sample
 
 The code snippet below shows an example response for charging a subscription
 
@@ -537,7 +476,20 @@ The code snippet below shows an example response for charging a subscription
 
 </CodeGroup>
 
-# Get Customer Subscription
+#### Parameter description
+
+| Name | Type | Description |
+| --- | --- | --- |
+| publicKey | `string` | Your SeerBit public key. |
+| authorizationCode | `string` | Returned once a subscription's first payment succeeds. It stands in for the stored card. |
+| amount | `string` | Amount to charge on this call. |
+| currency | `string` | Currency of the charge. |
+| email | `string` | Email of the customer being charged. |
+| paymentReference | `string` | Unique reference you generate for this charge. See [payment references](/online-payments/integrations/standard-checkout#payment-references-and-retries). |
+| allowPartialDebit | `string` | `"true"` permits a partial debit when funds are short. |
+
+
+## Get Customer Subscription
 
 For the full specification, see our [API Reference](/api-reference)
 
@@ -598,7 +550,7 @@ echo $response;
 
 </CodeGroup>
 
-#### Response Sample
+##### Response Sample
 
 The code snippet below shows an example response to get customer subscription by customerId
 
@@ -640,7 +592,7 @@ The code snippet below shows an example response to get customer subscription by
  }
 ```
 
-# Update Customer Subscription
+## Update Customer Subscription
 
 For the full specification, see our [API Reference](/api-reference)
 
@@ -736,7 +688,7 @@ echo $response;
 
 </CodeGroup>
 
-#### Response Sample
+##### Response Sample
 
 The code snippet below shows an example response for updating a subscription
 
@@ -762,3 +714,10 @@ The code snippet below shows an example response for updating a subscription
   }
 ```
 
+## Notes
+
+- **Store the `authorizationCode`.** It is what lets you charge the saved card again — without it you must ask the customer to authorise afresh.
+- **`limit` ends the subscription.** Set it to the number of cycles you intend to bill; leaving it open means charging until the subscription is cancelled.
+- **Cards only.** Bank transfer, USSD and mobile money cannot be used for recurring charges, so offer a card at sign-up even if your checkout supports other methods.
+- **A failed cycle is not a cancelled subscription.** Watch for the recurring-debit [webhook events](/online-payments/after-payments/webhook-events) and handle a decline in your own dunning logic.
+- Confirm every charge server-side before granting access — see [Verify a payment](/online-payments/after-payments/verify-payment).

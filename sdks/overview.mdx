@@ -1,0 +1,64 @@
+---
+title: SDKs
+description: Official SeerBit libraries for server, web and mobile platforms.
+---
+
+**Ideal for**: Building the integration yourself, in your own language, without writing HTTP calls or handling card data directly.
+
+SeerBit's SDKs wrap the same APIs documented elsewhere in these docs. They carry the same security properties as [Simple Checkout](/online-payments/integrations/simple-checkout) and [Standard Checkout](/online-payments/integrations/standard-checkout) — sensitive data goes to SeerBit, never through your own storage.
+
+## SDK or a direct integration?
+
+| | SDK | [Direct integration](/online-payments/integrations/accept-payment) |
+| --- | --- | --- |
+| **What you write** | Calls in your own language | HTTP requests and response handling |
+| **Authentication** | Handled by the library | You [generate the bearer token](/authentication#bearer-token) yourself |
+| **Coverage** | What the library exposes | Every endpoint in these docs |
+| **Best for** | Getting to a working payment quickly on a supported platform | Full control, or a platform with no SDK |
+
+An SDK is a convenience layer, not a different product — a payment taken through one appears in your dashboard exactly like any other.
+
+## Server libraries
+
+Use these on your backend, where your secret key lives. They wrap token generation, payment initialisation and verification.
+
+<CardGroup cols={3}>
+  <Card img="/assets/nodejs-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-nodejs" title="Node.JS" />
+  <Card img="/assets/java-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-java-api-library/tree/v2" title="Java" />
+  <Card img="/assets/dotnet-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-dotnet" title="DotNet" />
+  <Card img="/assets/php-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-php-sdk" title="PHP" />
+  <Card img="/assets/python-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-python-api-library" title="Python" />
+  <Card img="/assets/laravel-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-laravel" title="Laravel" />
+</CardGroup>
+
+> **Keep your secret key on the server.** These libraries are for backend use — see [authentication](/authentication).
+
+## Web frameworks
+
+Drop-in components that open the SeerBit checkout from your front end. Card details are entered inside SeerBit's own form, so they never touch your code.
+
+<CardGroup cols={3}>
+  <Card img="/assets/reactjs-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-reactjs" title="React" />
+  <Card img="/assets/vuejs-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-vue2" title="Vue" />
+  <Card img="/assets/angular-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-angular" title="Angular" />
+  <Card img="/assets/sveltetechnology-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-svelte" title="Svelte" />
+</CardGroup>
+
+## Mobile
+
+Each mobile platform offers two builds. **The web view builds are recommended** — they render SeerBit's hosted checkout inside your app, so they pick up new payment methods automatically and keep card entry out of your codebase. The native builds give you more control over the interface, at the cost of maintaining it.
+
+<CardGroup cols={3}>
+  <Card img="/assets/reactjs-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-react-native" title="React Native — Web View" />
+  <Card img="/assets/flutterio-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-flutter" title="Flutter — Web View" />
+  <Card img="/assets/android-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-android" title="Android — Web View" />
+  <Card img="/assets/flutterio-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-flutter-native" title="Flutter Native" />
+  <Card img="/assets/android-ar21~bgwhite.svg" href="https://github.com/seerbit/seerbit-android-native" title="Android Native" />
+</CardGroup>
+
+## Notes
+
+- **All SDKs carry the same security properties** as the other integration methods, and none of them require PCI DSS certification — card details are entered in SeerBit's own form.
+- **Your public key belongs in client code; your secret key does not.** Web and mobile SDKs need only the public key.
+- **SDKs use the same keys and modes as everything else.** Test keys give you test transactions — see [test and live modes](/test-and-live).
+- **No SDK for your platform?** Every one of these wraps the same REST API, so you can integrate directly — start with [Accept Payments](/online-payments/integrations/accept-payment).

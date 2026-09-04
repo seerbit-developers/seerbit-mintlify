@@ -1,21 +1,35 @@
 ---
 title: E-commerce Integrations
+description: Accept payments on WooCommerce, Wix and other platforms without writing code.
 ---
 
 import { Button } from '/snippets/button.mdx';
 
-<h3 noAnchor>Launch faster with zero code</h3>
+**Ideal for**: Taking payments on a store you did not build the checkout for — WooCommerce, Magento, Wix, Zoho Books or Ecwid. You install a plugin and paste in your keys; there is no code to write.
 
-SeerBit’s official plugins enable secure, PCI-compliant payments across leading e-commerce
-platforms and business software. Get started in minutes, not days, with seamless integration and
-reliable performance.
+SeerBit's official plugins are secure and PCI-compliant, and support the same [payment methods](/payment-methods/overview) as every other integration.
 
-> **All plugins listed here have the same level of security as our other integration methods.**
+## Plugin or your own integration?
 
-## Before You Start
+| | E-commerce plugin | [Simple](/online-payments/integrations/simple-checkout) or [Standard Checkout](/online-payments/integrations/standard-checkout) |
+| --- | --- | --- |
+| **What you write** | Nothing — configuration only | Code, on your page or your server |
+| **Where it runs** | Inside your store platform | Your own site and server |
+| **Control of the flow** | Whatever the plugin exposes | Complete |
+| **Orders and inventory** | The platform already handles them | You handle them |
+| **Time to first payment** | Minutes | Hours to days |
+| **Best for** | A store on a supported platform | A custom storefront, an unsupported platform, or a flow the plugin cannot express |
 
-- **Retrieve API Keys**: Log in to your [SeerBit Dashboard](https://dashboard.seerbit.com/#/auth/login) and navigate to **Settings > API Keys** to copy your **API Keys**.
-- **Start in Test Mode**: Configure the plugin using **Test Keys** first. Complete at least one successful test transaction before switching to Live mode.
+**If your store runs on one of the platforms below, use the plugin.** Build a direct integration only when you have your own storefront, or need something the plugin does not offer — a bespoke checkout, a split rule per order, or a payment step inside a non-commerce flow.
+
+## How it works
+
+The plugin adds SeerBit as a payment option at your store's existing checkout. When a customer pays, the plugin calls SeerBit, takes them through the payment, and reports the result back to the platform so the order is marked paid. Transactions appear in your SeerBit dashboard alongside every other payment.
+
+## Before you start
+
+- **Retrieve your API keys**: log in to your [SeerBit dashboard](https://dashboard.seerbit.com/#/auth/login) and go to **Settings > API Keys**.
+- **Start in test mode**: configure the plugin with your **test keys** and complete at least one successful [test transaction](/test-and-live) before switching to live.
 
 ## Usage
 
@@ -37,7 +51,6 @@ Use any of our recommended solutions for your platform.
     </ol>
     <p><strong>Resource:</strong> <a href="https://wordpress.org/plugins/infobvandevliet-nl/">WooCommerce testing guide</a></p>
     <div className="commerce-card-content">
-      <a href="https://support.seerbit.com/how-to-setup-seerbit-on-woocommerce" style={{ fontSize: "12px" }}>Installation Guide →</a>
       <Button href="https://wordpress.org/plugins/infobvandevliet-nl/" size="sm" newTab>Install</Button>
     </div>
   </Card>
@@ -89,9 +102,6 @@ Use any of our recommended solutions for your platform.
     </a>
   </p>
   <div className="commerce-card-content">
-    <a href="https://support.seerbit.com/how-to-set-up-seerbit-on-wix" style={{ fontSize: '12px' }}>
-      Installation Guide →
-    </a>
     <Button
       href="https://support.wix.com/en/article/connecting-seerbit-as-a-payment-provider"
       size="sm"
@@ -158,11 +168,16 @@ Use any of our recommended solutions for your platform.
   </Card>
 </CardGroup>
 
-## Next Steps After Installation
+## After installation
 
-- **Test all payment methods** using [SeerBit test cards](/testing/overview).
-- **Verify transactions** using your [payment verification process](/online-payments/after-payments/verify-payment).
+- **Test every payment method you plan to offer**, using the [test cards](/test-and-live) — not just cards.
+- **Check the order is marked paid** in your platform, not only that the payment succeeded in SeerBit. A payment that does not update the order is the most common plugin problem.
+- **Confirm the result server-side** where your platform allows it — see [Verify a payment](/online-payments/after-payments/verify-payment).
+- **Switch to live keys** and run one small real transaction before you open the store. See [Go live](/go-live).
 
 ## Notes
 
-> Ensure you have your public key. You can find this on the SeerBit Merchant dashboard under accounts > api keys. If you don’t have an account with us yet, you can [create a test account now](https://dashboard.seerbit.com/#/auth/register)
+- **Plugins are configured, not coded.** If you need behaviour the plugin does not expose — custom split rules, a bespoke payment step — build a [direct integration](/online-payments/integrations/accept-payment) instead.
+- **Test and live keys are separate.** A plugin configured with test keys takes no real money; swapping the keys is what makes the store live.
+- **Plugin updates come from the platform**, not from SeerBit. Keep the plugin current through your platform's own update mechanism.
+- Questions about a specific plugin? Reach [SeerBit Support](https://seerbitteam.freshdesk.com/support/home).

@@ -1,8 +1,49 @@
 ---
 title: Payment Link
+description: Create shareable payment links your customers can pay from anywhere.
 ---
 
-SeerBit payment link is a payment feature that allows merchant create a payment link and share to the customer, to make instant online payments.
+**Ideal for**: Collecting payments without a website or a checkout integration — donations, invoices, social selling, event tickets. You create a link once and share it; anyone who opens it can pay.
+
+## Payment Link or Standard Checkout?
+
+Both send the customer to a SeerBit-hosted page to pay, so the difference is not the payment experience — it is **when the link is created and how many times it can be used**.
+
+| | [Standard Checkout](/online-payments/integrations/standard-checkout) | Payment Link |
+| --- | --- | --- |
+| **When it is created** | Per transaction, by your server, at the moment the customer is ready to pay | Once, ahead of time — then reused |
+| **How many payments** | One. The link is specific to that transaction | Many. Anyone with the link can pay it |
+| **Who can pay it** | The customer you created it for | Anyone you share it with |
+| **The amount** | Fixed by your server in the request | Fixed, or left for the customer to enter |
+| **Customer details** | You supply `email` and `fullName` when creating it | Collected on the payment page via `requiredFields` |
+| **You need at payment time** | A server making an API call | Nothing — the link already exists |
+| **After payment** | Customer returns to your `callbackUrl` | Customer sees your `successMessage`; no return trip needed |
+| **Reconciliation** | One `paymentReference` you generated | Many transactions under one link |
+| **Best for** | A cart or checkout your application drives | Invoices, donations, social selling, event tickets |
+
+In short: **Standard Checkout creates a link for one customer, one purchase, at the moment of purchase. A payment link is created once and works for everyone until you turn it off.**
+
+If your application already knows the amount and the customer at the point of payment, use [Standard Checkout](/online-payments/integrations/standard-checkout). If you are sending a request to pay — or selling somewhere you have no checkout at all — use a payment link.
+
+> **Need line items, a due date and a document?** That is an [invoice](/online-payments/payment-features/invoicing), not a payment link — SeerBit emails it to a named customer and gives it an invoice number you can look up. See the [comparison](/online-payments/payment-features/invoicing#invoice-or-payment-link).
+
+## How it works
+
+You create a link through the API (or your dashboard) with a name, a currency and the fields you want to collect. SeerBit returns a `paymentLinkUrl` you can share anywhere. When a customer opens it they see a SeerBit-hosted payment page, pay with any method enabled on your account, and the transaction appears in your dashboard like any other.
+
+Links can be one-time or reusable, can expire on a date, and can let the customer enter the amount themselves — useful for donations.
+
+## Authentication
+
+Payment Link calls are authenticated with a **bearer token**, generated from your public and secret keys.
+
+```bash
+POST https://seerbitapi.com/api/v2/encrypt/keys
+```
+
+<Card title="Authentication" icon="key" href="/authentication#bearer-token">
+  How to generate the token, and which credential every other SeerBit API expects.
+</Card>
 
 ## Create Payment Link
 
@@ -72,7 +113,7 @@ var options = {
     requiredFields: {
       address: true,
       amount: true,
-      customerName: false,
+      customerName: true,
       mobileNumber: true,
       invoiceNumber: false,
     },
@@ -156,7 +197,7 @@ The code snippet below shows an example response for creating a payment link
             "successMessage": "Payment made successfully!",
             "paymentLinkId": "000000000",
             "currency": "NGN",
-            "paymentReference": ""  // optional,
+            "paymentReference": "",
             "paymentFrequency": "RECURRENT",
             "paymentLinkUrl": "https://pay.seerbitapi.com/paymentLinkId",
             "customizationName": "utbesti22",
@@ -180,12 +221,58 @@ The code snippet below shows an example response for creating a payment link
 }
 ```
 
+#### Parameter description
+
+| Name | Type | Description | Required |
+| --- | --- | --- | --- |
+| publicKey | `string` | Your SeerBit public key, from **Settings > API Keys**. | Yes |
+| paymentLinkName | `string` | The name shown to the customer on the payment page. | Yes |
+| currency | `string` | Currency the link collects in, e.g. `NGN`. See [currency codes](/development-resources/currency-codes/overview). | Yes |
+| description | `string` | Longer text describing what the payment is for. | No |
+| successMessage | `string` | Message shown to the customer after a successful payment. | No |
+| paymentFrequency | `string` | `ONE_TIME` or `RECURRENT`. | No |
+| paymentReference | `string` | Your own reference. Leave empty to have SeerBit generate one per payment — a reusable link needs a unique reference per transaction. | No |
+| email | `string` | Merchant email associated with the link. | No |
+| customizationName | `string` | Name of a checkout customisation configured on your dashboard. | No |
+| requiredFields | `object` | Which details the customer must supply. See below. | No |
+| additionalData | `string` | Free-form metadata carried with the link. | No |
+| linkExpirable | `boolean` | Whether the link stops working on `expiryDate`. | No |
+| expiryDate | `string` | Date the link expires, when `linkExpirable` is `true`. | No |
+| oneTime | `boolean` | `true` closes the link after a single successful payment. | No |
+| status | `string` | `ACTIVE` or `INACTIVE`. An inactive link cannot be paid. | No |
+
+##### `requiredFields` object
+
+Set a field to `true` to make the customer enter it before paying.
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `amount` | `boolean` | Let the customer enter the amount. Use for donations or open-value links. |
+| `customerName` | `boolean` | Collect the payer's name. |
+| `mobileNumber` | `boolean` | Collect a phone number. |
+| `address` | `boolean` | Collect a billing address. |
+| `invoiceNumber` | `boolean` | Collect an invoice reference from the payer. |
+
+#### Response fields
+
+| Name | Type | Description |
+| --- | --- | --- |
+| paymentLinkId | `string` | Identifier for the link. Use it to update or delete the link. |
+| paymentLinkUrl | `string` | The shareable URL. This is what you send to customers. |
+| environment | `string` | `TEST` or `LIVE`, reflecting the keys used to create the link. |
+| expiryDuration | `number` | How long the link remains valid, when expiry is enabled. |
+| splitPayment | `boolean` | Whether the link settles across sub-accounts. |
+| createdAt / updatedAt | `string` | Timestamps for the link record. |
+
+> **Note**: Required-flag values above are derived from the request samples on this page. Confirm against the [API Reference](/api-reference) before relying on a field being optional.
+
+
 ## Get Merchant Payment Link
 
 <Badge color="green">GET</Badge>
 
 ```bash
-https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publickKey}
+https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publicKey}
 ```
 
 #### Request Sample
@@ -195,7 +282,7 @@ The code snippet below shows an example request for getting merchant payment lin
 <CodeGroup>
  
 ```bash cURL
-curl --location 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publickKey}' \
+curl --location 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publicKey}' \
 --header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
 ```
 
@@ -203,7 +290,7 @@ curl --location 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/
 var request = require('request');
 var options = {
   'method': 'GET',
-  'url': 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publickKey}',
+  'url': 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publicKey}',
   'headers': {
     'Authorization': 'Bearer YOUR_ENCRYPTED_KEY'
   },
@@ -220,7 +307,7 @@ request(options, function (error, response) {
 $curl = curl_init();
 
 curl_setopt_array($curl, array(
-  CURLOPT_URL => 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publickKey}',
+  CURLOPT_URL => 'https://paymentlink.seerbitapi.com/paymentlink/v2/payLinks/api/{publicKey}',
   CURLOPT_RETURNTRANSFER => true,
   CURLOPT_ENCODING => '',
   CURLOPT_MAXREDIRS => 10,
@@ -309,7 +396,7 @@ curl --location --request PUT 'https://paymentlink.seerbitapi.com/paymentlink/v2
     "description":"Test paymentLink",
     "successMessage":"Payment made successfully!",
     "businessName":"My Business",
-    "publicKey":"publickKey",
+    "publicKey":"publicKey",
       "customizationName":"my_link_3",
       "paymentFrequency":"RECURRENT",
       "email":"customer@seerbit.com",
@@ -342,7 +429,7 @@ var options = {
     description: 'Test paymentLink',
     successMessage: 'Payment made successfully!',
     businessName: 'My Business',
-    publicKey: 'publickKey',
+    publicKey: 'publicKey',
     customizationName: 'my_link_3',
     paymentFrequency: 'RECURRENT',
     email: 'customer@seerbit.com',
@@ -384,7 +471,7 @@ curl_setopt_array($curl, array(
     "description":"Test paymentLink",
     "successMessage":"Payment made successfully!",
     "businessName":"My Business",
-    "publicKey":"publickKey",
+    "publicKey":"publicKey",
       "customizationName":"my_link_3",
       "paymentFrequency":"RECURRENT",
       "email":"customer@seerbit.com",
@@ -465,3 +552,11 @@ The code snippet below shows an example response for deleting a payment link
   "status": "Deleted"
 }
 ```
+
+## Notes
+
+- **Share the `paymentLinkUrl`, not the `paymentLinkId`.** The URL is the customer-facing address; the ID is for managing the link through the API.
+- **A reusable link produces many transactions.** Reconcile on the transaction reference returned per payment, not on the link itself.
+- **Deactivating is not deleting.** Setting `status` to `INACTIVE` stops payments while keeping the link's history; [deleting](#delete-a-payment-link) removes it.
+- Confirm every payment server-side before you fulfil — see [Verify a payment](/online-payments/after-payments/verify-payment).
+- Links created with test keys only work in test mode. See [Test and live modes](/test-and-live).

@@ -1,0 +1,61 @@
+---
+title: Overview
+description: Hold a balance in a SeerBit Pocket and send funds out to banks, pockets and sub-pockets.
+---
+
+Where the rest of these docs cover money coming **in**, this section covers money going **out**. Two products work together:
+
+<CardGroup cols={2}>
+  <Card title="Pocket" icon="wallet" href="/online-payments/payment-features/pocket">
+    The wallet your funds sit in. Create sub-pockets, check balances, move money between pockets, and look up transactions.
+  </Card>
+  <Card title="Payout" icon="banknote" href="/online-payments/payment-features/payout">
+    Send funds from a Pocket to a bank account — one transfer at a time, or many in a single batch.
+  </Card>
+</CardGroup>
+
+## How they relate
+
+A **Pocket** is the balance. Every merchant approved for payouts gets a pocket ID, and settlements from your collections land there. You can subdivide a pocket into **sub-pockets** to keep funds separated — by branch, by department, by client.
+
+A **Payout** moves money out of a pocket to an external bank account. The pocket is the source; the payout is the instruction.
+
+> **Note**: Payouts require approval on your SeerBit merchant dashboard before they can be used via the API.
+
+## Choosing an operation
+
+| If you want to | Use |
+| -------------- | --- |
+| Check what you can pay out | [Get pocket balance](/online-payments/payment-features/pocket#get-pocket-balance) |
+| Move funds between your own pockets | [Pocket to pocket transfer](/online-payments/payment-features/pocket#pocket-to-pocket-transfer) |
+| Separate funds within one pocket | [Add a sub-pocket](/online-payments/payment-features/pocket#adding-a-sub-pocket) |
+| Confirm a bank account before sending | [Account enquiry](/online-payments/payment-features/payout#bank-list) |
+| Pay one recipient | [Single payout](/online-payments/payment-features/payout) |
+| Pay many recipients at once | [Bulk payout](/online-payments/payment-features/payout#bulk-payout) |
+
+## The payout flow
+
+Payouts are deliberately harder to trigger than collections, because they move money away from you. Every payout passes through four steps:
+
+<Steps>
+  <Step title="Authenticate">
+    Exchange your pocket credentials for a bearer token.
+  </Step>
+  <Step title="Sign the request">
+    Generate an `X-Seerbit-Signature` — an HMAC-SHA256 of the exact raw request body, signed with your secret key.
+  </Step>
+  <Step title="Initiate">
+    Submit the transfer instruction. Single and bulk use the same endpoint; bulk adds a `batchReference` and a `transfers` array.
+  </Step>
+  <Step title="Confirm with OTP">
+    A one-time password authorises the transfer before it is processed. Nothing moves until this step completes.
+  </Step>
+</Steps>
+
+Full request and response detail for each step is on the [Payout](/online-payments/payment-features/payout) page.
+
+## Before you integrate
+
+- Your **secret key** signs every payout request. Keep it server-side — a leaked payout key is materially worse than a leaked collection key, because it can move funds out.
+- `batchReference` on a bulk payout is your idempotency key. Reusing one is how you avoid paying a batch twice after a timeout.
+- Payouts are approval-gated. If the API rejects you before you reach the signature step, check your dashboard approval status first.

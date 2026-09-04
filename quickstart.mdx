@@ -1,47 +1,108 @@
 ---
 title: Quickstart
-description: Begin with a guide on the fastest path to a successful outcome
+description: Take your first test payment with SeerBit in about ten minutes
 ---
 
-Describe how someone begins using your product. What is the first thing they need to do? Are there any prerequisites?
-
-A quickstart should take someone from zero to using your product. They'll get a quick win and a sense of what they can accomplish.
+This guide takes you from a new account to a verified test payment using [Standard Checkout](/online-payments/integrations/standard-checkout) — you create the transaction from your server, send the customer to a SeerBit-hosted page, then confirm the result server-side. No card data touches your servers.
 
 ## Prerequisites
 
-Before you begin, you must have:
+- A SeerBit account — [register for free](https://dashboard.seerbit.com/#/auth/register). New accounts start in **Test Mode**, so you don't need approved KYC to complete this guide.
+- Your **public key** and **secret key**, from **Settings > API Keys** in the dashboard.
+- Any tool that can make HTTP requests.
 
-- Requirement one (for example, Node.js 18\+, a free account, an API key)
-- Requirement two (for example, a compatible device, a compatible browser, a compatible operating system)
+> **Note**: No real money moves in Test Mode. Keep your secret key on your server — never in browser or mobile code.
 
 ## Get started
 
 <Steps>
-  <Step title="Install">
-    Describe how to install your product or sign up.
+  <Step title="Exchange your keys for a bearer token">
+    Every Standard Checkout call is authenticated with a bearer token. Generate one by posting your two keys joined by a full stop, secret key first.
 
     ```bash
-    npm install your-package
+    curl --location 'https://seerbitapi.com/api/v2/encrypt/keys' \
+    --header 'Content-Type: application/json' \
+    --data '{
+        "key": "YOUR_SECRET_KEY.YOUR_PUBLIC_KEY"
+    }'
     ```
+
+    The token comes back as `data.EncryptedSecKey.encryptedKey`. Use it as `Authorization: Bearer <token>` on the next call.
   </Step>
-  <Step title="Configure">
-    Describe any setup or configuration needed before first use.
+
+  <Step title="Create a transaction">
+    Post the amount, the customer, and a `paymentReference` you generate.
 
     ```bash
-    your-cli init
+    curl --location 'https://seerbitapi.com/api/v2/payments' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer YOUR_ENCRYPTED_KEY' \
+    --data '{
+        "publicKey": "YOUR_PUBLIC_KEY",
+        "amount": "5000.00",
+        "currency": "NGN",
+        "country": "NG",
+        "paymentReference": "order-8f3c1a2e-4b90",
+        "email": "customer@example.com",
+        "fullName": "Jane Doe",
+        "callbackUrl": "https://yourwebsite.com/thank-you"
+    }'
     ```
+
+    A success returns `data.payments.redirectLink`:
+
+    ```json
+    {
+      "status": "SUCCESS",
+      "data": {
+        "code": "00",
+        "payments": {
+          "redirectLink": "http://checkout.seerbitapi.com/#/mid=YOUR_PUBLIC_KEY&paymentReference=order-8f3c1a2e-4b90",
+          "paymentStatus": "08"
+        },
+        "message": "Successful"
+      }
+    }
+    ```
+
+    Make `paymentReference` unique and tie it to your own order — a UUID or your order ID with a prefix. Store it before you redirect; you need it to confirm the payment in step 4.
   </Step>
-  <Step title="Run it">
-    Show the first thing a user does to see it working.
+
+  <Step title="Send the customer to the checkout page">
+    Redirect the customer to the `redirectLink` you just received. Pay with a [test card](/test-and-live), then let SeerBit return them to your `callbackUrl`.
+
+    Treat that redirect as a hint, not proof — a customer can close the tab before it happens. The next step is what settles the order.
+  </Step>
+
+  <Step title="Confirm the payment server-side">
+    Query the transaction with the same `paymentReference`.
 
     ```bash
-    your-cli start
+    curl --location 'https://seerbitapi.com/api/v3/payments/query/order-8f3c1a2e-4b90' \
+    --header 'Authorization: Bearer YOUR_ENCRYPTED_KEY'
     ```
+
+    Before you fulfil the order, check that the response reports success **and** that the amount and currency match what you charged. See [Verify a payment](/online-payments/after-payments/verify-payment) for the full response and what each field means.
   </Step>
 </Steps>
 
-<Tip>
-  Give people a way to get help. This could be a link to a support page, a chat with a customer support agent, or a forum for your product.
+## Next steps
 
-  Example: Need help? Reach out to us at [support@yourcompany.com](mailto:support@yourcompany.com).
+<CardGroup cols={2}>
+  <Card title="Set up webhooks" icon="webhook" href="/online-payments/after-payments/webhook-events">
+    Get notified server-side instead of polling for a result.
+  </Card>
+  <Card title="Add payment methods" icon="wallet" href="/payment-methods/overview">
+    Bank account, transfer, USSD and mobile money alongside cards.
+  </Card>
+  <Card title="Try Simple Checkout" icon="code" href="/online-payments/integrations/simple-checkout">
+    Drop an inline payment form straight into your page instead.
+  </Card>
+  <Card title="Go live" icon="rocket" href="/go-live">
+    Submit KYC, swap your keys, and run the go-live checklist.
+  </Card>
+</CardGroup>
+
+<Tip>
+  Stuck? Reach the team at [SeerBit Support](https://seerbitteam.freshdesk.com/support/home).
 </Tip>

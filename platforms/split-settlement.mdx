@@ -1,0 +1,108 @@
+---
+title: Split settlement
+description: Settle one payment across several accounts by fixed amount or percentage.
+---
+
+[Standard Checkout](/online-payments/integrations/standard-checkout) supports splitting a single payment across multiple accounts. All three modes use the same `POST /api/v2/payments` endpoint — what changes is which optional field you add to the payload.
+
+| Mode | Field to add | Use when |
+| ---- | ------------ | -------- |
+| **No split** | — | The full amount settles to your main merchant account. |
+| **Easy Split** | `splitCode` | Recipients and shares are fixed and known ahead of time. |
+| **Full Dynamic Split** | `splits` | Split details differ per transaction — e.g. a marketplace computing a different vendor split per order. |
+
+> **Note**: Both split modes require [sub-accounts](/online-payments/integrations/sub-account) to be set up first — they are the recipients a split pays into.
+
+## Easy Split (split code)
+
+Pre-configure a split rule once on the SeerBit dashboard — recipients, percentages or amounts, and who bears the fee — then reference it by code at payment time. You don't specify recipients inline; the rule already defines them.
+
+```json Request body
+{
+  "publicKey": "YOUR_PUBLIC_KEY",
+  "amount": "5000.00",
+  "currency": "NGN",
+  "country": "NG",
+  "paymentReference": "payment_reference_split_code1",
+  "email": "customer@example.com",
+  "fullName": "Jane Doe",
+  "tokenize": false,
+  "callbackUrl": "https://yourwebsite.com/thank-you",
+  "splitCode": "SPLIT_RULE_CODE"
+}
+```
+
+| Field       | Type     | Required                | Description                                                              |
+| ----------- | -------- | ----------------------- | ------------------------------------------------------------------------ |
+| `splitCode` | `string` | Yes (for this variant)  | Reference to a split rule created in advance on the SeerBit dashboard.   |
+
+All other fields are the same as a normal payment.
+
+> **Note**: Create the split rule and find its code on your SeerBit dashboard, under your split-rule setup screen.
+
+## Full Dynamic Split
+
+Define recipients and shares inline, at payment time — no pre-configured rule needed.
+
+```json Request body
+{
+  "publicKey": "YOUR_PUBLIC_KEY",
+  "amount": "5000.00",
+  "currency": "NGN",
+  "country": "NG",
+  "paymentReference": "payment_reference_dynamic1",
+  "email": "customer@example.com",
+  "fullName": "Jane Doe",
+  "tokenize": false,
+  "callbackUrl": "https://yourwebsite.com/thank-you",
+  "splits": {
+    "type": "PERCENTAGE",
+    "transactionFee": "PARENT_ACCOUNT",
+    "items": [
+      {
+        "subAccountCode": "SUB_ACC_001",
+        "value": "30"
+      }
+    ]
+  }
+}
+```
+
+##### `splits` object fields
+
+| Field                  | Type     | Required                              | Description                                                                                  |
+| ---------------------- | -------- | ------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `type`                 | `string` | Yes                                   | `FLAT` (fixed amount per recipient) or `PERCENTAGE`.                                          |
+| `transactionFee`       | `string` | Yes                                   | Who bears the transaction fee: `ALL_ACCOUNTS`, `PROPORTIONATE`, `SUB_ACCOUNT`, or `PARENT_ACCOUNT`. |
+| `bearerSubAccountCode` | `string` | Only if `transactionFee` is `SUB_ACCOUNT` | Which sub-account bears the fee.                                                          |
+| `items`                | `array`  | Yes                                   | Each entry takes a `subAccountCode` and its `value` — an amount or a percentage, matching `type`. |
+
+
+##### Splitting between several recipients
+
+Use `FLAT` to give each recipient a fixed amount, and `bearerSubAccountCode` to nominate which sub-account absorbs the transaction fee.
+
+```json
+{
+  "splits": {
+    "type": "FLAT",
+    "transactionFee": "SUB_ACCOUNT",
+    "bearerSubAccountCode": "SUBACCT001",
+    "items": [
+      {
+        "subAccountCode": "SUBACCT001",
+        "value": "3.01"
+      },
+      {
+        "subAccountCode": "ops-costs-2sD4kA",
+        "value": "2.00"
+      }
+    ]
+  }
+}
+```
+
+Only the `splits` object is shown — send it alongside the usual payment fields.
+
+Need to register the recipients first? See [creating a sub-account](/online-payments/integrations/sub-account#creating-a-sub-account).
+
