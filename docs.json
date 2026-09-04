@@ -15,6 +15,15 @@
   "favicon": "/favicon.ico",
 
   "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Run in Postman",
+          "href": "https://app.getpostman.com/run-collection/YOUR_COLLECTION_ID?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3DYOUR_ID%26entityType%3Dcollection%26workspaceId%3DYOUR_WORKSPACE_ID",
+          "icon": "circle-play"
+        }
+      ]
+    },
     "tabs": [
       {
         "tab": "Home",
