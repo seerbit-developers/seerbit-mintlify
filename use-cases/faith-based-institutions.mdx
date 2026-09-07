@@ -1,0 +1,162 @@
+---
+title: Faith-based Institutions
+description: Keep designated funds separate, fund and oversee branches, and collect giving across every channel.
+---
+
+**Who this is for**: Developers building for churches, mosques, ministries and faith-based non-profits — including multi-branch organisations that need one view of money across every assembly.
+
+Giving is not buying. There is no invoice, no delivery and often no expectation of a receipt — but there are **stricter rules about which pot the money lands in** than almost any other sector. Zakat cannot be mixed with a mosque's operating funds. A building fund is not general income. A branch's offering is not head office's to spend.
+
+So the first design decision is not how you collect. **It is how you keep money apart.**
+
+<CardGroup cols={2}>
+  <Card title="Keeping funds separate" icon="wallet" href="#keeping-funds-separate">
+    A wallet and account number per fund, so money arrives already segregated.
+  </Card>
+  <Card title="Funding and overseeing branches" icon="git-branch" href="#funding-and-overseeing-branches">
+    Move money to assemblies, let them spend, see everything from head office.
+  </Card>
+  <Card title="Collecting giving" icon="hand-coins" href="#collecting-giving">
+    In the service, online, recurring, and against a pledge.
+  </Card>
+  <Card title="Giving from the diaspora" icon="globe" href="#giving-from-the-diaspora">
+    Members abroad giving in their own currency.
+  </Card>
+</CardGroup>
+
+## Keeping funds separate
+
+**What you're building**: Designated giving that lands in its own account from the moment it is given — not pooled and unpicked afterwards.
+
+A [Pocket](/online-payments/payment-features/pocket) is a wallet holding a balance. Create a **sub-pocket per fund**, and each one comes with its **own bank account number**. Publish that number as the way to give to that fund, and segregation stops being a reconciliation exercise.
+
+### The flow
+
+<Steps>
+  <Step title="Create a pocket per fund">
+    [Add a sub-pocket](/online-payments/payment-features/pocket#adding-a-sub-pocket) for each designated fund — zakat, building fund, missions, welfare, tithes. The response carries a `bankAccountNumber` and `bankAccountName` for that pocket.
+  </Step>
+  <Step title="Publish the right number for the right fund">
+    Show each fund's account number where people give to it — on the giving page, on a QR code, in the bulletin. A gift to the building fund never touches the operating account.
+  </Step>
+  <Step title="Report per fund, not per organisation">
+    [Get the balance](/online-payments/payment-features/pocket#get-pocket-balance) of any single fund, or the [consolidated total](/online-payments/payment-features/pocket#get-merchant-sum) across all of them.
+  </Step>
+</Steps>
+
+### Decisions specific to faith institutions
+
+- **Zakat must have its own pocket.** It cannot be commingled with operating funds, and the obligation is on the institution to demonstrate that. A dedicated account with its own balance and transaction history is the cleanest evidence there is.
+- **Name pockets after the fund, not the person.** Treasurers change; the building fund does not. `BUILDING-FUND-2026` survives a handover in a way `Bro. Tunde's account` does not.
+- **Restricted funds are a promise, not a preference.** If a member gave to missions, that money is not available for salaries. Segregating at the account level makes the promise structurally true rather than a matter of discipline.
+- **One pocket per fund, not per campaign.** A Ramadan appeal and an Eid appeal are both sadaqah — separate them with references inside one pocket rather than proliferating accounts you must reconcile forever.
+
+### What to watch
+
+**Payments arrive unannounced.** Anyone can transfer to a published account at any time. Rely on [webhooks](/online-payments/after-payments/webhook-events) rather than polling, and make your handler idempotent.
+
+**Pockets are approval-gated.** Payout features require approval on your merchant dashboard before they can be used through the API.
+
+---
+
+## Funding and overseeing branches
+
+**What you're building**: Head office funding each assembly, branches collecting and spending locally, and **one consolidated view of all of it** — without branches sharing a bank login or head office chasing statements.
+
+The shape a multi-branch organisation needs is local autonomy at each assembly and consolidated oversight at the centre. Pockets give you both without anyone sharing a bank login.
+
+### The flow
+
+<Steps>
+  <Step title="Give every branch its own pocket">
+    [Add a sub-pocket](/online-payments/payment-features/pocket#adding-a-sub-pocket) per branch. Each gets its own balance and its own account number.
+  </Step>
+  <Step title="Fund the branch from head office">
+    Move money down with a [pocket-to-pocket transfer](/online-payments/payment-features/pocket#pocket-to-pocket-transfer) — an internal movement, not a bank payout, so it settles immediately.
+  </Step>
+  <Step title="Let the branch collect locally">
+    Offerings given at that branch land in that branch's account, attributed to that branch automatically.
+  </Step>
+  <Step title="Let the branch pay its own expenses">
+    The branch settles local costs with [payouts](/online-payments/payment-features/payout) from its own pocket — signed, OTP-confirmed, and recorded.
+  </Step>
+  <Step title="See everything from head office">
+    [Balances summation](/online-payments/payment-features/pocket#get-merchant-sum) gives the consolidated position; [fetch transactions](/online-payments/payment-features/pocket#fetch-transactions) gives the detail for any branch.
+  </Step>
+</Steps>
+
+### Why this shape works
+
+| The problem | How pockets solve it |
+| --- | --- |
+| Branches need spending money | Head office transfers internally, instantly, with a record |
+| Branch income must be attributable | Each branch collects into its own account |
+| Branches must pay local costs | Payouts from the branch's own balance |
+| Head office must see everything | One consolidated balance view, and per-branch transaction history |
+| Nobody should share bank credentials | Each branch operates its own pocket |
+
+### Decisions specific to faith institutions
+
+- **Model the hierarchy you actually have.** Region, zone, assembly — sub-pockets let you mirror the structure rather than flatten it.
+- **Decide who may pay out, and enforce it in your software.** Payouts are OTP-confirmed, but *who* may initiate one is your rule. This is where financial control in a volunteer-run organisation succeeds or fails.
+- **Transfers down are not the same as giving.** A head-office grant to a branch is an internal movement; an offering is income. Keep them distinguishable in your reporting or your branch accounts will overstate income.
+- **`batchReference` is your idempotency key** on bulk payouts — useful when funding many branches on the same day.
+
+### What to watch
+
+**A leaked payout key moves real money out.** Treat the secret key used for payout signing more carefully than a collection key — see [authentication](/authentication).
+
+**Approval is required.** Both pockets and payouts are enabled per merchant. Confirm approval before building a launch around them.
+
+---
+
+## Collecting giving
+
+**What you're building**: Taking offerings, tithes, sadaqah and donations through whichever channel a member actually uses.
+
+| Where the person is | Use |
+| --- | --- |
+| **In the service** | A [POS terminal](/in-store/overview) passed down the row, or a [payment link](/online-payments/payment-features/payment-link) behind a QR code on the seat |
+| **On your website or app** | [Standard Checkout](/online-payments/integrations/standard-checkout) or [Simple Checkout](/online-payments/integrations/simple-checkout) |
+| **Without a card or data** | [USSD](/payment-methods/ussd-payment) or [transfer](/payment-methods/transfer) |
+| **Giving every month** | [Subscriptions](/online-payments/payment-features/subscription) for a fixed amount on a fixed cycle |
+| **Redeeming a pledge over time** | A [virtual account](/online-payments/payment-features/virtual-account) per pledger — any amount, any time, attributed automatically |
+
+### Decisions specific to faith institutions
+
+- **A pledge is an instalment plan without a schedule.** Someone pledging over a year pays what they can, when they can. A dedicated virtual account per pledger handles that; a subscription with a fixed amount does not.
+- **Let the amount be open.** Set `amount` as a customer-entered field on a giving link — you are not selling a priced item.
+- **Do not require an account to give.** A sign-in wall between a member and their offering costs more than the data is worth.
+- **Recurring giving is card-only.** Transfer, USSD and mobile money cannot auto-renew, so offer a card for standing giving even where most one-off giving arrives by transfer.
+- **Anonymous giving is legitimate.** Some traditions treat it as a virtue. Design so an unattributed gift is a valid outcome, not an error state.
+
+### Seasonal peaks
+
+Giving is spiky and the spikes are predictable — Ramadan, Christmas, Easter, harvest, conventions, appeals.
+
+- Use [webhooks](/online-payments/after-payments/webhook-events) rather than polling, so load does not scale with your polling frequency.
+- A reused `paymentReference` is rejected, which is exactly what you want when someone refreshes a slow giving page.
+- Offer [non-card methods](/payment-methods/overview) — they hold up when card rails are congested.
+
+---
+
+## Giving from the diaspora
+
+**What you're building**: Members abroad giving in their own currency, without an international card being the only option.
+
+- SeerBit supports [NGN, GHS, KES, TZS, USD and XOF](/development-resources/currency-codes/overview). Price the giving page in the currency the giver holds, not the one you report in.
+- **USD settlement needs a domiciliary account.** International payments settle on a longer schedule than local — see [receiving settlements](/online-payments/after-payments/receive-settlement) before you promise a project team a date.
+- Enable the [payment methods](/payment-methods/overview) that are normal in each market rather than assuming a card.
+
+## Before you go live
+
+<CardGroup cols={2}>
+  <Card title="Test collection and payout" icon="flask-conical" href="/test-and-live">
+    Test cards, and how test and live modes differ.
+  </Card>
+  <Card title="Go live" icon="check" href="/go-live">
+    KYC, swapping keys, and re-pointing webhooks.
+  </Card>
+</CardGroup>
+
+> **Pockets, payouts and virtual accounts are per-mode.** Anything created with test keys works only in test mode — you will create your branch and fund pockets again against live keys, so script it rather than doing it by hand.

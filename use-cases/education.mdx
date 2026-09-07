@@ -1,0 +1,189 @@
+---
+title: Education
+description: Collect fees, reconcile them to the right student, and let families pay in instalments.
+---
+
+**Who this is for**: Developers building for schools, universities, exam and professional bodies, or EdTech platforms — including teams connecting a school management system to a payment portal.
+
+Education has a problem most verticals don't: **the person paying is often not the person the payment is for.** A parent pays for a pupil, an employer pays for a candidate, a sponsor pays for a cohort. Almost every design decision below follows from making sure each payment lands against the right student record without someone matching it by hand.
+
+<CardGroup cols={2}>
+  <Card title="Collecting fees" icon="receipt" href="#collecting-fees">
+    Bill a term's fees and take payment.
+  </Card>
+  <Card title="A virtual account per student" icon="landmark" href="#a-virtual-account-per-student">
+    A dedicated account number that reconciles itself and accepts instalments.
+  </Card>
+  <Card title="Splitting fees to third parties" icon="git-fork" href="#splitting-fees-to-third-parties">
+    Pay suppliers, transport and exam bodies directly out of one fee.
+  </Card>
+  <Card title="Course subscriptions" icon="repeat" href="#course-subscriptions">
+    Recurring access for EdTech platforms.
+  </Card>
+</CardGroup>
+
+## Collecting fees
+
+**What you're building**: A portal where a parent or student signs in, sees what is owed, and pays — with the school management system updated automatically.
+
+### The flow
+
+<Steps>
+  <Step title="Raise the fee notice">
+    Send an [invoice](/online-payments/payment-features/invoicing) per student, itemised by fee type — tuition, uniform, transport, trips — each line carrying its own tax rate. SeerBit emails it and assigns an invoice number.
+
+    Billing a whole class or cohort at once? Use [bulk invoicing](/online-payments/payment-features/bulk-invoicing) to send the run in a single request.
+  </Step>
+  <Step title="Take the payment">
+    The invoice carries its own payment link. If you would rather families pay inside your portal, create the transaction there with [Standard Checkout](/online-payments/integrations/standard-checkout) instead.
+  </Step>
+  <Step title="Update the fee record">
+    Confirm with a [webhook](/online-payments/after-payments/webhook-events) or by [verifying the payment](/online-payments/after-payments/verify-payment), then mark the fee paid against the student.
+  </Step>
+</Steps>
+
+### Decisions specific to education
+
+- **Put the student identifier in the reference.** A scheme like `FEE-STD00291-TERM2-2026` means reconciliation is a string parse, not a lookup. Keep it unique per attempt.
+- **One invoice, many fee types.** Because `tax` is set per line item, a single invoice can carry zero-rated tuition alongside taxable uniform and transport charges. You do not need separate invoices per fee type.
+- **Ad-hoc charges don't need an invoice.** A trip, a resit fee, a replacement ID card — a [payment link](/online-payments/payment-features/payment-link) shared in a class group is faster than raising a document.
+- **A fee that covers other parties** should be split at payment time rather than paid out later — see [splitting fees to third parties](#splitting-fees-to-third-parties).
+
+### What to watch
+
+**`orderNo` is your lookup key.** Invoices can be retrieved by invoice number, order number *or* customer email — set `orderNo` to something meaningful from your school system and you get a free reconciliation path.
+
+**Guardians pay from their own accounts.** The name on the payment often won't match the student's. Never reconcile on payer name.
+
+---
+
+## A virtual account per student
+
+**What you're building**: Every student has their own bank account number to pay into. Money arriving is attributed to that student automatically, in any amount, at any time — so instalments work by default and nobody matches a bank statement by hand.
+
+This is the single highest-leverage thing an institution can do with SeerBit. A [virtual account](/online-payments/payment-features/virtual-account) is a real account number reserved against one student, and it solves three problems at once:
+
+| The problem | How the account solves it |
+| --- | --- |
+| **Who is this payment for?** | Every credit is already attributed — the account belongs to one student |
+| **Families can't pay it all at once** | The account accepts any amount, any number of times |
+| **Reconciling the bank statement** | There is no statement to reconcile; each credit arrives as an attributed event |
+
+### The flow
+
+<Steps>
+  <Step title="Reserve an account per student">
+    [Create a virtual account](/online-payments/payment-features/virtual-account) against each student, using your own student identifier as the `reference`. You get back a bank account number.
+  </Step>
+  <Step title="Give the number to the family">
+    Show it on the portal and on fee notices. It does not change, so families can save it as a beneficiary and pay from any banking app.
+  </Step>
+  <Step title="Credit the student as money arrives">
+    Each transfer fires a [webhook](/online-payments/after-payments/webhook-events#7-7-virtual-account-transaction-event). Add the amount to that student's balance and compare the running total against the term's fees.
+  </Step>
+</Steps>
+
+### Decisions specific to education
+
+- **There is no instalment API — and you do not need one.** You track the running total against the term's fees yourself; the dedicated account is what makes that safe, because every credit is already attributed to the right student.
+- **Make the `reference` your student ID.** It is how you retrieve and delete the account later, and how you attribute inbound payments.
+- **The account outlives the term.** Reserve once at enrolment, not once per term, and the family keeps paying to the same number year after year.
+- **Decide your part-payment policy in code.** SeerBit reports what arrived; whether a pupil with 60% paid may sit an exam is your rule, not a payment one.
+
+### What to watch
+
+**Payments arrive unannounced.** A parent can transfer at 2am on a Sunday. Rely on webhooks rather than polling, and make your handler idempotent — a repeated event must not double-credit a student.
+
+**Virtual account credits share `eventType: "transaction"`** with ordinary payments. Branch on the presence of `creditAccountNumber`, not on the event type alone.
+
+---
+
+## Splitting fees to third parties
+
+**What you're building**: One fee paid by one family, arriving already divided between the school and everyone else it is owed to — the uniform supplier, the transport operator, the exam body, the PTA levy.
+
+Without this, the school collects the whole amount, holds other people's money, and pays it out later by hand. [Split settlement](/platforms/split-settlement) settles each party directly as part of the original payment.
+
+### The flow
+
+<Steps>
+  <Step title="Register each party once">
+    Create a [sub-account](/online-payments/integrations/sub-account) for every recipient — the uniform supplier, the transport operator, the exam body. Each gets a `subAccountCode`.
+  </Step>
+  <Step title="Decide how the fee divides">
+    Either configure a split rule on the dashboard and reference it by `splitCode`, or define the division inline per transaction with a `splits` object. See [split settlement](/platforms/split-settlement).
+  </Step>
+  <Step title="Take the payment as normal">
+    Add the split to your existing [Standard Checkout](/online-payments/integrations/standard-checkout) request. Nothing else about the payment changes.
+  </Step>
+</Steps>
+
+### Decisions specific to education
+
+- **`FLAT` fits fees better than `PERCENTAGE`.** A uniform costs a fixed amount regardless of what else is on the invoice, so a fixed split matches how fees are actually priced. Use `PERCENTAGE` for revenue shares — an EdTech platform taking a cut of tutor earnings.
+- **Split inline when the composition varies per student.** Two pupils in the same class can owe different combinations — one takes the bus, one doesn't. A `splits` object per transaction handles that; a fixed `splitCode` does not.
+- **Decide who bears the transaction fee.** `transactionFee` nominates which party absorbs it — `PARENT_ACCOUNT` keeps it with the school, `PROPORTIONATE` shares it across recipients. For a supplier expecting an exact invoice amount, do not make them the bearer.
+- **Register the recipient before you reference it.** A split naming a `subAccountCode` that does not exist will fail — so onboarding a new transport operator is a prerequisite, not a same-day change.
+
+### Why this matters here
+
+| Without split settlement | With it |
+| --- | --- |
+| School holds funds belonging to suppliers | Each party is settled directly |
+| Manual payout runs each term | No payout run at all |
+| School reconciles what it owes out | Reconciliation is only what it kept |
+| Supplier waits on the school's cash flow | Supplier is paid as families pay |
+
+Marketplace-shaped platforms — an EdTech site paying tutors, or a portal serving many schools — use the same mechanism to take commission and settle the rest.
+
+
+## Course subscriptions
+
+**What you're building**: An EdTech platform charging monthly or annual access, renewing without the learner re-entering card details.
+
+### The flow
+
+<Steps>
+  <Step title="Take the first payment with tokenisation">
+    Charge the learner through [Standard Checkout](/online-payments/integrations/standard-checkout) with `tokenize: true`. Card details are entered in SeerBit's form, so **no PCI DSS certification is required**.
+  </Step>
+  <Step title="Retrieve the authorization code">
+    [Query the payment](/online-payments/after-payments/verify-payment) to get the `authorizationCode`. Store it against the learner. This stands in for the card.
+  </Step>
+  <Step title="Renew on schedule">
+    For fixed cycles, define a plan with [subscriptions](/online-payments/payment-features/subscription) and let SeerBit charge automatically. To control timing yourself, charge the stored code with [card tokenisation](/online-payments/payment-features/card-tokenisation).
+  </Step>
+</Steps>
+
+### Decisions specific to education
+
+- **Recurring charges are card-only.** Transfer, USSD and mobile money cannot be auto-renewed, so offer a card at signup even if your checkout supports everything else.
+- **Academic terms are not calendar months.** If access should end at the end of term, a fixed monthly plan will over-bill — use tokenisation and charge on your own academic calendar instead.
+- **Handle the failed renewal gracefully.** Pause access rather than deleting progress, and give a grace period; a learner mid-course is worth more than one month's fee.
+
+---
+
+## Peak registration windows
+
+Education traffic is spiky in a way retail is not — a fee deadline or an exam registration opening concentrates months of volume into hours.
+
+- **Never poll for status during a peak.** Use [webhooks](/online-payments/after-payments/webhook-events) so load does not scale with your polling frequency.
+- **Make references idempotent.** A parent refreshing a slow page must not create a second charge — a reused `paymentReference` is rejected, which is the behaviour you want.
+- **Offer non-card methods.** [Transfer](/payment-methods/transfer) and [USSD](/payment-methods/ussd-payment) hold up when card rails are congested, and reach guardians without cards.
+
+### Candidates paying from other countries
+
+Exam and professional bodies often collect from across the region. Enable the [payment methods](/payment-methods/overview) that are normal in each market rather than expecting an international card, and check the [supported currencies](/development-resources/currency-codes/overview) before you price in one.
+
+## Before you go live
+
+<CardGroup cols={2}>
+  <Card title="Test the fee flow end to end" icon="flask-conical" href="/test-and-live">
+    Test cards, and how test and live modes differ.
+  </Card>
+  <Card title="Go live" icon="check" href="/go-live">
+    KYC, swapping keys, and re-pointing webhooks.
+  </Card>
+</CardGroup>
+
+> **Virtual accounts are per-mode.** Accounts created with test keys only work in test mode — you will reserve them again against live keys before term starts.

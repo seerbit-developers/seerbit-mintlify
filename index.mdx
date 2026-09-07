@@ -104,11 +104,12 @@ mode: custom
       Use Cases
     </h2>
 
-    <CardGroup cols={3}>
+    <CardGroup cols={2}>
       {[
-                                            { title: "Retail", body: "Take card payments in-store on a SeerBit POS terminal.", icon: "shelving-unit", href: "/in-store/overview" },
-                                            { title: "Hospitality", body: "Send a customer a payment link by email or message.", icon: "hotel", href: "/online-payments/payment-features/payment-link" },
-                                            { title: "Education", body: "Invoice fees individually or in bulk, and track payment.", icon: "graduation-cap", href: "/online-payments/payment-features/invoicing" },
+                                            { title: "Retail & E-commerce", body: "Sell online, in-store, or both — reconciled in one place.", icon: "shopping-cart", href: "/use-cases/retail-and-ecommerce" },
+                                            { title: "Education", body: "Collect fees, reconcile per student, and take instalments.", icon: "graduation-cap", href: "/use-cases/education" },
+                                            { title: "Travel & Hospitality", body: "Deposits and balances, settled across outlets.", icon: "bed-double", href: "/use-cases/travel-and-hospitality" },
+                                            { title: "Faith-based Institutions", body: "Keep designated funds separate and oversee every branch.", icon: "hand-coins", href: "/use-cases/faith-based-institutions" },
                                           ].map((item) => (
                                             <Card
                                               key={item.title}

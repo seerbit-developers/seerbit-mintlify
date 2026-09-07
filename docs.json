@@ -124,6 +124,16 @@
         "openapi": {
           "source": "https://raw.githubusercontent.com/seerbit/openapi/master/specs/external-api.yml"
         }
+      },
+      {
+        "tab": "Use Cases",
+        "icon": "lightbulb",
+        "pages": [
+          "/use-cases/retail-and-ecommerce",
+          "/use-cases/education",
+          "/use-cases/travel-and-hospitality",
+          "/use-cases/faith-based-institutions"
+        ]
       }
     ]
   },
