@@ -1,4 +1,15 @@
 {
+  "name": "seerbit-mintlify",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Source for the SeerBit developer documentation, built with Mintlify",
+  "license": "SEE LICENSE IN LICENSE",
+  "scripts": {
+    "dev": "mint dev",
+    "broken-links": "mint broken-links",
+    "format": "prettier --write \"**/*.{mdx,md,json,css,js}\"",
+    "format:check": "prettier --check \"**/*.{mdx,md,json,css,js}\""
+  },
   "devDependencies": {
     "prettier": "^3.9.6"
   }
