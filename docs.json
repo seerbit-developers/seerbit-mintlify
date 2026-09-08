@@ -4,7 +4,7 @@
   "name": "SeerBit Documentation",
   "fonts": {
     "family": "MazzardM",
-    "source": "/assets/fonts/MazzardM-Regular.woff2",
+    "source": "https://seer-bit.mintlify.site/assets/fonts/MazzardM-Regular.woff2",
     "format": "woff2"
   },
   "background": {
@@ -128,8 +128,8 @@
     ]
   },
   "logo": {
-    "light": "/assets/logo/Seerbit_Docs.svg",
-    "dark": "/assets/logo/Seerbit_Docs_dark.svg"
+    "light": "/assets/logo/SeerBit_Docs.svg",
+    "dark": "/assets/logo/SeerBit_Docs_dark.svg"
   },
   "icons": {
     "library": "lucide"
