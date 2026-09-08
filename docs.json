@@ -7,6 +7,12 @@
     "source": "/assets/fonts/MazzardM-Regular.woff2",
     "format": "woff2"
   },
+  "background": {
+    "decoration": "gradient"
+  },
+  "styling": {
+    "decoration": "breadcrumbs"
+  },
   "colors": {
     "primary": "#FF3C38",
     "light": "#FF3C38",
@@ -14,13 +20,20 @@
   },
   "favicon": "/favicon.ico",
   "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Open in Postman",
+          "href": "https://telecoms-architect-44543891-s-team.postman.co/workspace/My-Workspace~d2f0c317-8eaa-4166-841c-2c4173391f2c/collection/28675505-f1e4647f-4a15-478d-b152-113caa3f1922?action=share&source=copy-link&creator=28675505",
+          "icon": "package-open"
+        }
+      ]
+    },
     "tabs": [
       {
         "tab": "Home",
         "icon": "house",
-        "pages": [
-          "index"
-        ]
+        "pages": ["index"]
       },
       {
         "tab": "Documentation",
@@ -83,10 +96,7 @@
           },
           {
             "group": "Platforms & Marketplaces",
-            "pages": [
-              "/online-payments/integrations/sub-account",
-              "/platforms/split-settlement"
-            ]
+            "pages": ["/online-payments/integrations/sub-account", "/platforms/split-settlement"]
           },
           {
             "group": "In-Store Payments",
@@ -112,7 +122,7 @@
         "tab": "API Reference",
         "icon": "book-marked",
         "openapi": {
-          "source": "https://raw.githubusercontent.com/seerbit/openapi/refs/heads/master/specs/external-api.yml"
+          "source": "https://raw.githubusercontent.com/seerbit/openapi/master/specs/external-api.yml"
         }
       }
     ]
@@ -132,16 +142,7 @@
     }
   },
   "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
-    ]
+    "options": ["copy", "view", "chatgpt", "claude", "perplexity", "mcp", "cursor", "vscode"]
   },
   "footer": {
     "socials": {
