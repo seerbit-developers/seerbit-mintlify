@@ -1,0 +1,131 @@
+---
+title: Retail & E-commerce
+description: Take payments online, in-store, or both — and reconcile them in one place.
+---
+
+**Who this is for**: Developers building for a shop, an online store, or a business that sells through both. Includes teams connecting a POS terminal to an ERP or retail management system.
+
+Retail is the vertical most likely to need **two payment channels at once** — a website and a physical till — reconciled into one set of books. This page walks the three integrations that cover it, in the order most teams build them.
+
+<CardGroup cols={3}>
+  <Card title="Online store checkout" icon="shopping-cart" href="#online-store-checkout">
+    Take payment on your website or app.
+  </Card>
+  <Card title="In-store on a terminal" icon="square-terminal" href="#in-store-on-a-terminal">
+    Push a sale from your till or ERP to a POS terminal.
+  </Card>
+  <Card title="One view across both" icon="layers" href="#one-view-across-both-channels">
+    Reconcile online and in-store into one ledger.
+  </Card>
+</CardGroup>
+
+## Online store checkout
+
+**What you're building**: A customer fills a cart on your store and pays. You need the order marked paid only when the money is genuinely collected.
+
+### The flow
+
+<Steps>
+  <Step title="Create the transaction on your server">
+    Call [Standard Checkout](/online-payments/integrations/standard-checkout) with the cart total and a `paymentReference` you generate. You get back a `redirectLink`.
+
+    If you would rather the customer never leaves your page, use [Simple Checkout](/online-payments/integrations/simple-checkout) instead — same result, an overlay rather than a redirect.
+  </Step>
+  <Step title="Send the customer to pay">
+    Redirect to the `redirectLink`. The customer pays with any [method](/payment-methods/overview) enabled on your account — card, transfer, USSD or mobile money.
+  </Step>
+  <Step title="Confirm before you fulfil">
+    Do not mark the order paid on the browser redirect. Either receive the [webhook](/online-payments/after-payments/webhook-events) or [verify the payment](/online-payments/after-payments/verify-payment) — then check the amount and currency match the order before releasing stock.
+  </Step>
+</Steps>
+
+### Decisions specific to retail
+
+- **Tie `paymentReference` to your order number.** Use your own order ID with a prefix, e.g. `ORD-20260904-0041`. It is what you will reconcile on, and it must be unique per attempt.
+- **Offer more than cards.** Cart abandonment in these markets is often a payment-method problem, not a pricing one. [Transfer](/payment-methods/transfer) and [USSD](/payment-methods/ussd-payment) reach customers a card-only checkout loses.
+- **Selling for other sellers?** If your store settles money to third parties, use [split settlement](/platforms/split-settlement) so each seller is paid directly rather than you paying them afterwards.
+
+### What to watch
+
+**Partial approvals.** A card issuer can approve less than you charged (`SM_10`). Compare `payments.amount` against your order total on every verification — a successful payment for the wrong amount is still the wrong amount.
+
+**Abandoned tabs.** Customers close the browser after paying more often than you would expect. Webhooks catch those; a redirect-only integration loses them.
+
+---
+
+## In-store on a terminal
+
+**What you're building**: A sale rung up in your till, ERP or retail management system, pushed to a SeerBit POS terminal for the customer to pay — with the result posted back automatically so nobody re-keys it.
+
+### The flow
+
+<Steps>
+  <Step title="Send the sale to the terminal">
+    Call [initiate transaction](/in-store/initiate-transaction) with the terminal's `posid`, the amount, and your own `orderId`. The payment request appears on the terminal.
+  </Step>
+  <Step title="Wait for the customer to pay">
+    Either poll [transaction status](/in-store/transaction-status) with that `orderId`, or supply a `webhookUrl` at initiation and let SeerBit [notify you](/in-store/webhooks) the moment it resolves.
+  </Step>
+  <Step title="Post the result back into your system">
+    On `COMPLETED`, mark the sale paid against the same `orderId` you sent. The response carries `amountPaid`, the masked card and the `sessionId` for reconciliation.
+  </Step>
+</Steps>
+
+<Card title="This API is authenticated differently" icon="key" href="/in-store/overview#authentication">
+  In-store calls use a `PublicKey` header **and** a request signature — not the bearer token used by the online APIs.
+</Card>
+
+### Decisions specific to retail
+
+- **Use your ERP's document number as `orderId`.** It is the path parameter for every status query, so making it your own invoice or sale number removes a mapping table.
+- **Prefer the webhook over polling.** A queue at the till is the worst place to be waiting on a polling interval.
+- **`sessionId` is SeerBit's reference** for the transaction. Store it alongside your sale — it is what SeerBit support and your settlement report will reference.
+
+### What to watch
+
+**A terminal must be linked to your account.** A `posid` that is not assigned returns `403 TERMINAL_NOT_ASSIGNED` — worth surfacing clearly in your till software rather than as a generic failure.
+
+**The customer can walk away.** A transaction stays `OPEN` until the terminal resolves it. Decide what your till does with an unresolved sale before you ship.
+
+---
+
+## One view across both channels
+
+**What you're building**: Online and in-store sales landing in one ledger, reconciled the same way, without a nightly export.
+
+Both channels emit webhooks and both carry references you control, so the work is mostly choosing consistent identifiers up front.
+
+| | Online | In-store |
+| --- | --- | --- |
+| **Your reference** | `paymentReference` | `orderId` |
+| **SeerBit's reference** | `linkingReference` | `sessionId` |
+| **Confirm by** | [Webhook](/online-payments/after-payments/webhook-events) or [verify](/online-payments/after-payments/verify-payment) | [Webhook](/in-store/webhooks) or [status](/in-store/transaction-status) |
+| **Settles to** | Your SeerBit balance | Your SeerBit balance |
+
+### Decisions specific to retail
+
+- **Use one reference scheme across both channels**, with a channel marker — `WEB-20260904-0041` and `POS-20260904-0042`. One scheme means one reconciliation routine.
+- **Store SeerBit's reference too.** `linkingReference` and `sessionId` are what support and settlement reports use; your own reference will not be enough in a dispute.
+- **Handle both webhook systems.** They are separate: [online webhooks](/online-payments/after-payments/webhook-events) require an acknowledgment body, [in-store webhooks](/in-store/webhooks) do not and may be encrypted. Build two handlers, not one.
+
+### Selling repeat customers a membership
+
+For loyalty tiers or subscription boxes, charge the card again without re-collecting it:
+
+- **Regular, fixed billing** → [subscriptions](/online-payments/payment-features/subscription), where SeerBit charges on a schedule you define.
+- **You decide when and how much** → [card tokenisation](/online-payments/payment-features/card-tokenisation).
+
+Either way, set `tokenize: true` on the first checkout and retrieve the `authorizationCode` from the [payment status](/online-payments/after-payments/verify-payment) — that avoids handling card details yourself, so **no PCI DSS certification is required**.
+
+## Before you go live
+
+<CardGroup cols={2}>
+  <Card title="Test both channels" icon="flask-conical" href="/test-and-live">
+    Test cards, and how test and live modes differ.
+  </Card>
+  <Card title="Go live" icon="check" href="/go-live">
+    KYC, swapping keys, and re-pointing webhooks per channel.
+  </Card>
+</CardGroup>
+
+> **Webhook URLs are configured per mode and per channel.** Going live means setting production URLs for your online *and* in-store webhooks — missing one is the most common day-one failure.

@@ -1,0 +1,154 @@
+---
+title: Travel & Hospitality
+description: Take deposits and balances, settle across outlets, and pay the property rather than the platform.
+---
+
+**Who this is for**: Developers building for restaurants, bars and lounges, hotels, resorts and shortlets, or online travel platforms and booking sites.
+
+Hospitality has a shape retail does not: **the payment is rarely a single event.** A booking is a deposit now and a balance at checkout. A table is a tab that stays open. A travel platform collects money that mostly belongs to somebody else. Almost every decision below comes from payments that are split across **time**, across **outlets**, or across **parties**.
+
+<CardGroup cols={2}>
+  <Card title="Paying at the table" icon="utensils" href="#paying-at-the-table">
+    Terminal at the till, or a link the guest pays from their phone.
+  </Card>
+  <Card title="Deposit now, balance later" icon="bed-double" href="#deposit-now-balance-later">
+    Hold a booking, then charge the rest at checkout.
+  </Card>
+  <Card title="Settling to the property" icon="git-fork" href="#settling-to-the-property-not-the-platform">
+    Travel platforms paying hotels and operators directly.
+  </Card>
+  <Card title="Across outlets" icon="layers" href="#reconciling-across-outlets">
+    One view of many restaurants, bars or properties.
+  </Card>
+</CardGroup>
+
+## Paying at the table
+
+**What you're building**: A guest settling their bill in the venue — either on a terminal the server brings over, or from their own phone.
+
+### The flow
+
+<Steps>
+  <Step title="Send the bill to a terminal">
+    From your POS or restaurant management system, call [initiate transaction](/in-store/initiate-transaction) with the terminal's `posid`, the bill total, and your own `orderId` — usually the table or check number.
+  </Step>
+  <Step title="Or send the guest a link instead">
+    For order-and-pay at the table, a [payment link](/online-payments/payment-features/payment-link) opened from a QR code lets the guest pay on their own phone without a server or a terminal.
+  </Step>
+  <Step title="Close the check automatically">
+    Rely on the [in-store webhook](/in-store/webhooks) to close the check the moment payment resolves — a queue at the till is the worst place to be polling.
+  </Step>
+</Steps>
+
+### Decisions specific to hospitality
+
+- **Use the check number as `orderId`.** It is the path parameter for every status query, so making it your own check or table reference removes a mapping table between your POS and SeerBit.
+- **A reusable payment link works for a venue; a per-transaction one works for a bill.** A QR on the table that anyone can pay is a [payment link](/online-payments/payment-features/payment-link) with a customer-entered amount. A specific check total is better sent as a fresh link or pushed to the terminal.
+- **Tips and service charge are part of your amount.** SeerBit charges what you send — add service charge before you initiate, and decide whether the guest sees it as a line before they pay.
+
+### What to watch
+
+**Guests walk away mid-payment.** A transaction stays `OPEN` until the terminal resolves it. Decide what your POS does with an unresolved check before service, not during it.
+
+**A terminal must be linked to your account.** An unassigned `posid` returns `403 TERMINAL_NOT_ASSIGNED` — surface that as "this terminal is not set up", not as a failed payment.
+
+---
+
+## Deposit now, balance later
+
+**What you're building**: A guest reserves a room and pays a deposit to hold it. The remainder is charged at checkout, without asking for the card again.
+
+This is the flow that most distinguishes hospitality, and it works through **tokenisation** — with no PCI DSS certification required, because the card is entered in SeerBit's form rather than yours.
+
+### The flow
+
+<Steps>
+  <Step title="Charge the deposit, and save the card">
+    Take the deposit through [Standard Checkout](/online-payments/integrations/standard-checkout) with `tokenize: true`.
+  </Step>
+  <Step title="Retrieve the authorization code">
+    [Query the payment](/online-payments/after-payments/verify-payment) to get the `authorizationCode`, and store it against the booking. It stands in for the card.
+  </Step>
+  <Step title="Charge the balance at checkout">
+    Charge the stored code for the remaining amount with [card tokenisation](/online-payments/payment-features/card-tokenisation) — a different amount, whenever you decide.
+  </Step>
+</Steps>
+
+### Decisions specific to hospitality
+
+- **Store the `authorizationCode` against the booking, not the guest.** A returning guest may book with a different card; the code belongs to the stay.
+- **The balance is rarely the amount you quoted.** Minibar, late checkout, damages, a changed length of stay — tokenisation is right here precisely because you choose the amount at charge time. A [subscription](/online-payments/payment-features/subscription) plan cannot do that.
+- **Give each charge its own `paymentReference`.** The deposit and the balance are separate transactions against the same booking — reuse of a reference is rejected.
+- **Cancellations mean refunds.** Refunds return to the original card and require a dispute on the transaction; the API is [approval-gated](/online-payments/after-payments/refund). Decide before launch whether your cancellation policy needs it or whether the dashboard is enough.
+
+### What to watch
+
+**A saved card can stop working.** Cards expire, get replaced, get blocked between booking and check-out. Handle that decline by asking at the desk rather than treating the stay as unpaid.
+
+**Long gaps between deposit and balance.** A booking made in January for December is a long time to rely on one card. Confirm nearer the stay if the amount is material.
+
+---
+
+## Settling to the property, not the platform
+
+**What you're building**: A booking site or travel platform collecting from the traveller, where most of the money belongs to the hotel, operator or airline — and only the commission is yours.
+
+Without this, you hold other people's money and run payouts by hand. [Split settlement](/platforms/split-settlement) divides the payment as it is taken.
+
+### The flow
+
+<Steps>
+  <Step title="Register each property">
+    Create a [sub-account](/online-payments/integrations/sub-account) for every hotel, operator or supplier you settle to. Each gets a `subAccountCode`.
+  </Step>
+  <Step title="Split the booking payment">
+    Add a `splits` object to the payment so the property receives its share and you keep your commission. See [split settlement](/platforms/split-settlement).
+  </Step>
+  <Step title="Take the booking as normal">
+    Nothing else about the payment changes — the guest sees one charge.
+  </Step>
+</Steps>
+
+### Decisions specific to travel platforms
+
+- **`PERCENTAGE` fits commission; `FLAT` fits a fixed booking fee.** Most platforms want percentage — the commission scales with the booking value.
+- **Split inline, not by rule.** Commission often varies by property, season or contract, so a `splits` object per transaction fits better than a fixed `splitCode`.
+- **Think about who bears the transaction fee.** If the property expects its exact contracted rate, do not make it the fee bearer — set `transactionFee` to `PARENT_ACCOUNT` and absorb it in your margin.
+- **A cancelled booking is harder once settled.** Money already settled to a property is not yours to return. Consider whether deposits should settle to you and be split only once the stay is non-refundable.
+
+---
+
+## Reconciling across outlets
+
+**What you're building**: One view of takings across several restaurants, bars or properties — without a nightly export from each.
+
+| | How to separate it |
+| --- | --- |
+| **By terminal** | Each terminal has its own `posid`, carried on every in-store transaction |
+| **By outlet** | Put the outlet in your own reference — `LAG-VI-CHK-0041` |
+| **By channel** | Keep one scheme across online and in-store, with a marker for each |
+| **By recipient** | Where outlets settle separately, give each a [sub-account](/online-payments/integrations/sub-account) |
+
+- **Store SeerBit's reference alongside yours.** `sessionId` in-store and `linkingReference` online are what support and [settlement reports](/online-payments/after-payments/receive-settlement) refer to.
+- **Two webhook systems, two handlers.** [Online webhooks](/online-payments/after-payments/webhook-events) require an acknowledgment body; [in-store webhooks](/in-store/webhooks) do not and may be encrypted.
+
+### International guests
+
+Travel collects from people who are not local by definition.
+
+- Enable the [payment methods](/payment-methods/overview) travellers actually carry in each market, rather than assuming an international card.
+- Check the [supported currencies](/development-resources/currency-codes/overview) before pricing a room or a fare in one.
+- International settlement runs on a longer schedule than local — see [receiving settlements](/online-payments/after-payments/receive-settlement) before you promise a property same-week payment.
+
+## Before you go live
+
+<CardGroup cols={2}>
+  <Card title="Test deposit and balance" icon="flask-conical" href="/test-and-live">
+    Exercise the full two-charge flow with test cards before launch.
+  </Card>
+  <Card title="Go live" icon="check" href="/go-live">
+    KYC, swapping keys, and re-pointing webhooks per channel.
+  </Card>
+</CardGroup>
+
+> **Test the second charge, not just the first.** A deposit that works and a balance that fails is the expensive half of this flow, and it only appears once a stored `authorizationCode` is charged.
