@@ -7,7 +7,7 @@ description: Receive real-time server notifications when events occur on your ac
 
 > **Webhooks or verification?** Webhooks push each outcome to you as it happens; [verifying a payment](/online-payments/after-payments/verify-payment) lets you ask on demand. Most integrations use both — see the [comparison](/online-payments/after-payments/verify-payment#verify-or-webhooks).
 
-> **Taking payments on a POS terminal?** In-store transactions use a separate webhook system with its own headers, event names and optional payload encryption — see [in-store webhooks](/in-store/webhooks). This page covers online payments.
+> **Taking payments on a POS terminal?** In-store transactions use a separate webhook system with its own headers, event names and payload format — see [in-store webhooks](/in-store/webhooks). This page covers online payments.
 
 Webhook Events enable real-time communication between SeerBit and your application. When specific activities occur within the payment ecosystem such as transactions, refunds, wallet movements, disputes, or virtual account events, SeerBit sends a structured notification to your configured webhook endpoint.<br/>
 
@@ -19,7 +19,7 @@ A webhook is an HTTP callback: a POST request sent to your server when an event 
 
 ##### When your endpoint receives a webhook request:
 
-1. Your server must respond with a 200 OK
+1. Your server must respond with a `2xx` status code
 2. Your server must return a JSON acknowledgment object
 3. SeerBit considers the event delivered upon receiving a valid acknowledgment
 4. Your server processes the event
@@ -64,7 +64,7 @@ Configure the URL separately in test and live mode — a test-mode subscription 
 ```json
 {
   "ackReference": "...",
-  "status": "received"
+  "status": "processed"
 }
 ```
 
@@ -81,25 +81,27 @@ This handshake ensures that events are not lost and can be processed reliably an
 HTTP Method - <Badge color="blue">POST</Badge><br/>
 Content-Type - `application/json`
 
-| Header                   | Type     | Description                                                             | Requred  |
+| Header                   | Type     | Description                                                             | Required |
 | ------------------------ | -------- | ----------------------------------------------------------------------- | -------- |
 | Content-Type             | `string` | Always application/json                                                 | Yes      |
 | X-Expected-Ack-Reference | `string` | A unique reference for this delivery. You must return it in the acknowledgment response. | Yes |
+| X-Webhook-Signature | `string` | HMAC-SHA256 signature of the request body, in the form `sha256=<signature>`. See [Verifying signatures](#verifying-signatures). | Yes |
+| X-Webhook-Encrypted | `string` | `true` when the body is encrypted. See [Decrypting payloads](#decrypting-payloads). | No |
 
-Body - A JSON object containing event metadata and associated data specific to the event type.
+Body - A JSON object containing event metadata and associated data specific to the event type. If payload encryption is enabled for your business, the body is instead a Base64 string — see [Decrypting payloads](#decrypting-payloads).
 
 ## 5. Acknowledgment Response (Required)
 
 To confirm receipt of a webhook event, your server must return:
 
-- HTTP 200 OK
+- Any `2xx` status code (`200 OK` is typical)
 - A JSON Object
 - Within 5 seconds
 
 ```json Acknowledgement JSON Structure
 {
   "ackReference": "<value from X-Expected-Ack-Reference>",
-  "status": "received"
+  "status": "processed"
 }
 ```
 
@@ -108,30 +110,24 @@ To confirm receipt of a webhook event, your server must return:
 | Field        | Type     | Description                                                                                                                                         |
 | ------------ | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | ackReference | `string` | Must match the value SeerBit sent in the `X-Expected-Ack-Reference` header of that delivery. Echo it back exactly — do not generate your own. |
-| status       | `string` | Must always be "received".                                                                                                                          |
+| status       | `string` | Set to `"processed"`. |
 
 SeerBit requires this acknowledgment to validate that your system has successfully accepted the event.
 
 ## 6. Retry Logic
 
-If your server:
+A delivery counts as failed when your server:
 
-- Returns non-200 status
-- Responds with an invalid acknowledgment
+- Is unreachable, or the connection fails
 - Times out (exceeds 5 seconds)
-- Is unreachable
+- Returns a status code outside the `2xx` range
+- Returns a `2xx` without a valid acknowledgment — `ackReference` is missing, or doesn't match the `X-Expected-Ack-Reference` sent with that delivery
 
-**…SeerBit will retry delivery**.
+SeerBit decides whether to retry based on the type of failure, so not every failed delivery is retried. Treat retries as a safety net, not a guarantee: if a webhook you're expecting hasn't arrived, [verify the payment](/online-payments/after-payments/verify-payment) rather than waiting for it.
 
-#### Retry Intervals
+#### Retry schedule
 
-Typical retry sequence:
-
-1. 30 seconds
-2. 2 minutes
-3. 10 minutes
-4. 30 minutes
-5. 1 hour (final retry)
+Retries use exponential backoff. The first retry comes about 30 seconds after the failed attempt, and the wait grows with each attempt, up to a maximum of 1 hour between attempts. A delivery is retried up to 5 times by default.
 
 **If all attempts fail, the webhook is marked as undelivered**.
 
@@ -428,7 +424,7 @@ async def receive_webhook(request: Request, x_expected_ack_reference: str = Head
     # Echo the reference SeerBit sent — it is required on every delivery
     return JSONResponse({
         "ackReference": x_expected_ack_reference,
-        "status": "received"
+        "status": "processed"
     })
 ```
 
@@ -447,7 +443,7 @@ app.post('/webhook', (req, res) => {
   // Echo the reference SeerBit sent — it is required on every delivery
   res.json({
     ackReference: ackRef,
-    status: 'received',
+    status: 'processed',
   });
 });
 ```
@@ -466,7 +462,7 @@ public class WebhookController {
         // Echo the reference SeerBit sent — it is required on every delivery
         Map<String, String> response = new HashMap<>();
         response.put("ackReference", ackRef);
-        response.put("status", "received");
+        response.put("status", "processed");
 
         return ResponseEntity.ok(response);
     }
@@ -477,7 +473,77 @@ public class WebhookController {
 
 ## 9. Security Considerations
 
-Webhook deliveries are not signed by default, so your endpoint is responsible for satisfying itself that a request is genuine. The following practices are strongly recommended:
+Every delivery is signed. Verify the signature before acting on a webhook, and layer the practices below on top of it.
+
+### Verifying signatures
+
+Each delivery carries an `X-Webhook-Signature` header in the form `sha256=<signature>` — an HMAC-SHA256 of the request body. To verify it:
+
+1. Read the **raw** request body, before any JSON parsing — re-serialised JSON won't reproduce the same bytes.
+2. Compute an HMAC-SHA256 of the raw body using your webhook signing secret.
+3. Compare your result with the value after `sha256=`, using a constant-time comparison.
+4. Reject the request if they don't match.
+
+### Decrypting payloads
+
+If your SeerBit account team has enabled payload encryption for your business, the body is encrypted with AES-256-GCM and delivered as a Base64 string, and `X-Webhook-Encrypted` is set to `true`. Check that header, and decrypt the body before parsing it.
+
+| Property       | Value                                             |
+| -------------- | ------------------------------------------------- |
+| Algorithm      | AES-256-GCM                                       |
+| Key derivation | SHA-256 hash of your SeerBit secret key           |
+| IV length      | 12 bytes, random, prepended to the ciphertext     |
+| Tag length     | 128 bits (16 bytes), appended to the ciphertext   |
+| Encoding       | Base64 of IV + ciphertext + GCM tag               |
+
+##### Steps to decrypt
+
+1. Base64-decode the webhook payload body.
+2. Take the first 12 bytes as the IV (initialization vector).
+3. Take the last 16 bytes as the GCM authentication tag.
+4. Derive the AES key as `SHA-256(secretKey)`.
+5. Decrypt the remaining bytes (the ciphertext) using AES-256-GCM with the derived key, IV, and tag.
+
+Decryption fails if the payload has been altered or the wrong key is used — reject the request rather than falling back to the raw body.
+
+<CodeGroup>
+
+```javascript Node.js
+const crypto = require('crypto');
+
+function decryptWebhook(body, secretKey) {
+  const raw = Buffer.from(body, 'base64');
+  const iv = raw.subarray(0, 12);
+  const tag = raw.subarray(raw.length - 16);
+  const ciphertext = raw.subarray(12, raw.length - 16);
+  const key = crypto.createHash('sha256').update(secretKey, 'utf8').digest();
+
+  const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
+  decipher.setAuthTag(tag);
+  const plaintext = Buffer.concat([decipher.update(ciphertext), decipher.final()]);
+  return JSON.parse(plaintext.toString('utf8'));
+}
+```
+
+```python Python
+import base64
+import hashlib
+import json
+
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+
+
+def decrypt_webhook(body: str, secret_key: str) -> dict:
+    raw = base64.b64decode(body)
+    iv, ciphertext_and_tag = raw[:12], raw[12:]  # AESGCM expects the tag appended
+    key = hashlib.sha256(secret_key.encode("utf-8")).digest()
+    plaintext = AESGCM(key).decrypt(iv, ciphertext_and_tag, None)
+    return json.loads(plaintext)
+```
+
+</CodeGroup>
+
+The following practices are strongly recommended:
 
 ### Inbound Request Validation
 
@@ -532,7 +598,7 @@ Your internal systems should allow replay during testing, especially for integra
 
 ##### Webhook arrives but no retries
 
-Your server may be returning `200 OK` with an incorrect acknowledgment body. The response must contain `ackReference` — echoing the exact value from the `X-Expected-Ack-Reference` header of that delivery — and `status: "received"`. A reference you generated yourself will not match, and the delivery is treated as unacknowledged.
+Your server may be returning a `2xx` status with an incorrect acknowledgment body. The response must contain `ackReference` — echoing the exact value from the `X-Expected-Ack-Reference` header of that delivery — and `status: "processed"`. A reference you generated yourself will not match, and the delivery is treated as unacknowledged.
 
 ##### Event processed twice
 
@@ -540,4 +606,4 @@ Implement idempotency based on the eventId field.
 
 ##### 400 or parsing errors
 
-Ensure your endpoint expects JSON and does not require authentication unless pre-agreed.
+Ensure your endpoint expects JSON and does not require authentication unless pre-agreed. If the body is a Base64 string rather than JSON, encryption is enabled for your business — [decrypt it](#decrypting-payloads) first.
