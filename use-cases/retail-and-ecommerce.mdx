@@ -106,7 +106,7 @@ Both channels emit webhooks and both carry references you control, so the work i
 
 - **Use one reference scheme across both channels**, with a channel marker — `WEB-20260904-0041` and `POS-20260904-0042`. One scheme means one reconciliation routine.
 - **Store SeerBit's reference too.** `linkingReference` and `sessionId` are what support and settlement reports use; your own reference will not be enough in a dispute.
-- **Handle both webhook systems.** They are separate: [online webhooks](/online-payments/after-payments/webhook-events) require an acknowledgment body, [in-store webhooks](/in-store/webhooks) do not and may be encrypted. Build two handlers, not one.
+- **Handle both webhook systems.** They are separate: [online webhooks](/online-payments/after-payments/webhook-events) require an acknowledgment body, [in-store webhooks](/in-store/webhooks) do not, and the headers and payloads differ. Build two handlers, not one.
 
 ### Selling repeat customers a membership
 
