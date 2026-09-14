@@ -16,7 +16,7 @@ If a `webhookUrl` was supplied at initiation, SeerBit sends a webhook event for 
 | --------------------- | --------------------------------------------------------------------------------------------- |
 | `X-Webhook-Event`     | Event type, e.g. `transaction.completed`.                                                      |
 | `X-Webhook-Event-Id`  | Unique identifier for this webhook delivery.                                                   |
-| `X-Webhook-Signature` | HMAC-SHA256 signature of the payload — present only if your webhook was configured with a signing secret. |
+| `X-Webhook-Signature` | HMAC-SHA256 signature of the payload — present only if a signing secret has been configured for your webhook. |
 | `X-Webhook-Encrypted` | `true` if the payload body is AES-256-GCM encrypted for your business.                          |
 
 ### Payload samples
@@ -112,78 +112,3 @@ If your SeerBit account team has enabled payload encryption for your business, w
 3. Take the last 16 bytes as the GCM authentication tag.
 4. Derive the AES key as `SHA-256(secretKey)`.
 5. Decrypt the remaining bytes (the ciphertext) using AES-256-GCM with the derived key, IV, and tag.
-
-## Webhook management
-
-In addition to the per-transaction `webhookUrl`, you can register business-level webhooks that receive notifications for **all** transactions on your account.
-
-### Register a webhook
-
-<Badge color="blue">POST</Badge>
-
-```bash
-https://seerbitapi.com/isv-pos/api/v1/webhooks
-```
-
-#### Required headers
-
-| Header         | Value                                                    |
-| -------------- | -------------------------------------------------------- |
-| `Content-Type` | `application/json`                                       |
-| `PublicKey`    | Your SeerBit public key                                  |
-| `Hash`         | HMAC-SHA256(secretKey, requestBody) — see Authentication |
-
-#### Request sample
-
-```bash cURL
-curl --location 'https://seerbitapi.com/isv-pos/api/v1/webhooks' \
---header 'Content-Type: application/json' \
---header 'PublicKey: YOUR_PUBLIC_KEY' \
---header 'Hash: YOUR_GENERATED_HASH' \
---data '{
-    "url": "https://your-erp-system.com/webhooks/pos-notifications",
-    "events": ["TRANSACTION_COMPLETED", "TRANSACTION_FAILED"],
-    "secret": "your-webhook-secret-min-16-chars"
-}'
-```
-
-#### Request fields
-
-| Field    | Required? | Description                                                                            |
-| -------- | --------- | -------------------------------------------------------------------------------------- |
-| `url`    | Required  | The webhook endpoint URL that will receive notifications.                               |
-| `events` | Required  | Events to subscribe to: `TRANSACTION_COMPLETED`, `TRANSACTION_FAILED`.                  |
-| `secret` | Optional  | Signing secret used to produce the `X-Webhook-Signature` header. Minimum 16 characters. |
-
-Returns `201 Created` with the registered webhook, including its `id`.
-
-### List webhooks
-
-<Badge color="green">GET</Badge>
-
-```bash
-https://seerbitapi.com/isv-pos/api/v1/webhooks
-```
-
-Returns all webhooks registered for the authenticated business.
-
-```bash cURL
-curl --location 'https://seerbitapi.com/isv-pos/api/v1/webhooks' \
---header 'PublicKey: YOUR_PUBLIC_KEY'
-```
-
-### Delete a webhook
-
-<Badge color="red">DELETE</Badge>
-
-```bash
-https://seerbitapi.com/isv-pos/api/v1/webhooks/{webhookId}
-```
-
-Removes a webhook registration. The webhook will no longer receive notifications. Returns `204 No Content` on success.
-
-```bash cURL
-curl --location --request DELETE 'https://seerbitapi.com/isv-pos/api/v1/webhooks/{webhookId}' \
---header 'PublicKey: YOUR_PUBLIC_KEY'
-```
-
