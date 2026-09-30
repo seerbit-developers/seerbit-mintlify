@@ -113,7 +113,8 @@
               "/development-resources/responses/seerbit-status-code",
               "/development-resources/responses/response-handling",
               "/development-resources/responses/raw-acquirer-responses",
-              "/development-resources/currency-codes/overview"
+              "/development-resources/currency-codes/overview",
+              "/development-resources/bank-codes/overview"
             ]
           }
         ]

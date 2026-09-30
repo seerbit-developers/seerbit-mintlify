@@ -232,7 +232,7 @@ curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts' \
 | `amount`        | Payout amount                                                       |
 | `description`   | Narration for the transaction                                       |
 | `accountNumber` | Beneficiary bank account number                                     |
-| `bankCode`      | Bank identifier code                                                |
+| `bankCode`      | Six-digit NIP code of the receiving bank — see [Bank codes](/development-resources/bank-codes/overview) |
 | `accountName`   | Name of the account holder (_must be accurate — will be validated_) |
 
 ### Bulk Payout
@@ -309,7 +309,7 @@ curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts' \
 | `amount`        | Transfer amount                                                     |
 | `description`   | Transaction narration                                               |
 | `accountNumber` | Beneficiary bank account number                                     |
-| `bankCode`      | Bank identifier code                                                |
+| `bankCode`      | Six-digit NIP code of the receiving bank — see [Bank codes](/development-resources/bank-codes/overview) |
 | `accountName`   | Name of the account holder (_must be accurate — will be validated_) |
 
 ## Step 4 — Confirm Payout
@@ -382,7 +382,7 @@ curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts/{{payoutId}}/co
 https://pocket.seerbitapi.com/pocket/banks/category/NIP
 ```
 
-Returns a list of supported Nigerian banks and their corresponding bank codes. Use this to look up the correct bankCode before initiating a payout.
+Returns a list of supported Nigerian banks and their corresponding bank codes. Use this to look up the correct bankCode before initiating a payout. For a quick lookup while you build, see [Bank codes](/development-resources/bank-codes/overview).
 
 #### Request Sample
 
