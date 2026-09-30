@@ -1,0 +1,506 @@
+---
+title: Bank Codes
+description: NIP institution codes to use as the bankCode when sending a payout to a Nigerian bank account.
+---
+
+Use these codes as the `bankCode` when you [send a payout](/online-payments/payment-features/payout) to a Nigerian bank account. Each code is the six-digit NIP institution code that identifies the receiving bank on the NIBSS Instant Payment network.
+
+> **Fetch the live list in production.** Banks merge, change names and lose licences, so this page is a reference snapshot. Call the [bank list endpoint](/online-payments/payment-features/payout#bank-list) for the current list, and use this page to look up a code while you build.
+
+> **These are not the three-digit CBN sort codes** (such as `058`). NIP codes are six digits — GTBank is `000013`. Sending a three-digit code as the payout `bankCode` will not resolve to the right bank.
+
+| Category | Institutions |
+| --- | --- |
+| [Commercial banks](#commercial-banks) | 33 |
+| [Payment service banks](#payment-service-banks) | 4 |
+| [Mobile money operators](#mobile-money-operators) | 35 |
+| [Microfinance banks](#microfinance-banks) | 315 |
+| [Merchant banks](#merchant-banks) | 6 |
+| [Mortgage banks and savings and loans](#mortgage-banks-and-savings-and-loans) | 24 |
+| [Finance companies](#finance-companies) | 10 |
+| [Payment service providers](#payment-service-providers) | 14 |
+
+## Commercial banks
+
+Deposit money banks licensed by the CBN.
+
+| Institution | Code |
+| --- | --- |
+| Access Bank | `000014` |
+| Central Bank of Nigeria | `000028` |
+| Citi Bank | `000009` |
+| Diamond Bank | `000005` |
+| Ecobank Bank | `000010` |
+| eNaira | `000033` |
+| Enterprise Bank | `000019` |
+| FCMB | `000003` |
+| Fidelity Bank | `000007` |
+| First Bank of Nigeria | `000016` |
+| Globus Bank | `000027` |
+| GTBank Plc | `000013` |
+| Heritage | `000020` |
+| JAIZ Bank | `000006` |
+| Keystone Bank | `000002` |
+| Lotus Bank | `000029` |
+| Optimus Bank | `000036` |
+| Parallex Bank | `000030` |
+| Polaris Bank | `000008` |
+| Premium Trust Bank | `000031` |
+| Providus Bank | `000023` |
+| Signature Bank | `000034` |
+| StanbicIBTC Bank | `000012` |
+| StandardChartered | `000021` |
+| Sterling Bank | `000001` |
+| Suntrust Bank | `000022` |
+| Taj Bank | `000026` |
+| Titan Trust Bank | `000025` |
+| Union Bank | `000018` |
+| United Bank for Africa | `000004` |
+| Unity Bank | `000011` |
+| Wema Bank | `000017` |
+| Zenith Bank Plc | `000015` |
+
+## Payment service banks
+
+| Institution | Code |
+| --- | --- |
+| 9Payment Service Bank | `120001` |
+| HopePSB | `120002` |
+| MoMo PSB | `120003` |
+| SmartCash PSB | `120004` |
+
+## Mobile money operators
+
+| Institution | Code |
+| --- | --- |
+| Access Yello | `100052` |
+| AccessMobile | `100013` |
+| Cellulant | `100005` |
+| Contec Global Infotech Limited (NowNow) | `100032` |
+| Eartholeum | `100021` |
+| Ecobank Xpress Account | `100008` |
+| EcoMobile | `100030` |
+| eTranzact | `100006` |
+| FBNMobile | `100014` |
+| FCMB Easy Account | `100031` |
+| FET | `100001` |
+| Fidelity Mobile | `100019` |
+| FortisMobile | `100016` |
+| GoMoney | `100022` |
+| GTMobile | `100009` |
+| Hedonmark | `100017` |
+| Innovectives Kesh | `100029` |
+| Kegow (Chamsmobile) | `100036` |
+| M36 | `100035` |
+| Mkudi | `100011` |
+| MoneyBox | `100020` |
+| One Finance | `100026` |
+| Paga | `100002` |
+| PalmPay Limited | `100033` |
+| Parkway-ReadyCash | `100003` |
+| Paycom(Opay) | `100004` |
+| Stanbic IBTC @ease wallet | `100007` |
+| TagPay | `100023` |
+| Taj_Pinspay | `080002` |
+| TeasyMobile | `100010` |
+| TitanPaystack | `100039` |
+| VTNetworks | `100012` |
+| Zenith Eazy Wallet | `100034` |
+| ZenithMobile | `100018` |
+| Zinternet Nigera Limited | `100025` |
+
+## Microfinance banks
+
+| Institution | Code |
+| --- | --- |
+| AB Microfinance Bank | `090270` |
+| Above Only Microfinance Bank | `090260` |
+| ABU Microfinance Bank | `090197` |
+| Abulesoro Microfinance Bank | `090545` |
+| Accion Microfinance Bank | `090134` |
+| Ada Microfinance Bank | `090483` |
+| Addosser Microfinance Bank | `090160` |
+| Adeyemi College Staff Microfinance Bank | `090268` |
+| Advans La Fayette Microfinance Bank | `090155` |
+| Afekhafe Microfinance Bank | `090292` |
+| Afemai Microfinance Bank | `090518` |
+| Akpo Microfinance Bank | `090608` |
+| Aku Microfinance Bank | `090531` |
+| Akuchuckwu Microfinance Bank | `090561` |
+| AL-Barakah Microfinance Bank | `090133` |
+| Al-Hayat Microfinance Bank | `090277` |
+| Alekun Microfinance Bank | `090259` |
+| Alert Microfinance Bank | `090297` |
+| Allworkers Microfinance Bank | `090131` |
+| Ally Microfinance Bank | `090548` |
+| Alpha Kapital Microfinance Bank | `090169` |
+| Alvana Microfinance Bank | `090489` |
+| Amac Microfinance Bank | `090394` |
+| Amju Unique Microfinance Bank | `090180` |
+| AMML MFB | `090116` |
+| Amoye Microfinance Bank | `090610` |
+| Ampersand Microfinance Bank | `090529` |
+| Anchorage Microfinance Bank | `090476` |
+| Aniocha Microfinance bank | `090469` |
+| Apeks Microfinance Bank | `090143` |
+| Apple Microfinance Bank | `090376` |
+| Aramoko Microfinance Bank | `090307` |
+| Arise Microfinance Bank | `090282` |
+| Aspire Microfinance Bank | `090544` |
+| AssetMatrix Microfinance Bank | `090287` |
+| Assets Microfinance Bank | `090473` |
+| Astrapolaris Microfinance Bank | `090172` |
+| Auchi Microfinance Bank | `090264` |
+| Ave Maria Microfinance Bank | `090600` |
+| Aztec Microfinance Bank | `090540` |
+| Baines Credit Microfinance Bank | `090188` |
+| Balera Microfinance Bank | `090563` |
+| Balogun Fulani Microfinance Bank | `090181` |
+| Balogun Gambari Microfinance Bank | `090326` |
+| Banc Corp MFB | `090581` |
+| BC Kash Microfinance Bank | `090127` |
+| Beststar MFB | `090615` |
+| BIPC Microfinance Bank | `090336` |
+| BishopGate Microfinance Bank | `090555` |
+| BluePrint Investments Microfinance Bank | `090538` |
+| Boctrust Microfinance Bank | `090117` |
+| BOI Microfinance Bank | `090444` |
+| Boji MFB | `090494` |
+| Borgu Microfinance Bank | `090395` |
+| Bosak Microfinance Bank | `090176` |
+| Bowen Microfinance Bank | `090148` |
+| Brethren Microfinance Bank | `090293` |
+| Bridgeway Microfinance Bank | `090393` |
+| Brightway Microfinance Bank | `090308` |
+| Broadview Microfinance Bank | `090568` |
+| Business Support Microfinance Bank | `090406` |
+| Caretaker Microfinance Bank | `090472` |
+| CashConnect Microfinance Bank | `090360` |
+| Cedar Microfinance Bank | `090562` |
+| CEMCS Microfinance Bank | `090154` |
+| Changan RTS Microfinance Bank | `090470` |
+| Chase Microfinance Bank | `090523` |
+| Chikum Microfinance Bank | `090141` |
+| Chukwunenye MFB | `090490` |
+| Cintrust Microfinance Bank | `090480` |
+| CIT Microfinance Bank | `090144` |
+| Coalcamp Microfinance Bank | `090254` |
+| Coastline Microfinance Bank | `090374` |
+| Confidence MFB | `090530` |
+| Conpro Microfinance Bank | `090380` |
+| Consistent Trust Microfinance Bank | `090553` |
+| Consumer Microfinance Bank | `090130` |
+| Corestep Microfinance Bank | `090365` |
+| Covenant MFB | `070006` |
+| Credit Afrique Microfinance Bank | `090159` |
+| Creditville MFB | `090611` |
+| Crescent Microfinance Bank | `090526` |
+| Davodani Microfinance Bank | `090391` |
+| Daylight Microfinance Bank | `090167` |
+| e-Barcs Microfinance Bank | `090156` |
+| Eagle Flight Microfinance Bank | `090294` |
+| EdFin Microfinance Bank | `090310` |
+| Egwafin Microfinance Bank | `090556` |
+| EK-Reliable Microfinance Bank | `090389` |
+| Ekondo MFB | `090097` |
+| Emeralds Microfinance Bank | `090273` |
+| Empire trust MFB | `090114` |
+| Enrich Microfinance Bank | `090539` |
+| Esan Microfinance Bank | `090189` |
+| Eso-E Microfinance Bank | `090166` |
+| Evangel Microfinance Bank | `090304` |
+| Evergreen Microfinance Bank | `090332` |
+| EWT Microfinance Bank | `090572` |
+| Excellent Microfinance Bank | `090541` |
+| Eyowo | `090328` |
+| FairMoney Microfinance Bank | `090551` |
+| FAST Microfinance Bank | `090179` |
+| FCMB BETA | `090409` |
+| FCT Microfinance Bank | `090290` |
+| Federal Polytechnic Nekede Microfinance Bank | `090398` |
+| Federal University Dutse Microfinance Bank | `090318` |
+| Fedeth Microfinance Bank | `090482` |
+| FedPoly Nasarawa Microfinance Bank | `090298` |
+| FFS Microfinance Bank | `090153` |
+| Fidfund Microfinance Bank | `090126` |
+| FIMS MFB | `090507` |
+| FinaTrust Microfinance Bank | `090111` |
+| Firmus Microfinance Bank | `090366` |
+| First Midas Microfinance Bank | `090575` |
+| First Option Microfinance Bank | `090285` |
+| First Royal Microfinance Bank | `090164` |
+| Flourish MFB | `090614` |
+| Fortis Microfinance Bank | `070002` |
+| Fullrange Microfinance Bank | `090145` |
+| Futo Microfinance Bank | `090158` |
+| Gabsyn Microfinance Bank Limited | `090591` |
+| Gashua Microfinance Bank | `090168` |
+| Gbede Microfinance Bank | `090579` |
+| Giant Stride Microfinance Bank | `090475` |
+| Gidauniyar Alheri MFB | `090621` |
+| Giginya Microfinance bank | `090411` |
+| Girei Microfinance Bank | `090186` |
+| Glory Microfinance Bank | `090278` |
+| GMB Microfinance Bank | `090408` |
+| GOLDMAN MFB | `090574` |
+| Good Neigbours Microfinance Bank | `090467` |
+| Goodnews Microfinance Bank | `090495` |
+| Gowans Microfinance Bank | `090122` |
+| Green Energy Microfinance Bank | `090550` |
+| GreenBank Microfinance Bank | `090178` |
+| Greenville Microfinance Bank | `090269` |
+| Grooming Microfinance Bank | `090195` |
+| GTI Microfinance Bank | `090385` |
+| Hackman Microfinance Bank | `090147` |
+| Halal Credit Microfinance Bank | `090291` |
+| Hasal Microfinance Bank | `090121` |
+| Headway Microfinance Bank | `090363` |
+| HighStreet Microfinance Bank | `090175` |
+| IBA Microfinance Bank | `090598` |
+| IBILE Microfinance Bank | `090118` |
+| IBOLO Microfinance Bank | `090532` |
+| Iboma Fadama Microfinance Bank | `090519` |
+| Ibu-Aje Microfinance Bank | `090488` |
+| Ijebu-Ife Microfinance Bank | `090546` |
+| Ikenne Microfinance Bank | `090324` |
+| Ikire Microfinance Bank | `090279` |
+| Ikoyi-Osun Microfinance Bank | `090536` |
+| Ilaro Poly Microfinance Bank | `090571` |
+| Ilisan Microfinance Bank | `090370` |
+| Imo State Microfinance Bank | `090258` |
+| Infinity Microfinance Bank | `090157` |
+| Interland Microfinance Bank | `090386` |
+| IRL Microfinance Bank | `090149` |
+| Isaleoyo Microfinance Bank | `090377` |
+| Island Microfinance Bank | `090584` |
+| Iwade MFB Ltd | `090578` |
+| Iwoama Microfinance Bank | `090543` |
+| Iyamoye Microfinance Bank | `090570` |
+| Iyeru Okin Microfinance Bank | `090337` |
+| Iyin Ekiti MFB | `090620` |
+| Jessefield Microfinance Bank | `090352` |
+| KadPoly Microfinance Bank | `090320` |
+| Kayvee Microfinance Bank | `090554` |
+| KC Microfinance Bank | `090549` |
+| KCMB Microfinance Bank | `090191` |
+| Kenechukwu Microfinance Bank | `090602` |
+| Kontagora Microfinance Bank | `090299` |
+| Kuda Microfinance Bank | `090267` |
+| Lapo Microfinance Bank | `090177` |
+| Lavender Microfinance Bank | `090271` |
+| Legend Microfinance Bank | `090372` |
+| Lifegate Microfinance Bank | `090557` |
+| Light MFB | `090477` |
+| Lobrem Microfinance Bank | `090537` |
+| Lovonus Microfinance Bank | `090265` |
+| MAB Allianz MFB | `090623` |
+| Macrod MFB | `090603` |
+| Mainland Microfinance Bank | `090323` |
+| Mainstreet Microfinance Bank | `090171` |
+| Maintrust Microfinance Bank | `090465` |
+| Malachy Microfinance Bank | `090174` |
+| Maritime Microfinance Bank | `090410` |
+| MayFair Microfinance Bank | `090321` |
+| Medef Microfinance Bank | `090612` |
+| Megapraise Microfinance Bank | `090280` |
+| Mercury MFB | `090589` |
+| Mgbidi Microfinance Bank | `090528` |
+| Microbiz MFB | `090587` |
+| Microcred Microfinance Bank | `090136` |
+| Midland Microfinance Bank | `090192` |
+| MintFinex Microfinance Bank | `090281` |
+| Mkobo Microfinance Bank | `090455` |
+| Molusi Microfinance Bank | `090362` |
+| Money Trust Microfinance Bank | `090129` |
+| Moyofade Microfinance Bank | `090448` |
+| Mutual Benefits Microfinance Bank | `090190` |
+| Mutual Trust Microfinance Bank | `090151` |
+| Nagarta Microfinance Bank | `090152` |
+| Nassarawa Microfinance Bank | `090349` |
+| Navy Microfinance Bank | `090263` |
+| Ndiorah Microfinance Bank | `090128` |
+| Neptune Microfinance Bank | `090329` |
+| New Dawn Microfinance Bank | `090205` |
+| New Golden Pastures Microfinance Bank | `090378` |
+| Nigerian Prisons Microfinance Bank | `090505` |
+| NIRSAL Microfinance Bank | `090194` |
+| Nkpolu-Ust MFB | `090535` |
+| Nnew Women Microfinance Bank | `090283` |
+| NPF MicroFinance Bank | `070001` |
+| Nsuk MFB | `090491` |
+| Numo Microfinance Bank | `090516` |
+| Nuture Microfinance Bank | `090364` |
+| Nwannegadi Microfinance Bank | `090399` |
+| OAU Microfinance Bank | `090345` |
+| Oche Microfinance Bank | `090333` |
+| Octopus Microfinance Bank | `090576` |
+| Ohafia Microfinance Bank | `090119` |
+| Ojokoro Microfinance Bank | `090527` |
+| Oke-Aro Oredegbe Microfinance Bank | `090565` |
+| Okpoga Microfinance Bank | `090161` |
+| Okuku Microfinance Bank | `090566` |
+| Olabisi Onabanjo University Microfinance Bank | `090272` |
+| OLOFIN OWENA Microfinance Bank | `090468` |
+| Olowolagba Microfinance Bank | `090404` |
+| Oluchukwu Microfinance Bank | `090471` |
+| Omiye Microfinance Bank | `090295` |
+| Oraukwu MFB | `090492` |
+| Orisun MFB | `090588` |
+| Orokam Microfinance Bank | `090567` |
+| Oscotech Microfinance Bank | `090396` |
+| Otech Microfinance Bank | `090580` |
+| Otuo Microfinance Bank | `090542` |
+| Page Financials | `070008` |
+| Parralex Microfinance bank | `090004` |
+| PatrickGold Microfinance Bank | `090317` |
+| PecanTrust Microfinance Bank | `090137` |
+| Pennywise Microfinance Bank | `090196` |
+| Personal Trust Microfinance Bank | `090135` |
+| Petra Microfinance Bank | `090165` |
+| Pillar Microfinance Bank | `090289` |
+| Polybadan Microfinance Bank | `090534` |
+| Polyunwana Microfinance Bank | `090296` |
+| Preeminent Microfinance Bank | `090412` |
+| Prestige Microfinance Bank | `090274` |
+| Pristine Divitis Microfinance Bank | `090499` |
+| Projects Microfinance Bank | `090503` |
+| Purplemoney Microfinance Bank | `090303` |
+| Qube Microfinance Bank | `090569` |
+| Quickfund Microfinance Bank | `090261` |
+| Randalpha Microfinance Bank | `090496` |
+| Rayyan MFB | `090616` |
+| Regent Microfinance Bank | `090125` |
+| Rehoboth Microfinance Bank | `090463` |
+| Reliance Microfinance Bank | `090173` |
+| RenMoney Microfinance Bank | `090198` |
+| Rephidim Microfinance Bank | `090322` |
+| Richway Microfinance Bank | `090132` |
+| Rigo Microfinance Bank | `090433` |
+| RIMA Growth Pathway Microfinance Bank | `090515` |
+| Rockshield Microfinance Bank | `090547` |
+| Rolez Microfinance Bank | `090405` |
+| Royal Exchange Microfinance Bank | `090138` |
+| Safe Haven Microfinance Bank | `090286` |
+| Sagamu Microfinance Bank | `090140` |
+| SEAP Microfinance Bank | `090513` |
+| Seed Capital Microfinance Bank | `090112` |
+| Seedvest Microfinance Bank | `090369` |
+| Shalom Microfinance Bank | `090502` |
+| Shepherd Trust Microfinance Bank | `090401` |
+| Shield Microfinance Bank | `090559` |
+| Shongom Microfinance Bank | `090558` |
+| Snow MFB | `090573` |
+| Solid Allianze MFB | `090506` |
+| Solidrock microfinance Bank | `090524` |
+| Sparkle | `090325` |
+| Stanford Microfinance Bak | `090162` |
+| Stateside Microfinance Bank | `090583` |
+| Stellas Microfinance Bank | `090262` |
+| Sulspap Microfinance Bank | `090305` |
+| Supreme Microfinance Bank | `090564` |
+| Tanadi Microfinance Bank | `090560` |
+| Tasued Microfinance Bank | `090593` |
+| TCF MFB | `090115` |
+| Think Finance Microfinance Bank | `090373` |
+| Trident Microfinance Bank | `090146` |
+| TripleA Microfinance Bank | `090525` |
+| Trust Microfinance Bank | `090327` |
+| Trustfund Microfinance Bank | `090276` |
+| U & C Microfinance Bank | `090315` |
+| UDA Microfinance Bank | `090403` |
+| Uhuru Microfinance Bank | `090517` |
+| Ummah Microfinance Bank | `090609` |
+| UNAAB Microfinance Bank | `090331` |
+| Uniben Microfinance Bank | `090266` |
+| Unical Microfinance Bank | `090193` |
+| Unimaid Microfinance Bank | `090464` |
+| UniUyo Microfinance Bank | `090338` |
+| UNN MFB | `090251` |
+| Verdant Microfinance Bank | `090474` |
+| Verite Microfinance Bank | `090123` |
+| VFD MFB | `090110` |
+| Virtue Microfinance Bank | `090150` |
+| Visa Microfinance Bank | `090139` |
+| Waya Microfinance Bank | `090950` |
+| Wetland Microfinance Bank | `090120` |
+| Xslnce Microfinance Bank | `090124` |
+| YCT Microfinance Bank | `090466` |
+| Yes Microfinance Bank | `090142` |
+| Yobe Microfinance Bank | `090252` |
+| Zikora Microfinance Bank | `090504` |
+
+## Merchant banks
+
+| Institution | Code |
+| --- | --- |
+| Coronation Merchant Bank | `060001` |
+| FBNQUEST Merchant Bank | `060002` |
+| FSDH Merchant Bank | `400001` |
+| Greenwich Merchant Bank | `060004` |
+| Nova Merchant Bank | `060003` |
+| Rand Merchant Bank | `000024` |
+
+## Mortgage banks and savings and loans
+
+| Institution | Code |
+| --- | --- |
+| Abbey Mortgage Bank | `070010` |
+| AG Mortgage Bank | `100028` |
+| Akwa Savings & Loans Limited | `070025` |
+| ASOSavings & Loans | `090001` |
+| Brent Mortgage Bank | `070015` |
+| Coop Mortgage Bank | `070021` |
+| Delta Trust Microfinance Bank | `070023` |
+| FBN Mortgages Limited | `090107` |
+| FHA Mortgage Bank | `070026` |
+| First Generation Mortgage Bank | `070014` |
+| Gateway Mortgage Bank | `070009` |
+| Haggai Mortgage Bank Limited | `070017` |
+| Homebase Mortgage Bank | `070024` |
+| Imperial Homes Mortgage Bank | `100024` |
+| Infinity Trust Mortgage Bank | `070016` |
+| Jubilee-Life Mortgage Bank | `090003` |
+| Lagos Building Investment Company | `070012` |
+| MayFresh Mortgage Bank | `070019` |
+| New Prudential Bank | `090108` |
+| Omoluabi savings and loans | `070007` |
+| Platinum Mortgage Bank | `070013` |
+| Refuge Mortgage Bank | `070011` |
+| SafeTrust | `090006` |
+| Trustbond Mortgage Bank | `090005` |
+
+## Finance companies
+
+| Institution | Code |
+| --- | --- |
+| AAA Finance | `050005` |
+| Branch International Financial Services | `050006` |
+| Dignity Finance | `050013` |
+| Enco Finance | `050012` |
+| Fast Credit | `050009` |
+| FEWCHORE FINANCE COMPANY LIMITED | `050002` |
+| Fundquest Financial Services Limited | `050010` |
+| SageGrey Finance Limited | `050003` |
+| Tekla Finance Limited | `050007` |
+| Trinity Financial Services Limited | `050013` |
+
+## Payment service providers
+
+Switches and payment processors that hold NIP codes.
+
+| Institution | Code |
+| --- | --- |
+| 3line Card Management Limited | `110005` |
+| Accelerex Network Limited | `090202` |
+| Crowdforce | `110017` |
+| Cyberspace Limited | `110014` |
+| First Apple Limited | `110004` |
+| Flutterwave Technology Solutions Limited | `110002` |
+| Intellifin | `100027` |
+| Interswitch Limited | `110003` |
+| NIP Virtual Bank | `999999` |
+| PayAttitude Online | `110001` |
+| Paystack Payment Limited | `110006` |
+| Prophius | `110032` |
+| Teamapt Limited | `110007` |
+| Vas2nets Limited | `110015` |
