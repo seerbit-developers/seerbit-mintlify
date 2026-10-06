@@ -23,19 +23,17 @@ mode: custom
 </div>
 
 <div style={{ maxWidth: "1160px", margin: "72px auto 64px", padding: "0 24px" }}>
-  <div style={{ borderRadius: "16px", overflow: "hidden", aspectRatio: "20/12" }}>
-    <iframe src="https://www.youtube.com/embed/nbMQKiCSJ3Y?autoplay=1&mute=1&rel=0&cc_load_policy=0" title="SeerBit video" style={{ width: "100%", height: "100%", border: "none" }} frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen />
-  </div>
-
   <Tabs>
     <Tab title="Online Payments">
       <CardGroup cols={2}>
         {[
                                                       { title: "Get Started", body: "Take your first test payment in about ten minutes.", icon: "rocket", href: "/quickstart" },
-                                                      { title: "Accept Payments", body: "Compare Simple Checkout, Standard Checkout, SDKs and plugins.", icon: "credit-card", href: "/online-payments/integrations/accept-payment" },
+                                                      { title: "Accept Payments", body: "Choose how to take payments on your site or app.", icon: "credit-card", href: "/online-payments/integrations/accept-payment" },
                                                       { title: "Add Payment Methods", body: "Card, bank account, transfer, USSD and mobile money.", icon: "wallet", href: "/payment-methods/overview" },
                                                       { title: "Webhooks", body: "Get notified server-side the moment a transaction resolves.", icon: "webhook", href: "/online-payments/after-payments/webhook-events" },
                                                       { title: "Verify a Payment", body: "Confirm the result server-side before you fulfil an order.", icon: "shield-check", href: "/online-payments/after-payments/verify-payment" },
+                                                      { title: "SDKs", body: "Build custom in-app payment flows.", icon: "code", href: "/sdks/overview" },
+                                                      { title: "Payouts", body: "Send single or bulk bank transfers from your Pocket.", icon: "send", href: "/online-payments/payment-features/payout" },
                                                     ].map((item) => (
                                                       <Card
                                                         key={item.title}
@@ -80,7 +78,7 @@ mode: custom
         {[
                                                       { title: "Get Started", body: "Register sub-accounts for the parties you settle to.", icon: "rocket", href: "/online-payments/integrations/sub-account" },
                                                       { title: "Split Settlement", body: "Settle one payment across several accounts.", icon: "credit-card", href: "/platforms/split-settlement" },
-                                                      { title: "Payouts", body: "Send single or bulk bank transfers from your Pocket.", icon: "wallet", href: "/online-payments/payment-features/payout" },
+                                                      { title: "Payouts", body: "Send single or bulk bank transfers from your Pocket.", icon: "send", href: "/online-payments/payment-features/payout" },
                                                       { title: "Webhooks", body: "Get notified server-side the moment a transaction resolves.", icon: "webhook", href: "/online-payments/after-payments/webhook-events" },
                                                     ].map((item) => (
                                                       <Card
@@ -98,6 +96,31 @@ mode: custom
       </CardGroup>
     </Tab>
   </Tabs>
+
+  <div style={{marginTop: "40px"}}>
+    <h2 className="seerbit-section-heading">
+      Developer Tools
+    </h2>
+
+    <CardGroup cols={4}>
+      {[
+                                            { title: "Documentation", body: "Step-by-step guides to integrate and start accepting payments.", icon: "file-text", href: "/introduction" },
+                                            { title: "API Reference", body: "Explore endpoints, parameters, and sample responses.", icon: "braces", href: "/api-reference" },
+                                            { title: "Postman Workspace", body: "Send sample requests and test APIs in Postman.", icon: "folder-symlink", href: "https://telecoms-architect-44543891-s-team.postman.co/workspace/My-Workspace~d2f0c317-8eaa-4166-841c-2c4173391f2c/collection/28675505-f1e4647f-4a15-478d-b152-113caa3f1922?action=share&source=copy-link&creator=28675505" },
+                                            { title: "Test Card", body: "Use test card details to simulate payment scenarios.", icon: "credit-card", href: "/test-and-live#test-cards" },
+                                          ].map((item) => (
+                                            <Card
+                                              key={item.title}
+                                              title={item.title}
+                                              icon={item.icon}
+                                              href={item.href}
+                                              className="seerbit-nav-card seerbit-tool-card"
+                                            >
+                                              {item.body}
+                                            </Card>
+                                          ))}
+    </CardGroup>
+  </div>
 
   <div style={{marginTop: "40px"}}>
     <h2 className="seerbit-section-heading">
@@ -124,6 +147,46 @@ mode: custom
                                             </Card>
                                           ))}
     </CardGroup>
+  </div>
+
+  <div style={{marginTop: "40px"}}>
+    <div className="seerbit-section-header">
+      <h2 className="seerbit-section-heading">
+        Integrated Software Partners
+      </h2>
+
+      <a className="seerbit-button seerbit-button-sm seerbit-button-secondary" href="https://www.seerbit.com/integrations" target="_blank" rel="noopener noreferrer">
+        View all <Icon icon="external-link" size={14} />
+      </a>
+    </div>
+
+    <div className="seerbit-partner-grid">
+      {[
+                                            { name: "Odoo", href: "https://apps.odoo.com/apps/modules/18.0/pos_seerbit", logo: "/assets/partners/odoo.png", body: "Explore payment integration options for your Odoo business workflows." },
+                                            { name: "Zoho", href: "https://marketplace.zoho.com/app/books/seerbit-payment-gateway-for-zoho-books", logo: "/assets/partners/zoho.png", body: "Discover payment integration options for your Zoho tools." },
+                                            { name: "Sage X3", href: "https://www.seerbit.com/integrations", logo: "/assets/partners/sage-x3.png", body: "Explore ways to connect payments with your Sage X3 workflows." },
+                                            { name: "Xero", href: "https://xero.seerbitapi.com/", logo: "/assets/partners/xero.png", body: "Discover payment integration options for your Xero accounting workflows." },
+                                            { name: "Salesforce", href: "https://appexchange.salesforce.com/appxListingDetail?listingId=765ce165-932d-4053-b0f4-28adf41aeb81", logo: "/assets/partners/salesforce.png", body: "Explore payment integration options for your Salesforce workflows." },
+                                            { name: "Microsoft Business Central", href: "https://marketplace.microsoft.com/en-us/product/PUBID.centricgatewaylimited1671127718957%7CAID.centricgateway_payments%7CPAPPID.0959b6f9-1c39-4618-ac4c-9c7096158431?tab=Overview", logo: "/assets/partners/microsoft-business-central.png", body: "Explore payment integration options for your Microsoft Business Central workflows." },
+                                          ].map((item) => (
+                                            <div key={item.name} className="seerbit-partner-card">
+                                              <div className="seerbit-partner-logo">
+                                                <img src={item.logo} alt={`${item.name} logo`} />
+                                              </div>
+
+                                              <h3>{item.name}</h3>
+                                              <p>{item.body}</p>
+
+                                              <a className="seerbit-button seerbit-button-sm seerbit-button-black seerbit-partner-cta" href={item.href} target="_blank" rel="noopener noreferrer">
+                                                Explore {item.name}
+                                              </a>
+                                            </div>
+                                          ))}
+    </div>
+  </div>
+
+  <div style={{ marginTop: "56px", borderRadius: "16px", overflow: "hidden", aspectRatio: "20/12" }}>
+    <iframe src="https://www.youtube.com/embed/nbMQKiCSJ3Y?rel=0&cc_load_policy=0" title="SeerBit video" style={{ width: "100%", height: "100%", border: "none" }} frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen />
   </div>
 
   <div style={{marginTop: "40px"}}>
