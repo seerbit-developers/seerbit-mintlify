@@ -617,3 +617,114 @@
     gap: 14px;
   }
 }
+
+/* Developer tools */
+
+.seerbit-tool-card {
+  background-color: #fafafa;
+}
+
+.dark .seerbit-tool-card {
+  background-color: #1e2536;
+}
+
+/* Section header with a trailing action */
+
+.seerbit-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.seerbit-section-header .seerbit-section-heading {
+  width: auto;
+  margin: 0;
+}
+
+/* Integrated software partners */
+
+.seerbit-partner-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.seerbit-partner-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24px;
+  border: 1px solid #ebebeb;
+  border-radius: 12px;
+  background-color: #fafafa;
+}
+
+.dark .seerbit-partner-card {
+  border-color: #2a3041;
+  background-color: #1e2536;
+}
+
+.seerbit-partner-logo {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  margin-bottom: 16px;
+}
+
+.seerbit-partner-logo img {
+  max-width: 155px;
+  max-height: 64px;
+  object-fit: contain;
+}
+
+/* Several logos are grey or dark on transparent; give them a light plate in dark mode */
+.dark .seerbit-partner-logo {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: #ffffff;
+}
+
+.dark .seerbit-partner-logo img {
+  max-height: 48px;
+}
+
+.seerbit-partner-card h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000000;
+}
+
+.dark .seerbit-partner-card h3 {
+  color: #ffffff;
+}
+
+.seerbit-partner-card p {
+  margin: 4px 0 16px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: #667085;
+}
+
+.dark .seerbit-partner-card p {
+  color: #98a2b3;
+}
+
+.seerbit-partner-cta {
+  margin-top: auto;
+  padding: 8px 16px;
+}
+
+@media (max-width: 900px) {
+  .seerbit-partner-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .seerbit-partner-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
