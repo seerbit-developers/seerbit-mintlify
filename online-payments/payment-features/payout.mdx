@@ -5,6 +5,8 @@ description: Send single or bulk bank transfers from your SeerBit Pocket.
 
 The SeerBit Pocket Payout API enables merchants to initiate single or bulk bank transfers directly from their SeerBit Pocket. This page covers all the steps required to authenticate, sign, initiate, and confirm a payout — along with error handling references and a supported bank list endpoint.
 
+> **Payouts are live only.** Payouts are sent from your [Pocket](/online-payments/payment-features/pocket), and Pocket has no test mode — no test keys and no sandbox. Every payout sends real money to a real bank account, so use small amounts to an account you control while you integrate.
+
 <Card title="Prerequisites — Please read before integrating" type="warning">
   <li>
     **Request Signature Verification:** All requests must include a valid `X-Seerbit-Signature`
