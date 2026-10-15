@@ -393,6 +393,38 @@ curl --location 'https://pocket.seerbitapi.com/pocket/banks/category/NIP' \
 --header 'Public-Key: your_public_key_here'
 ```
 
+## Account Name Enquiry
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/authenticate/name-enquiry
+```
+
+Looks up the name on a bank account before you pay it. Use it to show the user who they are about to pay, so they can catch a wrong account number before the money moves.
+
+#### Request Sample
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/authenticate/name-enquiry' \
+--header 'Content-Type: application/json' \
+--data '{
+  "bankcode": "000013",
+  "accountnumber": "0123456789"
+}'
+```
+
+##### Request Fields
+
+| Field           | Description                                                                                             |
+| --------------- | ------------------------------------------------------------------------------------------------------- |
+| `bankcode`      | Six-digit NIP code of the bank — see [Bank codes](/development-resources/bank-codes/overview) or the [bank list](#bank-list) |
+| `accountnumber` | The account number to look up                                                                           |
+
+> **Note**: The field names here are all lowercase (`bankcode`, `accountnumber`), unlike the camelCase `bankCode` and `accountNumber` in payout requests.
+
+SeerBit also runs a name enquiry on every payout. If you send `accountName` in the payout request, it must match the enquiry result — so looking the name up first and passing it through avoids a mismatch.
+
 ## Error Scenarios
 
 The following error responses may occur during payout initiation or confirmation flows.
