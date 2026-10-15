@@ -91,7 +91,8 @@
             "pages": [
               "/payouts/overview",
               "/online-payments/payment-features/pocket",
-              "/online-payments/payment-features/payout"
+              "/online-payments/payment-features/payout",
+              "/payouts/mfa"
             ]
           },
           {
