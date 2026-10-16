@@ -37,6 +37,10 @@ Test credentials for [bank account](/payment-methods/bank-account) and [transfer
 
 Test MSISDNs for [mobile money](/payment-methods/mobile-money) differ by operator and country. Request the set for your markets from your SeerBit account team or via [support](https://seerbitteam.freshdesk.com/support/home).
 
+## Pocket and payouts are live only
+
+[Pocket](/online-payments/payment-features/pocket) and [Payout](/online-payments/payment-features/payout) have no test mode. There are no test keys and no sandbox for them, so every call works on real balances and moves real funds. Use small amounts to an account you control while you integrate.
+
 ## Confirming which mode a transaction ran in
 
 The [payment status response](/online-payments/after-payments/verify-payment) includes a `mode` field:
@@ -58,6 +62,7 @@ It reads `test` for simulated transactions and `live` for real ones. Check it if
 - **Transactions do not carry over.** A payment made with test keys never appears in your live transaction history.
 - **Webhook subscriptions do not carry over.** Configure your notification URL separately in each mode — a test-mode subscription will not fire for live traffic.
 - **Webhooks do fire in test mode**, so you can verify your handler end to end before going live.
+- **Pocket and payouts have no test mode at all.** See [above](#pocket-and-payouts-are-live-only).
 
 ## Next steps
 
