@@ -1,0 +1,302 @@
+---
+title: Two-Factor Authentication
+description: Authorize payouts with an authenticator app, a transaction PIN, an email code, or a recovery code.
+---
+
+Every payout must be authorized with a second factor before SeerBit processes it — this is the code you send when you [confirm a payout](/online-payments/payment-features/payout#step-4-%E2%80%94-confirm-payout). By default that code is a one-time password sent by email. Pocket owners can replace email with a code from an authenticator app or a static transaction PIN, which removes email delivery delays from every payout.
+
+> **Live only.** Like the rest of [Pocket](/online-payments/payment-features/pocket), two-factor authentication has no test mode. Enrolment, PINs and recovery codes all apply to your live account.
+
+All endpoints on this page use the bearer token from [Pocket authentication](/online-payments/payment-features/pocket#authentication) and your public key, and always act on the account that token belongs to:
+
+| Header | Value |
+| --- | --- |
+| `Authorization` | `Bearer <bearerToken>` |
+| `Public-Key` | Your public key |
+| `Content-Type` | `application/json` |
+
+## How payout authorization works
+
+When you initiate a payout, the response tells you which code to ask the user for in `channel`:
+
+```json
+{
+  "data": {
+    "status": "PENDING_OTP",
+    "channel": "TOTP"
+  }
+}
+```
+
+Show the prompt that matches `channel`, then send what the user enters as `code` when you confirm the payout.
+
+| `channel` | Ask the user for | Format | Is an email sent? |
+| --- | --- | --- | --- |
+| `TOTP` | The code from their authenticator app, or a recovery code | 6 digits (recovery code: 8 characters) | No — don't tell the user to check their email |
+| `PIN` | Their transaction PIN, or a recovery code | 4–12 characters, masked input | No — don't show an email countdown |
+| `EMAIL` | The one-time password emailed to the pocket owner | 6 digits, valid for 5 minutes | Yes, sent automatically |
+| `REQUIRED_TOTP` | Same as `TOTP` | 6 digits (recovery code: 8 characters) | No |
+| `REQUIRED_PIN` | Same as `PIN` | 4–12 characters, masked input | No |
+
+**Factors are isolated.** On a `TOTP` challenge, only an authenticator code or a recovery code is accepted; on a `PIN` challenge, only the PIN or a recovery code. Sending a PIN to a `TOTP` challenge fails, and the failure counts towards the [lockout](#lockout-and-clock-drift).
+
+The channel follows the pocket's security settings and the owner's setup: an enrolled authenticator takes precedence, then a transaction PIN, then email. SeerBit can also configure a pocket to **require** a factor — the `REQUIRED_TOTP` and `REQUIRED_PIN` channels. These never fall back to email: if the user hasn't set up the required factor, initiating a payout fails with `MFA required. Please enroll in <factor> first.`
+
+Your authenticator enrolment, PIN and recovery codes belong to your login, not to a single pocket — they work across every pocket you can access.
+
+## Set up an authenticator app
+
+Any standard authenticator app works — Google Authenticator, Microsoft Authenticator or 1Password, for example.
+
+<Steps>
+  <Step title="Start enrolment">
+    <Badge color="blue">POST</Badge>
+
+    ```bash
+    https://pocket.seerbitapi.com/pocket/mfa/enroll
+    ```
+
+    ```bash cURL
+    curl --location 'https://pocket.seerbitapi.com/pocket/mfa/enroll' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer {{bearerToken}}' \
+    --header 'Public-Key: {{publicKey}}' \
+    --data '{}'
+    ```
+
+    ```json Response
+    {
+      "success": true,
+      "data": {
+        "email": "finance@yourmerchant.com",
+        "secretBase32": "<base32 secret>",
+        "otpauthUri": "otpauth://totp/SeerBit%3Afinance@yourmerchant.com?secret=<base32 secret>&issuer=SeerBit",
+        "qrBase64": "<base64-encoded PNG>",
+        "expiresAt": "2026-10-08T13:42:59.822"
+      }
+    }
+    ```
+
+    Show the QR code for the user to scan, or let them type `secretBase32` into their app. `qrBase64` is raw PNG data without a data-URI prefix, so add one to display it:
+
+    ```jsx
+    <img src={"data:image/png;base64," + data.qrBase64} alt="Scan this QR code with your authenticator app" />
+    ```
+
+    Complete the next step before `expiresAt`. Treat the secret like a password — anyone who has it can generate valid codes — and don't log or store it.
+  </Step>
+
+  <Step title="Confirm enrolment">
+    <Badge color="blue">POST</Badge>
+
+    ```bash
+    https://pocket.seerbitapi.com/pocket/mfa/enroll/confirm
+    ```
+
+    Send the 6-digit code the app is currently showing. The authenticator isn't active until this call succeeds.
+
+    ```bash cURL
+    curl --location 'https://pocket.seerbitapi.com/pocket/mfa/enroll/confirm' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer {{bearerToken}}' \
+    --header 'Public-Key: {{publicKey}}' \
+    --data '{
+      "code": "482019"
+    }'
+    ```
+
+    ```json Response
+    {
+      "success": true,
+      "message": "MFA enabled successfully. Recovery codes generated.",
+      "data": [
+        "<recovery code 1>",
+        "<recovery code 2>",
+        "…",
+        "<recovery code 10>"
+      ]
+    }
+    ```
+  </Step>
+
+  <Step title="Save the recovery codes">
+    The confirmation response contains 10 [recovery codes](#recovery-codes). Show them to the user once and ask them to store them somewhere safe — they are the only way to authorize a payout if the authenticator device is lost.
+  </Step>
+</Steps>
+
+From now on, payouts return `channel: "TOTP"`.
+
+### Check authenticator status
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/mfa/status
+```
+
+```json Response
+{
+  "success": true,
+  "data": {
+    "email": "finance@yourmerchant.com",
+    "enrolled": true,
+    "confirmed": true,
+    "channel": "TOTP"
+  }
+}
+```
+
+### Disable the authenticator
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/mfa/disable
+```
+
+Send a current authenticator code or a recovery code. If the user has a transaction PIN, it stays active and payouts switch to `channel: "PIN"`; otherwise they fall back to email.
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/mfa/disable' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {{bearerToken}}' \
+--header 'Public-Key: {{publicKey}}' \
+--data '{
+  "code": "482019"
+}'
+```
+
+```json Response
+{
+  "success": true,
+  "message": "MFA disabled successfully"
+}
+```
+
+Disabling deletes the authenticator secret. Enrolling again creates a new one, and the old entry in the app stops working.
+
+## Set up a transaction PIN
+
+A transaction PIN is a static secret of 4 to 12 alphanumeric characters that the user chooses. It is valid for 30 days, after which it must be rotated.
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/mfa/pin
+```
+
+| Field | Description |
+| --- | --- |
+| `pin` | The new PIN — 4 to 12 alphanumeric characters. |
+| `code` | Proof that the user may change the PIN: a current authenticator code when setting the first PIN, or the current PIN when rotating. |
+
+### Set the first PIN
+
+Setting a PIN requires a code that proves who the user is, and a user with no PIN yet has nothing to prove it with. So the first PIN is set through a temporary authenticator enrolment:
+
+<Steps>
+  <Step title="Enrol an authenticator">
+    [Start](#set-up-an-authenticator-app) and confirm enrolment, and save the recovery codes.
+  </Step>
+  <Step title="Set the PIN with an authenticator code">
+    ```bash cURL
+    curl --location 'https://pocket.seerbitapi.com/pocket/mfa/pin' \
+    --header 'Content-Type: application/json' \
+    --header 'Authorization: Bearer {{bearerToken}}' \
+    --header 'Public-Key: {{publicKey}}' \
+    --data '{
+      "code": "583920",
+      "pin": "<new PIN>"
+    }'
+    ```
+
+    ```json Response
+    {
+      "success": true,
+      "message": "PIN set successfully. It must be rotated every 30 days."
+    }
+    ```
+  </Step>
+  <Step title="Disable the authenticator (PIN-only users)">
+    While the authenticator is enabled it takes precedence, so payouts keep asking for an authenticator code. To use the PIN instead, [disable the authenticator](#disable-the-authenticator). The PIN stays active, and every payout from then on asks for it.
+  </Step>
+</Steps>
+
+### Rotate the PIN
+
+Rotate before the 30 days are up. Send the **current** PIN as `code` — no authenticator code is needed:
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/mfa/pin' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {{bearerToken}}' \
+--header 'Public-Key: {{publicKey}}' \
+--data '{
+  "code": "<current PIN>",
+  "pin": "<new PIN>"
+}'
+```
+
+Once a PIN is older than 30 days, it is rejected until it is rotated.
+
+### Check PIN status
+
+<Badge color="green">GET</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/mfa/pin/status
+```
+
+```json Response
+{
+  "success": true,
+  "data": {
+    "email": "finance@yourmerchant.com",
+    "pinActive": true
+  }
+}
+```
+
+`pinActive` is `true` only when a PIN exists **and** is less than 30 days old. Check it before a payout run so you can prompt for rotation instead of failing mid-batch.
+
+## Recovery codes
+
+Recovery codes stand in for an authenticator code or PIN when the user can't produce one — for example, after losing their phone. There are 10, each is 8 characters, and each works **once**. They are accepted on both `TOTP` and `PIN` challenges.
+
+### Generate new recovery codes
+
+<Badge color="blue">POST</Badge>
+
+```bash
+https://pocket.seerbitapi.com/pocket/mfa/recovery-codes
+```
+
+Requires a current authenticator code — a recovery code is not accepted here. Each call **replaces** all existing recovery codes, and the new ones are returned only in this response.
+
+```bash cURL
+curl --location 'https://pocket.seerbitapi.com/pocket/mfa/recovery-codes' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer {{bearerToken}}' \
+--header 'Public-Key: {{publicKey}}' \
+--data '{
+  "code": "482019"
+}'
+```
+
+## Lockout and clock drift
+
+- **Five wrong codes lock the account for 15 minutes.** Five consecutive incorrect codes lock the user's authentication, and every confirmation attempt during the lockout fails with `Account locked due to too many failed attempts. Try again later.` A correct code resets the count to zero. A wrong code doesn't cancel the payout — it stays `PENDING_OTP`, so the user can try again. Don't retry codes automatically — stop and ask the user.
+- **Authenticator codes depend on the device clock.** Codes change every 30 seconds, and SeerBit allows one step of drift either way. If a user's codes are repeatedly rejected, have them turn on automatic date and time on their phone.
+
+## Errors
+
+Confirmation failures come back with the payout's `status` and a `message` — check both, not just the HTTP status code.
+
+| Message | Cause | What to do |
+| --- | --- | --- |
+| `Invalid TOTP code` / `Invalid OTP` | Wrong code, or the wrong factor for the challenge | Ask the user to re-enter it and confirm the same `payoutId`. On a `TOTP` challenge don't send a PIN, and vice versa. |
+| `Account locked due to too many failed attempts. Try again later.` | Five consecutive wrong codes | Wait 15 minutes. |
+| `OTP has expired. Please initiate a new payout request.` | The email OTP is more than 5 minutes old | Initiate a new payout. |
+| `MFA required. Please enroll in <factor> first.` | The pocket requires an authenticator or PIN the user hasn't set up | [Set up the factor](#set-up-an-authenticator-app), then initiate again. |
+| Expired PIN rejected | The PIN is more than 30 days old | [Rotate the PIN](#rotate-the-pin), then confirm again. |
+| `401` | Bearer token missing or expired | [Authenticate](/online-payments/payment-features/pocket#authentication) again for a new token. |

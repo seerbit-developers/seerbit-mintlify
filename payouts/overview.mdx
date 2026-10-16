@@ -49,8 +49,8 @@ Payouts are deliberately harder to trigger than collections, because they move m
   <Step title="Initiate">
     Submit the transfer instruction. Single and bulk use the same endpoint; bulk adds a `batchReference` and a `transfers` array.
   </Step>
-  <Step title="Confirm with OTP">
-    A one-time password authorises the transfer before it is processed. Nothing moves until this step completes.
+  <Step title="Confirm">
+    Authorise the transfer with a second factor — an email OTP by default, or an authenticator code or transaction PIN if your pocket requires one. Nothing moves until this step completes. See [Two-factor authentication](/payouts/mfa).
   </Step>
 </Steps>
 
@@ -61,3 +61,4 @@ Full request and response detail for each step is on the [Payout](/online-paymen
 - Your **secret key** signs every payout request. Keep it server-side — a leaked payout key is materially worse than a leaked collection key, because it can move funds out.
 - `batchReference` on a bulk payout is your idempotency key. Reusing one is how you avoid paying a batch twice after a timeout.
 - Payouts are approval-gated. If the API rejects you before you reach the signature step, check your dashboard approval status first.
+- If your pocket requires an authenticator code or PIN, [set it up](/payouts/mfa) before your first payout. On a strict channel, a payout cannot be confirmed without one.

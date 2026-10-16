@@ -17,8 +17,9 @@ The SeerBit Pocket Payout API enables merchants to initiate single or bulk bank 
   </li>
   <li>
     {' '}
-    **OTP Authorization**: All payout requests require One-Time Password (OTP) verification before
-    processing is completed.
+    **Payout Authorization**: Every payout must be authorized with a second factor before it is
+    processed — an email OTP by default, or an authenticator app code or transaction PIN if your
+    pocket requires one. See [Two-factor authentication](/payouts/mfa).
   </li>
 </Card>
 
@@ -39,7 +40,7 @@ The SeerBit Pocket Payout API enables merchants to initiate single or bulk bank 
     Single or Bulk
   </Card>
   <Card href="#step-4-%E2%80%94-confirm-payout" icon="tally-4" title="Confirm Payout">
-    OTP Verification
+    OTP, Authenticator or PIN
   </Card>
 </CardGroup>
 
@@ -220,9 +221,14 @@ curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts' \
 {
   "payoutId": "PV2-y3j1m0kohbueTy",
   "status": "PENDING_OTP",
+  "channel": "EMAIL",
   "message": "OTP sent to registered email. Please confirm to proceed."
 }
 ```
+
+`channel` tells you which code to ask the user for when you [confirm the payout](#step-4-%E2%80%94-confirm-payout): `EMAIL`, `TOTP`, `PIN`, `REQUIRED_TOTP` or `REQUIRED_PIN`. An email is sent only on `EMAIL`. See [How payout authorization works](/payouts/mfa#how-payout-authorization-works).
+
+Sending the same `reference` again while the payout is still `PENDING_OTP` returns the existing `payoutId` without creating a second payout or sending a new code.
 
 ##### Request Fields
 
@@ -235,7 +241,7 @@ curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts' \
 | `description`   | Narration for the transaction                                       |
 | `accountNumber` | Beneficiary bank account number                                     |
 | `bankCode`      | Six-digit NIP code of the receiving bank — see [Bank codes](/development-resources/bank-codes/overview) |
-| `accountName`   | Name of the account holder (_must be accurate — will be validated_) |
+| `accountName`   | Optional. Name of the account holder. SeerBit always runs a bank name enquiry; if you send `accountName`, at least two of its words must match the enquiry result (case-insensitive), or the transfer fails with `SM_06`. If you omit it, the enquiry result is used. |
 
 ### Bulk Payout
 
@@ -290,9 +296,12 @@ curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts' \
 {
   "payoutId": "PV2-y3j1m0kohbue",
   "status": "PENDING_OTP",
+  "channel": "EMAIL",
   "message": "OTP sent to registered email. Please confirm to proceed."
 }
 ```
+
+Sending the same `batchReference` again while the batch is still `PENDING_OTP` returns the existing `payoutId`.
 
 ##### Request Fields
 
@@ -312,7 +321,7 @@ curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts' \
 | `description`   | Transaction narration                                               |
 | `accountNumber` | Beneficiary bank account number                                     |
 | `bankCode`      | Six-digit NIP code of the receiving bank — see [Bank codes](/development-resources/bank-codes/overview) |
-| `accountName`   | Name of the account holder (_must be accurate — will be validated_) |
+| `accountName`   | Optional. Name of the account holder. SeerBit always runs a bank name enquiry; if you send `accountName`, at least two of its words must match the enquiry result (case-insensitive), or the transfer fails with `SM_06`. If you omit it, the enquiry result is used. |
 
 ## Step 4 — Confirm Payout
 
@@ -322,7 +331,14 @@ curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts' \
 https://pocket.seerbitapi.com/pocket/v2/payouts/{{payoutId}}/confirm
 ```
 
-After a payout is initiated, an OTP is sent to the email address linked to the pocketId. Submit the OTP and payoutId to authorize and finalize the payout.
+After a payout is initiated, authorize it by submitting a code. The initiation response's `channel` field tells you which code to ask the user for — see [How payout authorization works](/payouts/mfa#how-payout-authorization-works):
+
+- **Email OTP** (`channel: "EMAIL"`, the default) — sent to the pocket owner's email and primary signatories when you initiate the payout. It is valid for 5 minutes.
+- **Authenticator code** — the 6-digit code from the user's authenticator app (`channel: "TOTP"` or `"REQUIRED_TOTP"`). No email is sent.
+- **Transaction PIN** — the user's PIN (`channel: "PIN"` or `"REQUIRED_PIN"`). No email is sent.
+- **Recovery code** — accepted in place of an authenticator code or PIN.
+
+To set up an authenticator app or PIN, see [Two-factor authentication](/payouts/mfa).
 
 ##### Required Headers
 
@@ -341,7 +357,7 @@ curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts/{{payoutId}}/co
 --header 'X-Seerbit-Signature: {{signature}}' \
 --header 'Authorization: Bearer {{bearerToken}}' \
 --data '{
-  "otp": "740714"
+  "code": "740714"
 }'
 ```
 
@@ -352,8 +368,8 @@ curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts/{{payoutId}}/co
 ```json Single Payout
 {
   "payoutId": "PV2-y3j1m0kohbue",
-  "status": "PROCESSING",
-  "message": "Payout confirmed and dispatched for processing",
+  "status": "QUEUED",
+  "message": "Payout confirmed and queued for processing",
   "batchId": null
 }
 ```
@@ -361,20 +377,22 @@ curl --location 'https://pocket.seerbitapi.com/pocket/v2/payouts/{{payoutId}}/co
 ```json Bulk Payout
 {
   "payoutId": "PV2-y3j1m0kohbue",
-  "status": "PROCESSING",
-  "message": "Payout confirmed and dispatched for processing",
+  "status": "QUEUED",
+  "message": "Payout confirmed and queued for processing",
   "batchId": "iytgfr7"
 }
 ```
 
 </CodeGroup>
 
+`QUEUED` means the payout has been authorized and handed off for processing; it moves to `PROCESSING` next.
+
 ##### Request Fields
 
 | Field      | Description                                                           |
 | ---------- | --------------------------------------------------------------------- |
 | `payoutId` | The unique identifier returned from the payout initiation response    |
-| `otp`      | One-Time Password sent to the registered email linked to the pocketId |
+| `code`     | The authorization code: an email OTP, authenticator code, transaction PIN or recovery code, matching the `channel` in the initiation response. `otp` is still accepted for older integrations. |
 
 ## Bank List
 
@@ -469,15 +487,63 @@ Occurs when the `Public-Key` header is not included in the request.
 }
 ```
 
-##### 4. Expired or Invalid OTP
+##### 4. Invalid Code
 
-Occurs when the OTP submitted for confirmation is expired or incorrect.
+The code is wrong, or the wrong factor for the challenge (for example, a PIN on a `TOTP` challenge). The payout stays `PENDING_OTP` — ask the user to re-enter the code and confirm the same `payoutId` again.
 
 ```json
 {
-  "payoutId": "PV2-y3j1m0kohbue",
-  "status": "failed",
-  "message": "Invalid token",
+  "payoutId": "PV2-zfijs7wd42hq",
+  "status": "FAILED",
+  "message": "Invalid TOTP code",
   "batchId": null
+}
+```
+
+##### 5. Too Many Failed Attempts
+
+Five consecutive wrong codes lock authorization for 15 minutes. A correct code resets the count.
+
+```
+Account locked due to too many failed attempts. Try again later.
+```
+
+##### 6. Expired Email OTP
+
+An email OTP is valid for 5 minutes. After that the payout can't be confirmed — initiate a new payout.
+
+```
+OTP has expired. Please initiate a new payout request.
+```
+
+##### 7. Insufficient Balance at Confirmation
+
+If the pocket balance is too low when you confirm, the payout fails **permanently**. It can't be confirmed again; fund the pocket and initiate a new payout with a new `reference`.
+
+```json
+{
+  "payoutId": "PV2-oysfdz48nivm",
+  "status": "FAILED",
+  "message": "Insufficient pocket balance for payout",
+  "batchId": null
+}
+```
+
+##### 8. Authenticator or PIN Required but Not Set Up
+
+On a `REQUIRED_TOTP` or `REQUIRED_PIN` pocket, initiating a payout fails with `SM_06` until the user has [set up that factor](/payouts/mfa).
+
+```
+MFA required. Please enroll in <factor> first.
+```
+
+##### 9. Account Name Mismatch
+
+The `accountName` you sent doesn't match the bank name enquiry. A single payout fails at initiation; in a bulk payout, only the mismatched transfer fails, when it is processed.
+
+```json
+{
+  "code": "SM_06",
+  "message": "Account name mismatch: provided 'Acme Corp Ltd' does not match bank enquiry '...'"
 }
 ```
